@@ -12,15 +12,34 @@ const GoogleIcon = () => (
   </svg>
 )
 
-export function GoogleSignInButtonOfficial({
-  onClick,
-  disabled = false,
-  className
-}: {
+type TextType = "signin_with" | "signup_with" | "continue_with"
+
+const getButtonText = (text: TextType = "signin_with") => {
+  switch (text) {
+    case "signin_with":
+      return "Acceder con Google"
+    case "signup_with":
+      return "Registrarse con Google"
+    case "continue_with":
+      return "Continuar con Google"
+    default:
+      return "Acceder con Google"
+  }
+}
+
+interface GoogleSignInButtonProps {
   onClick?: () => void
   disabled?: boolean
   className?: string
-}) {
+  text?: TextType
+}
+
+export default function GoogleSignInButton({
+  onClick,
+  disabled = false,
+  className,
+  text = "signin_with"
+}: GoogleSignInButtonProps) {
   return (
     <OfficialButton
       onClick={onClick}
@@ -35,7 +54,34 @@ export function GoogleSignInButtonOfficial({
           <GoogleIcon />
         </OfficialIconContainer>
         <OfficialButtonContents className="gsi-material-button-contents">
-          Continuar con Google
+          {getButtonText(text)}
+        </OfficialButtonContents>
+      </OfficialContentWrapper>
+    </OfficialButton>
+  )
+}
+
+export function GoogleSignInButtonOfficial({
+  onClick,
+  disabled = false,
+  className,
+  text = "continue_with"
+}: GoogleSignInButtonProps) {
+  return (
+    <OfficialButton
+      onClick={onClick}
+      disabled={disabled}
+      className={`gsi-material-button ${className || ''}`}
+      role="button"
+      tabIndex={0}
+    >
+      <OfficialStateLayer className="gsi-material-button-state" />
+      <OfficialContentWrapper className="gsi-material-button-content-wrapper">
+        <OfficialIconContainer className="gsi-material-button-icon">
+          <GoogleIcon />
+        </OfficialIconContainer>
+        <OfficialButtonContents className="gsi-material-button-contents">
+          {getButtonText(text)}
         </OfficialButtonContents>
       </OfficialContentWrapper>
     </OfficialButton>

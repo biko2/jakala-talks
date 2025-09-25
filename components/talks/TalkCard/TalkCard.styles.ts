@@ -74,6 +74,16 @@ const AuthorName = styled.div`
   font-size: 14px;
 `
 
+const VotesCount = styled.div`
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid #e5e7eb;
+  font-weight: 600;
+  font-size: 16px;
+  color: #374151;
+  text-align: center;
+`
+
 export const TalkCardStyles = {
   Container,
   Header,
@@ -82,5 +92,6 @@ export const TalkCardStyles = {
   Description,
   Author,
   AuthorIcon,
-  AuthorName
+  AuthorName,
+  VotesCount
 }

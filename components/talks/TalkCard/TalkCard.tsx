@@ -39,6 +39,10 @@ export default function TalkCard({ talk, onVote, isLoggedIn = false }: TalkCardP
           {talk.author}
         </TalkCardStyles.AuthorName>
       </TalkCardStyles.Author>
+
+      <TalkCardStyles.VotesCount>
+        {talk.votes}
+      </TalkCardStyles.VotesCount>
     </TalkCardStyles.Container>
   )
 }

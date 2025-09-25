@@ -8,11 +8,11 @@ jest.mock('@/components/auth/UserProfile', () => {
   }
 })
 
-jest.mock('@/components/auth/LoginForm', () => {
-  return function MockLoginForm() {
-    return <div>LoginForm Component</div>
+jest.mock('@/components/google/GoogleSignInButton/GoogleSignInButton', () => ({
+  GoogleSignInButtonOfficial: function MockGoogleSignInButton() {
+    return <button>Continuar con Google</button>
   }
-})
+}))
 
 const mockUser: User = {
   id: '1',
@@ -32,25 +32,16 @@ describe('Header', () => {
     expect(screen.getByText('Rincón de charlas')).toBeInTheDocument()
   })
 
-  it('debería mostrar prompt de login cuando no hay usuario', () => {
+  it('debería mostrar botón de Google Sign In cuando no hay usuario', () => {
     render(<Header user={null} />)
 
-    expect(screen.getByText('Inicia sesión para votar')).toBeInTheDocument()
-  })
-
-  it('debería mostrar el formulario de login cuando se hace click en el botón', () => {
-    render(<Header user={null} />)
-
-    const loginButton = screen.getByText('Inicia sesión para votar')
-    fireEvent.click(loginButton)
-
-    expect(screen.getByText('Ocultar login')).toBeInTheDocument()
+    expect(screen.getByText('Continuar con Google')).toBeInTheDocument()
   })
 
   it('debería mostrar el perfil de usuario cuando está logeado', () => {
     render(<Header user={mockUser} />)
 
-    expect(screen.queryByText('Inicia sesión para votar')).not.toBeInTheDocument()
+    expect(screen.queryByText('Continuar con Google')).not.toBeInTheDocument()
     expect(screen.getByText('UserProfile: test@example.com')).toBeInTheDocument()
   })
 

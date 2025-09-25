@@ -42,6 +42,17 @@ describe('UserProfile', () => {
     render(<UserProfile user={mockUser} />)
 
     expect(screen.getByText('Test User')).toBeInTheDocument()
+  })
+
+  it('debe mostrar el email cuando no hay full_name', () => {
+    const userWithoutName = {
+      ...mockUser,
+      user_metadata: {
+        avatar_url: 'https://example.com/avatar.jpg'
+      }
+    }
+    render(<UserProfile user={userWithoutName} />)
+
     expect(screen.getByText('test@example.com')).toBeInTheDocument()
   })
 
