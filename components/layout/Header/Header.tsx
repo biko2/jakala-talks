@@ -5,7 +5,7 @@ import { User } from '@supabase/supabase-js'
 import UserProfile from '@/components/auth/UserProfile'
 import { Banner, Container, Content, InfoSection, MainTitle, Subtitle, Title, TitlePrimary, TitleSecondary } from './Header.styles'
 import { GoogleSignInButtonOfficial } from '@/components/google/GoogleSignInButton/GoogleSignInButton'
-import { supabase } from '@/lib/supabase/client'
+import { createClient } from '@/lib/supabase/client/browser'
 
 interface HeaderProps {
   user: User | null
@@ -22,6 +22,7 @@ export default function Header({ user }: HeaderProps) {
   const handleGoogleLogin = async () => {
     setLoading(true)
     try {
+      const supabase = createClient()
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {

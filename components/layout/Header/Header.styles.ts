@@ -51,9 +51,11 @@ export const Subtitle = styled.div`
 `
 
 export const InfoSection = styled.div`
-  max-width: 800px;
+  max-width: 1200px;
   margin: 0 auto;
   padding: 32px 20px;
+  display: flex; 
+  justify-content: space-between;
 `
 
 export const MainTitle = styled.h1`
