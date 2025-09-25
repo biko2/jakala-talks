@@ -1,0 +1,33 @@
+---
+alwaysApply: true
+---
+
+# Regla: Tests de Integración para Funcionalidades
+
+### Descripción
+
+- Cada vez que se desarrolle o modifique una funcionalidad importante, debe crearse un test de integración.
+- Los tests de integración deben comprobar el correcto funcionamiento del flujo completo entre capas (application ↔ infrastructure).
+  - Estos tests son obligatorios al añadir:
+  - Nuevos casos de uso en la aplicación
+  - Nuevos adaptadores o integraciones externas
+  - Cambios en lógica de negocio crítica
+
+✅ Ejemplo de test de integración:
+
+```ts
+import { InMemoryUserRepository } from "../../src/infrastructure/adapters/InMemoryUserRepository";
+import { RegisterUser } from "../../src/application/services/RegisterUser";
+
+describe("Integración - Registro de Usuario", () => {
+  it("debería registrar y recuperar un usuario", async () => {
+    const userRepo = new InMemoryUserRepository();
+    const registerUser = new RegisterUser(userRepo);
+
+    const user = await registerUser.execute("1", "Alice");
+
+    const saved = await userRepo.findById("1");
+    expect(saved).toEqual(user);
+  });
+});
+```

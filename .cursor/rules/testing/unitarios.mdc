@@ -1,0 +1,32 @@
+---
+alwaysApply: true
+---
+
+# Regla: Testeo de Componentes - Principios Generales
+
+### Descripción
+
+- Todo **componente modificado o creado** debe estar acompañado de tests unitarios.
+- El objetivo es que los componentes sean **a prueba de bombas**: los tests deben detectar cualquier fallo posible en la lógica.
+- La cobertura debe tender a ser **casi perfecta** (≈100%) pero nunca se deben añadir tests redundantes que no aporten valor.
+- ❌ No se debe perder tiempo en añadir líneas de cobertura irrelevantes.
+- ✔ Los tests deben cubrir caminos felices, casos borde y errores esperados.
+
+✅ Ejemplo de test unitario con casos borde:
+
+```ts
+import { User } from "../../src/domain/entities/User";
+
+describe("User", () => {
+  it("debería renombrar al usuario correctamente", () => {
+    const user = new User("1", "Alice");
+    user.rename("Bob");
+    expect(user.name).toBe("Bob");
+  });
+
+  it("debería lanzar error si el nombre está vacío", () => {
+    const user = new User("1", "Alice");
+    expect(() => user.rename("")).toThrow("Nombre inválido");
+  });
+});
+```

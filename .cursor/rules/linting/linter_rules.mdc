@@ -1,0 +1,24 @@
+---
+alwaysApply: true
+---
+
+# Regla: Cumplimiento de las Reglas del Linter
+
+### Descripción
+
+- Todo cambio en el código debe respetar las reglas definidas en el **linter del proyecto** (ej. ESLint, Biome, etc.).
+- Ningún commit ni PR será aceptado si viola las reglas de estilo o calidad configuradas.
+- El linter forma parte del **flujo de desarrollo obligatorio**.
+
+### Recomendaciones
+
+- Configurar el linter para ejecutarse en:
+  - **Pre-commit** (ej. usando `lint-staged` o `husky`)
+  - **CI/CD** (pipeline que falle si hay errores de lint)
+- El equipo debe usar extensiones de editor (ej. VSCode ESLint plugin) para feedback inmediato.
+
+Reglas
+• ❌ No se aceptan merges si el linter falla.
+• ❌ No se debe desactivar el linter salvo casos justificados y documentados.
+• ✔ Todo el equipo debe aplicar npm run lint:fix antes de subir código.
+• ✔ El código que pase las pruebas debe estar libre de errores y advertencias de lint.

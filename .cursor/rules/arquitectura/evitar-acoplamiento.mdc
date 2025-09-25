@@ -1,0 +1,48 @@
+---
+alwaysApply: true
+---
+
+---
+
+# Regla: Evitar Acoplamiento Directo a Tecnología Externa
+
+### Descripción
+
+- Ningún SDK o librería externa debe usarse directamente en dominio o aplicación.
+- Siempre encapsular detrás de un **adaptador** que implemente un puerto.
+
+❌ Ejemplo incorrecto:
+
+```ts
+// application/services/UserService.ts
+const { data } = await supabase.from("users").select(); // ❌ PROHIBIDO
+```
+
+✅ Estructura recomendada:
+
+src/
+domain/
+entities/ # Entidades del negocio
+valueObjects/ # Objetos de valor
+services/ # Servicios de dominio
+events/ # Eventos de dominio
+ports/ # Interfaces (puertos)
+
+application/
+services/ # Casos de uso
+dtos/ # Data Transfer Objects (si aplica)
+
+infrastructure/
+adapters/ # Implementaciones concretas de puertos
+config/ # Configuración de frameworks/DB
+http/ # Servidores HTTP, controladores, routers
+
+main.ts # Punto de entrada, ensambla dependencias
+
+tests/
+unit/ # Tests de unidad (dominio, aplicación)
+integration/ # Tests de integración (infraestructura)
+
+❌ No se debe colocar lógica de dominio dentro de `infrastructure/`.  
+❌ No se debe invocar un SDK directamente en `application/`.  
+✔ Todo acceso a tecnologías externas debe estar aislado en `infrastructure/adapters/`.

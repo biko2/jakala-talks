@@ -1,0 +1,44 @@
+---
+alwaysApply: true
+---
+
+# Regla: Inyección de Dependencias
+
+### Descripción
+
+- Todas las dependencias se deben **inyectar**, nunca instanciar en el dominio o la aplicación.
+- Se puede usar:
+  - Inyección por constructor
+  - Factorías
+  - Contenedores de dependencias
+- Permite sustituir implementaciones (ej: Supabase ↔ InMemory) sin modificar el dominio.
+
+✅ Ejemplo de Inyección Manual:
+
+```ts
+// main.ts
+import { SupabaseUserRepository } from "./infrastructure/adapters/SupabaseUserRepository";
+import { RegisterUser } from "./application/services/RegisterUser";
+
+const userRepo = new SupabaseUserRepository();
+const registerUser = new RegisterUser(userRepo);
+
+await registerUser.execute("1", "Alice");
+```
+
+✅ Ejemplo de Inyección en Tests:
+
+```ts
+// tests/RegisterUser.test.ts
+import { InMemoryUserRepository } from "../infrastructure/adapters/InMemoryUserRepository";
+import { RegisterUser } from "../application/services/RegisterUser";
+
+test("crear usuario en memoria", async () => {
+  const userRepo = new InMemoryUserRepository();
+  const registerUser = new RegisterUser(userRepo);
+
+  const user = await registerUser.execute("1", "Alice");
+
+  expect(await userRepo.findById("1")).toEqual(user);
+});
+```

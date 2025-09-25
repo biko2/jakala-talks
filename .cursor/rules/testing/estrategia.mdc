@@ -1,0 +1,13 @@
+---
+alwaysApply: true
+---
+
+# Regla: Estrategia de Testing
+
+### Descripción
+
+    - Tests unitarios → validan piezas aisladas (entidades, value objects, servicios).
+    - Tests de integración → validan interacciones entre capas y adaptadores.
+    - Tests end-to-end (opcional) → validan el sistema como caja negra.
+    - Cada PR que modifique componentes debe añadir o actualizar los tests correspondientes.
+    - No se acepta código nuevo sin la batería de tests adecuada.

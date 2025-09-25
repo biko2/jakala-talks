@@ -1,0 +1,28 @@
+---
+alwaysApply: true
+---
+
+# Regla: Cobertura de Código
+
+### Descripción
+
+-     Los tests deben buscar cobertura cercana al 100% en módulos de dominio y aplicación.
+- Los adaptadores de infraestructura también deben ser probados, pero únicamente en lo que aporte valor (no tests triviales).
+- Siempre priorizar calidad de los tests frente a la métrica de cobertura.
+
+✅ Ejemplo (comprobando ramas de ejecución):
+
+```ts
+import { Email } from "../../src/domain/valueObjects/Email";
+
+describe("Email", () => {
+  it("debería crear email válido", () => {
+    const email = new Email("test@example.com");
+    expect(email.toString()).toBe("test@example.com");
+  });
+
+  it("debería lanzar error con email inválido", () => {
+    expect(() => new Email("no-valido")).toThrow("Email inválido");
+  });
+});
+```

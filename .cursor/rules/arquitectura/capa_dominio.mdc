@@ -1,0 +1,44 @@
+---
+alwaysApply: true
+---
+
+# Regla: Arquitectura Hexagonal - Capa de Dominio
+
+### Descripción
+
+- La **capa de dominio** representa el **corazón del negocio**.
+- Define las **reglas y lógica empresarial** sin depender de frameworks ni tecnologías externas.
+- Contiene únicamente:
+  - Entidades
+  - Objetos de Valor
+  - Servicios de Dominio
+  - Eventos de Dominio
+  - Interfaces (puertos) que describen lo que necesita del exterior
+- ❌ No debe incluir: SDKs externos, llamadas HTTP, acceso a BD, lógica de presentación.
+
+✅ Ejemplo de Entidad:
+
+```ts
+// domain/entities/User.ts
+export class User {
+  constructor(
+    public readonly id: string,
+    public name: string
+  ) {}
+
+  rename(newName: string) {
+    if (newName.trim() === "") throw new Error("Nombre inválido");
+    this.name = newName;
+  }
+}
+```
+
+✅ Ejemplo de Puerto:
+
+```ts
+//domain/ports/UserRepository.ts
+export interface UserRepository {
+  findById(id: string): Promise<User | null>;
+  save(user: User): Promise<void>;
+}
+```

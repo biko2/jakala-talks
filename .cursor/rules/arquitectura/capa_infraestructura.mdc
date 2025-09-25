@@ -1,0 +1,58 @@
+---
+alwaysApply: true
+---
+
+# Regla: Arquitectura Hexagonal - Capa de Infraestructura
+
+### Descripción
+
+- La **capa de infraestructura** conecta el sistema con el **mundo exterior**.
+- Implementa los puertos definidos en dominio/aplicación.
+- Contiene:
+  - Adaptadores a bases de datos (Supabase, PostgreSQL, etc.)
+  - Integraciones con APIs externas
+  - Configuración de frameworks
+  - Repositorios concretos
+- ❌ No debe contener: reglas de negocio, lógica de aplicación.
+
+✅ Ejemplo de Adaptador Supabase:
+
+```ts
+// infrastructure/adapters/SupabaseUserRepository.ts
+import { UserRepository } from "../../domain/ports/UserRepository";
+import { User } from "../../domain/entities/User";
+import { supabase } from "../supabaseClient";
+
+export class SupabaseUserRepository implements UserRepository {
+  async findById(id: string) {
+    const { data } = await supabase
+      .from("users")
+      .select()
+      .eq("id", id)
+      .single();
+    return data ? new User(data.id, data.name) : null;
+  }
+  async save(user: User) {
+    await supabase.from("users").upsert({ id: user.id, name: user.name });
+  }
+}
+```
+
+✅ Ejemplo de Adaptador en Memoria (para tests):
+
+```ts
+// infrastructure/adapters/InMemoryUserRepository.ts
+import { UserRepository } from "../../domain/ports/UserRepository";
+import { User } from "../../domain/entities/User";
+
+export class InMemoryUserRepository implements UserRepository {
+  private users = new Map<string, User>();
+
+  async findById(id: string) {
+    return this.users.get(id) ?? null;
+  }
+  async save(user: User) {
+    this.users.set(user.id, user);
+  }
+}
+```
