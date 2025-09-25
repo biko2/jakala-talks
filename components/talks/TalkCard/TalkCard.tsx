@@ -7,12 +7,13 @@ interface TalkCardProps {
   talk: Talk
   onVote?: (talkId: string, isVoted: boolean) => void
   isLoggedIn?: boolean
+  isVoted?: boolean
 }
 
-export default function TalkCard({ talk, onVote, isLoggedIn = false }: TalkCardProps) {
+export default function TalkCard({ talk, onVote, isLoggedIn = false, isVoted = false }: TalkCardProps) {
   const handleVoteClick = () => {
     if (isLoggedIn && onVote) {
-      onVote(talk.id, !talk.isVoted)
+      onVote(talk.id, !isVoted)
     }
   }
 
@@ -21,7 +22,7 @@ export default function TalkCard({ talk, onVote, isLoggedIn = false }: TalkCardP
       <TalkCardStyles.Header>
         <TalkCardStyles.Title>{talk.title}</TalkCardStyles.Title>
         {isLoggedIn && (
-          <TalkCardStyles.VoteIcon $isVoted={talk.isVoted}>
+          <TalkCardStyles.VoteIcon $isVoted={isVoted}>
             ❤️
           </TalkCardStyles.VoteIcon>
         )}
@@ -31,14 +32,25 @@ export default function TalkCard({ talk, onVote, isLoggedIn = false }: TalkCardP
         {talk.description}
       </TalkCardStyles.Description>
 
-      <TalkCardStyles.Author>
-        <TalkCardStyles.AuthorIcon>
-          👤
-        </TalkCardStyles.AuthorIcon>
-        <TalkCardStyles.AuthorName>
-          {talk.author}
-        </TalkCardStyles.AuthorName>
-      </TalkCardStyles.Author>
+      <TalkCardStyles.Footer>
+        <TalkCardStyles.Author>
+          <TalkCardStyles.AuthorIcon>
+            👤
+          </TalkCardStyles.AuthorIcon>
+          <TalkCardStyles.AuthorName>
+            {talk.author}
+          </TalkCardStyles.AuthorName>
+        </TalkCardStyles.Author>
+
+        <TalkCardStyles.Duration>
+          <TalkCardStyles.DurationIcon>
+            ⏱️
+          </TalkCardStyles.DurationIcon>
+          <TalkCardStyles.DurationText>
+            {talk.duration} min
+          </TalkCardStyles.DurationText>
+        </TalkCardStyles.Duration>
+      </TalkCardStyles.Footer>
 
       <TalkCardStyles.VotesCount>
         {talk.votes}

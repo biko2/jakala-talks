@@ -22,6 +22,7 @@ describe.skip('SupabaseTalkRepository (Integration)', () => {
       expect(talk.title).toBeDefined()
       expect(talk.description).toBeDefined()
       expect(talk.author).toBeDefined()
+      expect(typeof talk.duration).toBe('number')
       expect(typeof talk.votes).toBe('number')
     })
   })
@@ -67,5 +68,27 @@ describe.skip('SupabaseTalkRepository (Integration)', () => {
 
     const updatedTalk = await repository.findById('1')
     expect(updatedTalk!.votes).toBe(Math.max(0, initialVotes - 1))
+  })
+
+  it('debería crear una nueva charla correctamente', async () => {
+    const newTalk = new Talk(
+      'test-id-' + Date.now(),
+      'Test Talk',
+      'Test Description',
+      'Test Author',
+      45,
+      0
+    )
+
+    await repository.create(newTalk)
+
+    const createdTalk = await repository.findById(newTalk.id)
+    expect(createdTalk).toBeInstanceOf(Talk)
+    expect(createdTalk!.id).toBe(newTalk.id)
+    expect(createdTalk!.title).toBe(newTalk.title)
+    expect(createdTalk!.description).toBe(newTalk.description)
+    expect(createdTalk!.author).toBe(newTalk.author)
+    expect(createdTalk!.duration).toBe(newTalk.duration)
+    expect(createdTalk!.votes).toBe(newTalk.votes)
   })
 })

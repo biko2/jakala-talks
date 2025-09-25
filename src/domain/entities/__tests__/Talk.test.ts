@@ -6,6 +6,7 @@ describe('Talk', () => {
     'Arquitectura Hexagonal',
     'Una charla sobre arquitectura',
     'Diego Rodríguez',
+    45,
     5
   )
 
@@ -14,6 +15,7 @@ describe('Talk', () => {
     expect(sampleTalk.title).toBe('Arquitectura Hexagonal')
     expect(sampleTalk.description).toBe('Una charla sobre arquitectura')
     expect(sampleTalk.author).toBe('Diego Rodríguez')
+    expect(sampleTalk.duration).toBe(45)
     expect(sampleTalk.votes).toBe(5)
   })
 
@@ -22,7 +24,8 @@ describe('Talk', () => {
       '2',
       'Test Talk',
       'Test Description',
-      'Test Author'
+      'Test Author',
+      30
     )
 
     expect(defaultTalk.votes).toBe(0)
@@ -44,7 +47,7 @@ describe('Talk', () => {
   })
 
   it('no debería permitir votos negativos', () => {
-    const zeroVotesTalk = new Talk('3', 'Test', 'Test', 'Test', 0)
+    const zeroVotesTalk = new Talk('3', 'Test', 'Test', 'Test', 30, 0)
     const unvotedTalk = zeroVotesTalk.removeVote()
 
     expect(unvotedTalk.votes).toBe(0)

@@ -4,6 +4,7 @@ export class Talk {
     public readonly title: string,
     public readonly description: string,
     public readonly author: string,
+    public readonly duration: number,
     public readonly votes: number = 0
   ) { }
 
@@ -13,6 +14,7 @@ export class Talk {
       this.title,
       this.description,
       this.author,
+      this.duration,
       this.votes + 1
     )
   }
@@ -23,6 +25,7 @@ export class Talk {
       this.title,
       this.description,
       this.author,
+      this.duration,
       Math.max(0, this.votes - 1)
     )
   }

@@ -5,14 +5,16 @@ import { Talk } from '@/src/domain/entities/Talk'
 const mockTalkRepository = (): TalkRepository => ({
   findAll: jest.fn(),
   findById: jest.fn(),
-  updateVote: jest.fn()
+  create: jest.fn(),
+  incrementVote: jest.fn(),
+  decrementVote: jest.fn()
 })
 
 describe('GetAllTalks', () => {
   it('debería obtener todas las charlas', async () => {
     const talks = [
-      new Talk('1', 'Charla 1', 'Descripción 1', 'Autor 1'),
-      new Talk('2', 'Charla 2', 'Descripción 2', 'Autor 2')
+      new Talk('1', 'Charla 1', 'Descripción 1', 'Autor 1', 30),
+      new Talk('2', 'Charla 2', 'Descripción 2', 'Autor 2', 45)
     ]
 
     const repository = mockTalkRepository()

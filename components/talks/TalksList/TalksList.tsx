@@ -21,6 +21,7 @@ export default function TalksList({ talks, onVote, isLoggedIn = false }: TalksLi
             talk={talk}
             onVote={onVote}
             isLoggedIn={isLoggedIn}
+            isVoted={false}
           />
         ))}
       </List>

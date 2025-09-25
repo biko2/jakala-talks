@@ -7,6 +7,7 @@ interface TalkRow {
   title: string
   description: string
   author: string
+  duration: number
   votes: number
   created_at: string
   updated_at: string
@@ -19,6 +20,7 @@ export class TalkRepository implements ITalkRepository {
       row.title,
       row.description,
       row.author,
+      row.duration,
       row.votes
     )
   }
@@ -51,6 +53,23 @@ export class TalkRepository implements ITalkRepository {
     }
 
     return this.mapRowToTalk(data)
+  }
+
+  async create(talk: Talk): Promise<void> {
+    const { error } = await supabase
+      .from('talks')
+      .insert({
+        id: talk.id,
+        title: talk.title,
+        description: talk.description,
+        author: talk.author,
+        duration: talk.duration,
+        votes: talk.votes
+      })
+
+    if (error) {
+      throw new Error(`Error al crear la talk: ${error.message}`)
+    }
   }
 
   async incrementVote(talkId: string): Promise<void> {

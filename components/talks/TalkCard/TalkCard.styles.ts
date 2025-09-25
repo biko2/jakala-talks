@@ -50,6 +50,13 @@ const Description = styled.div`
   font-size: 14px;
 `
 
+const Footer = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+`
+
 const Author = styled.div`
   display: flex;
   align-items: center;
@@ -74,6 +81,22 @@ const AuthorName = styled.div`
   font-size: 14px;
 `
 
+const Duration = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 6px;
+`
+
+const DurationIcon = styled.div`
+  font-size: 14px;
+`
+
+const DurationText = styled.div`
+  font-size: 12px;
+  color: #6b7280;
+  font-weight: 500;
+`
+
 const VotesCount = styled.div`
   margin-top: 16px;
   padding-top: 16px;
@@ -90,8 +113,12 @@ export const TalkCardStyles = {
   Title,
   VoteIcon,
   Description,
+  Footer,
   Author,
   AuthorIcon,
   AuthorName,
+  Duration,
+  DurationIcon,
+  DurationText,
   VotesCount
 }

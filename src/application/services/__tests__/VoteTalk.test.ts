@@ -4,6 +4,7 @@ import { TalkRepository } from '@/src/domain/ports/TalkRepository'
 const mockTalkRepository = (): TalkRepository => ({
   findAll: jest.fn(),
   findById: jest.fn(),
+  create: jest.fn(),
   incrementVote: jest.fn(),
   decrementVote: jest.fn()
 })

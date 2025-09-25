@@ -7,6 +7,7 @@ const mockTalk = new Talk(
   'Arquitectura Hexagonal',
   'Una descripción sobre arquitectura hexagonal',
   'Diego Rodríguez',
+  45,
   5
 )
 
@@ -17,6 +18,7 @@ describe('TalkCard', () => {
     expect(screen.getByText('Arquitectura Hexagonal')).toBeInTheDocument()
     expect(screen.getByText('Una descripción sobre arquitectura hexagonal')).toBeInTheDocument()
     expect(screen.getByText('Diego Rodríguez')).toBeInTheDocument()
+    expect(screen.getByText('45 min')).toBeInTheDocument()
   })
 
   it('no debería mostrar el ícono de voto cuando no está logeado', () => {
@@ -44,6 +46,7 @@ describe('TalkCard', () => {
         talk={mockTalk}
         isLoggedIn={true}
         onVote={mockOnVote}
+        isVoted={false}
       />
     )
 

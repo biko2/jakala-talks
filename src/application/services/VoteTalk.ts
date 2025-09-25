@@ -1,7 +1,7 @@
-import { TalkRepository } from "../../domain/ports/TalkRepository"
+import { ITalkRepository } from "../../domain/ports/TalkRepository"
 
 export class VoteTalk {
-  constructor(private readonly talkRepository: TalkRepository) { }
+  constructor(private readonly talkRepository: ITalkRepository) { }
 
   async execute(talkId: string, increment: boolean): Promise<void> {
     if (increment) {

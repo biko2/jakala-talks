@@ -1,0 +1,159 @@
+'use client'
+
+import React, { useState } from 'react'
+import {
+  ModalOverlay,
+  ModalContent,
+  ModalHeader,
+  ModalTitle,
+  CloseButton,
+  Form,
+  FormGroup,
+  Label,
+  Input,
+  Textarea,
+  ButtonGroup,
+  CancelButton,
+  SubmitButton,
+  ErrorMessage
+} from './CreateTalkModal.styles'
+
+interface CreateTalkModalProps {
+  isOpen: boolean
+  onClose: () => void
+  onSubmit: (title: string, description: string, duration: number) => Promise<void>
+}
+
+export default function CreateTalkModal({ isOpen, onClose, onSubmit }: CreateTalkModalProps) {
+  const [title, setTitle] = useState('')
+  const [description, setDescription] = useState('')
+  const [duration, setDuration] = useState(30)
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [error, setError] = useState('')
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setError('')
+
+    if (!title.trim()) {
+      setError('El título es obligatorio')
+      return
+    }
+
+    if (!description.trim()) {
+      setError('La descripción es obligatoria')
+      return
+    }
+
+    if (duration <= 0) {
+      setError('La duración debe ser mayor a 0')
+      return
+    }
+
+    setIsSubmitting(true)
+
+    try {
+      await onSubmit(title.trim(), description.trim(), duration)
+      setTitle('')
+      setDescription('')
+      setDuration(30)
+      onClose()
+    } catch (error) {
+      setError(error instanceof Error ? error.message : 'Error al crear la charla')
+    } finally {
+      setIsSubmitting(false)
+    }
+  }
+
+  const handleClose = () => {
+    if (!isSubmitting) {
+      setTitle('')
+      setDescription('')
+      setDuration(30)
+      setError('')
+      onClose()
+    }
+  }
+
+  // Prevenir scroll del body cuando el modal está abierto
+  React.useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = 'hidden'
+    } else {
+      document.body.style.overflow = 'unset'
+    }
+
+    // Cleanup cuando el componente se desmonta
+    return () => {
+      document.body.style.overflow = 'unset'
+    }
+  }, [isOpen])
+
+  if (!isOpen) return null
+
+  return (
+    <ModalOverlay onClick={handleClose}>
+      <ModalContent onClick={(e) => e.stopPropagation()}>
+        <ModalHeader>
+          <ModalTitle>Nueva Charla</ModalTitle>
+          <CloseButton onClick={handleClose} disabled={isSubmitting}>
+            ×
+          </CloseButton>
+        </ModalHeader>
+
+        <Form onSubmit={handleSubmit}>
+          <FormGroup>
+            <Label htmlFor="title">Título</Label>
+            <Input
+              id="title"
+              type="text"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              placeholder="Título de la charla"
+              disabled={isSubmitting}
+              required
+            />
+          </FormGroup>
+
+          <FormGroup>
+            <Label htmlFor="description">Descripción</Label>
+            <Textarea
+              id="description"
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              placeholder="Describe brevemente de qué trata la charla"
+              disabled={isSubmitting}
+              required
+              rows={4}
+            />
+          </FormGroup>
+
+          <FormGroup>
+            <Label htmlFor="duration">Duración (minutos)</Label>
+            <Input
+              id="duration"
+              type="number"
+              value={duration}
+              onChange={(e) => setDuration(Number(e.target.value))}
+              min="1"
+              max="300"
+              disabled={isSubmitting}
+              required
+            />
+          </FormGroup>
+
+          {error && <ErrorMessage>{error}</ErrorMessage>}
+
+          <ButtonGroup>
+            <CancelButton type="button" onClick={handleClose} disabled={isSubmitting}>
+              Cancelar
+            </CancelButton>
+            <SubmitButton type="submit" disabled={isSubmitting}>
+              {isSubmitting ? 'Creando...' : 'Crear Charla'}
+            </SubmitButton>
+          </ButtonGroup>
+        </Form>
+      </ModalContent>
+    </ModalOverlay>
+  )
+}
