@@ -1,12 +1,13 @@
-import { TalkRepository } from '../TalkRepository'
+import { ITalkRepository } from '@/src/domain/ports/TalkRepository'
 import { Talk } from '../../../domain/entities/Talk'
+import { TalkRepository } from '../TalkRepository'
 
 // Test de integración que requiere conexión a Supabase
 describe.skip('SupabaseTalkRepository (Integration)', () => {
-  let repository: SupabaseTalkRepository
+  let repository: ITalkRepository
 
   beforeEach(() => {
-    repository = new SupabaseTalkRepository()
+    repository = new TalkRepository()
   })
 
   it('debería obtener todas las talks', async () => {

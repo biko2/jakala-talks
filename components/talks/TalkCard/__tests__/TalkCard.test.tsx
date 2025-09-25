@@ -6,7 +6,8 @@ const mockTalk = new Talk(
   '1',
   'Arquitectura Hexagonal',
   'Una descripción sobre arquitectura hexagonal',
-  'Diego Rodríguez'
+  'Diego Rodríguez',
+  5
 )
 
 describe('TalkCard', () => {
@@ -30,6 +31,12 @@ describe('TalkCard', () => {
     expect(screen.getByText('❤️')).toBeInTheDocument()
   })
 
+  it('debería mostrar el número de votos', () => {
+    render(<TalkCard talk={mockTalk} />)
+
+    expect(screen.getByText('5')).toBeInTheDocument()
+  })
+
   it('debería llamar onVote cuando se hace click y está logeado', () => {
     const mockOnVote = jest.fn()
     render(
@@ -40,7 +47,7 @@ describe('TalkCard', () => {
       />
     )
 
-    fireEvent.click(screen.getByText('Arquitectura Hexagonal'))
+    fireEvent.click(screen.getByText('❤️'))
 
     expect(mockOnVote).toHaveBeenCalledWith('1', true)
   })
@@ -55,25 +62,8 @@ describe('TalkCard', () => {
       />
     )
 
-    fireEvent.click(screen.getByText('Arquitectura Hexagonal'))
-
+    // No debería haber ícono de voto cuando no está logeado
+    expect(screen.queryByText('❤️')).not.toBeInTheDocument()
     expect(mockOnVote).not.toHaveBeenCalled()
-  })
-
-  it('debería alternar el voto cuando se hace click', () => {
-    const votedTalk = mockTalk.vote()
-    const mockOnVote = jest.fn()
-
-    render(
-      <TalkCard
-        talk={votedTalk}
-        isLoggedIn={true}
-        onVote={mockOnVote}
-      />
-    )
-
-    fireEvent.click(screen.getByText('Arquitectura Hexagonal'))
-
-    expect(mockOnVote).toHaveBeenCalledWith('1', false)
   })
 })

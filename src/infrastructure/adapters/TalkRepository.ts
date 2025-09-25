@@ -54,12 +54,7 @@ export class TalkRepository implements ITalkRepository {
   }
 
   async incrementVote(talkId: string): Promise<void> {
-    const { error } = await supabase
-      .from('talks')
-      .update({
-        votes: supabase.raw('votes + 1')
-      })
-      .eq('id', talkId)
+    const { error } = await supabase.rpc('increment_vote', { talk_id: talkId })
 
     if (error) {
       throw new Error(`Error al incrementar voto: ${error.message}`)
@@ -67,12 +62,7 @@ export class TalkRepository implements ITalkRepository {
   }
 
   async decrementVote(talkId: string): Promise<void> {
-    const { error } = await supabase
-      .from('talks')
-      .update({
-        votes: supabase.raw('GREATEST(votes - 1, 0)')
-      })
-      .eq('id', talkId)
+    const { error } = await supabase.rpc('decrement_vote', { talk_id: talkId })
 
     if (error) {
       throw new Error(`Error al decrementar voto: ${error.message}`)
