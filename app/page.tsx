@@ -8,9 +8,9 @@ import TalksList from '@/components/talks/TalksList'
 import { Talk } from '@/src/domain/entities/Talk'
 import { GetAllTalks } from '@/src/application/services/GetAllTalks'
 import { VoteTalk } from '@/src/application/services/VoteTalk'
-import { InMemoryTalkRepository } from '@/src/infrastructure/adapters/InMemoryTalkRepository'
+import { TalkRepository } from '@/src/infrastructure/adapters/TalkRepository'
 
-const talkRepository = new InMemoryTalkRepository()
+const talkRepository = new TalkRepository()
 const getAllTalks = new GetAllTalks(talkRepository)
 const voteTalk = new VoteTalk(talkRepository)
 
