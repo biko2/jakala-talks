@@ -1,18 +1,19 @@
 import styled from 'styled-components'
 
-export const Container = styled.div`
+export const Container = styled.div<{ $isClickable?: boolean }>`
   background: white;
   border-radius: 16px;
   padding: 35px 25px;
   margin-bottom: 16px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  cursor: pointer;
+  cursor: ${props => props.$isClickable ? 'pointer' : 'default'};
   transition: all 0.2s ease;
   border: 1px solid #e5e7eb;
+  opacity: ${props => props.$isClickable ? 1 : 0.7};
 
   &:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    transform: ${props => props.$isClickable ? 'translateY(-2px)' : 'none'};
+    box-shadow: ${props => props.$isClickable ? '0 4px 12px rgba(0, 0, 0, 0.15)' : '0 2px 4px rgba(0, 0, 0, 0.1)'};
   }
 `
 

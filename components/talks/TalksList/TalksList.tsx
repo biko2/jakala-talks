@@ -14,14 +14,23 @@ interface TalksListProps {
 
 export default function TalksList({ talks, onVote, isLoggedIn = false, userVotes = [] }: TalksListProps) {
   const remainingVotes = VotingRules.MAX_VOTES_PER_USER - userVotes.length
+  const isVotingEnabled = VotingRules.isVotingEnabled()
+
+  const getVotingMessage = () => {
+    if (!isVotingEnabled) {
+      return VotingRules.getVotingStatusMessage()
+    }
+
+    return `Has votado ${userVotes.length} de ${VotingRules.MAX_VOTES_PER_USER} charlas${remainingVotes > 0 ? ` (${remainingVotes} votos restantes)` : ''
+      }`
+  }
 
   return (
     <Container>
       <Header>Todas las charlas</Header>
       {isLoggedIn && (
         <VotingStatus>
-          Has votado {userVotes.length} de {VotingRules.MAX_VOTES_PER_USER} charlas
-          {remainingVotes > 0 && ` (${remainingVotes} votos restantes)`}
+          {getVotingMessage()}
         </VotingStatus>
       )}
       <List>

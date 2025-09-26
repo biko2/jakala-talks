@@ -1,10 +1,15 @@
 import { ITalkRepository } from "../../domain/ports/TalkRepository"
 import { Talk } from "../../domain/entities/Talk"
+import { VotingRules } from "../../domain/valueObjects/VotingRules"
 
 export class CreateTalk {
   constructor(private readonly talkRepository: ITalkRepository) { }
 
   async execute(title: string, description: string, author: string, duration: number): Promise<Talk> {
+    if (!VotingRules.canCreateNewTalks()) {
+      throw new Error("No se pueden crear nuevas charlas cuando la votación está activa")
+    }
+
     if (!title.trim()) {
       throw new Error("El título es obligatorio")
     }

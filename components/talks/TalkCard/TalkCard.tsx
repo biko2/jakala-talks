@@ -2,6 +2,7 @@
 
 import { Heart, User, Clock } from 'lucide-react'
 import { Talk } from '@/src/domain/entities/Talk'
+import { VotingRules } from '@/src/domain/valueObjects/VotingRules'
 import { Author, AuthorIcon, AuthorName, Container, Description, Duration, DurationIcon, DurationText, Footer, Header, Title, VoteIcon, VotesCount } from './TalkCard.styles'
 import Icon from '@/components/ui/Icon'
 
@@ -13,17 +14,19 @@ interface TalkCardProps {
 }
 
 export default function TalkCard({ talk, onVote, isLoggedIn = false, isVoted = false }: TalkCardProps) {
+  const isVotingEnabled = VotingRules.isVotingEnabled()
+
   const handleVoteClick = () => {
-    if (isLoggedIn && onVote) {
+    if (isLoggedIn && onVote && isVotingEnabled) {
       onVote(talk.id)
     }
   }
 
   return (
-    <Container onClick={handleVoteClick}>
+    <Container onClick={handleVoteClick} $isClickable={isLoggedIn && isVotingEnabled}>
       <Header>
         <Title>{talk.title}</Title>
-        {isLoggedIn && (
+        {isLoggedIn && isVotingEnabled && (
           <VoteIcon $isVoted={isVoted}>
             <Icon icon={Heart} size={25} color={isVoted ? '#f00a0a' : '#bdc3c7'} strokeWidth={3} />
           </VoteIcon>
@@ -52,9 +55,11 @@ export default function TalkCard({ talk, onVote, isLoggedIn = false, isVoted = f
         </Duration>
       </Footer>
 
-      <VotesCount>
-        {talk.votes}
-      </VotesCount>
+      {isVotingEnabled && (
+        <VotesCount>
+          {talk.votes}
+        </VotesCount>
+      )}
     </Container>
   )
 }

@@ -1,8 +1,17 @@
 export class VotingRules {
   public static readonly MAX_VOTES_PER_USER = 3
+  public static readonly VOTING_START_DATE = new Date('2025-11-14T00:00:00.000Z')
+
+  static isVotingEnabled(): boolean {
+    return new Date() >= this.VOTING_START_DATE
+  }
 
   static canUserVote(userVotesCount: number): boolean {
-    return userVotesCount < this.MAX_VOTES_PER_USER
+    return this.isVotingEnabled() && userVotesCount < this.MAX_VOTES_PER_USER
+  }
+
+  static canCreateNewTalks(): boolean {
+    return !this.isVotingEnabled()
   }
 
   static hasUserVotedForTalk(userVotes: string[], talkId: string): boolean {
@@ -10,6 +19,10 @@ export class VotingRules {
   }
 
   static validateVoteAction(userVotes: string[], talkId: string, isVoting: boolean): void {
+    if (!this.isVotingEnabled()) {
+      throw new Error('La votación estará disponible a partir del 14 de noviembre de 2025')
+    }
+
     if (isVoting && !this.hasUserVotedForTalk(userVotes, talkId)) {
       if (!this.canUserVote(userVotes.length)) {
         throw new Error(`Solo puedes votar un máximo de ${this.MAX_VOTES_PER_USER} charlas`)
@@ -19,6 +32,12 @@ export class VotingRules {
 
   static determineVoteAction(userVotes: string[], talkId: string): boolean {
     return !this.hasUserVotedForTalk(userVotes, talkId)
+  }
+
+  static getVotingStatusMessage(): string {
+    return this.isVotingEnabled()
+      ? 'Votación activa'
+      : 'La votación estará disponible a partir del 14 de noviembre de 2025'
   }
 }
 
