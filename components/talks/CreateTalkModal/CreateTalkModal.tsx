@@ -1,6 +1,7 @@
 'use client'
 
 import React, { useState } from 'react'
+import { X } from 'lucide-react'
 import {
   ModalOverlay,
   ModalContent,
@@ -97,8 +98,8 @@ export default function CreateTalkModal({ isOpen, onClose, onSubmit }: CreateTal
       <ModalContent onClick={(e) => e.stopPropagation()}>
         <ModalHeader>
           <ModalTitle>Nueva Charla</ModalTitle>
-          <CloseButton onClick={handleClose} disabled={isSubmitting}>
-            ×
+          <CloseButton onClick={handleClose} disabled={isSubmitting} aria-label="Cerrar modal">
+            <X size={20} />
           </CloseButton>
         </ModalHeader>
 

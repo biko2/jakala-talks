@@ -36,7 +36,7 @@ describe('CreateTalkModal', () => {
   it('debería llamar onClose cuando se hace click en el botón cerrar', () => {
     render(<CreateTalkModal {...defaultProps} />)
 
-    fireEvent.click(screen.getByText('×'))
+    fireEvent.click(screen.getByRole('button', { name: /cerrar/i }))
 
     expect(mockOnClose).toHaveBeenCalledTimes(1)
   })
@@ -204,7 +204,7 @@ describe('CreateTalkModal', () => {
     expect(screen.getByLabelText('Descripción')).toBeDisabled()
     expect(screen.getByLabelText('Duración')).toBeDisabled()
     expect(screen.getByText('Cancelar')).toBeDisabled()
-    expect(screen.getByText('×')).toBeDisabled()
+    expect(screen.getByRole('button', { name: /cerrar/i })).toBeDisabled()
 
     resolveSubmit!()
     await waitFor(() => {
