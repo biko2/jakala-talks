@@ -1,0 +1,20 @@
+#!/usr/bin/env sh
+. "$(dirname -- "$0")/_/husky.sh"
+
+echo "🧪 Ejecutando tests..."
+yarn test --passWithNoTests
+
+if [ $? -ne 0 ]; then
+  echo "❌ Los tests han fallado. Push cancelado."
+  exit 1
+fi
+
+echo "🔨 Ejecutando build..."
+yarn build
+
+if [ $? -ne 0 ]; then
+  echo "❌ El build ha fallado. Push cancelado."
+  exit 1
+fi
+
+echo "✅ Tests y build completados con éxito. Continuando con el push..."
