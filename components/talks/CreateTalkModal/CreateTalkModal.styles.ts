@@ -190,6 +190,31 @@ export const SubmitButton = styled.button`
   }
 `
 
+export const Select = styled.select`
+  width: 100%;
+  padding: 12px 16px;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  font-size: 1rem;
+  color: #111827;
+  background-color: white;
+  transition: all 0.2s ease;
+  box-sizing: border-box;
+  cursor: pointer;
+
+  &:focus {
+    outline: none;
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+  }
+
+  &:disabled {
+    background-color: #f9fafb;
+    color: #6b7280;
+    cursor: not-allowed;
+  }
+`
+
 export const ErrorMessage = styled.div`
   background-color: #fef2f2;
   border: 1px solid #fecaca;

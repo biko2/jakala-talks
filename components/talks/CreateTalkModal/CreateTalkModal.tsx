@@ -12,6 +12,7 @@ import {
   Label,
   Input,
   Textarea,
+  Select,
   ButtonGroup,
   CancelButton,
   SubmitButton,
@@ -45,8 +46,8 @@ export default function CreateTalkModal({ isOpen, onClose, onSubmit }: CreateTal
       return
     }
 
-    if (duration <= 0) {
-      setError('La duración debe ser mayor a 0')
+    if (duration !== 30 && duration !== 45) {
+      setError('La duración debe ser de 30 o 45 minutos')
       return
     }
 
@@ -129,17 +130,17 @@ export default function CreateTalkModal({ isOpen, onClose, onSubmit }: CreateTal
           </FormGroup>
 
           <FormGroup>
-            <Label htmlFor="duration">Duración (minutos)</Label>
-            <Input
+            <Label htmlFor="duration">Duración</Label>
+            <Select
               id="duration"
-              type="number"
               value={duration}
               onChange={(e) => setDuration(Number(e.target.value))}
-              min="1"
-              max="300"
               disabled={isSubmitting}
               required
-            />
+            >
+              <option value={30}>30 minutos</option>
+              <option value={45}>45 minutos</option>
+            </Select>
           </FormGroup>
 
           {error && <ErrorMessage>{error}</ErrorMessage>}

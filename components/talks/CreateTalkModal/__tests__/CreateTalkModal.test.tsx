@@ -28,7 +28,7 @@ describe('CreateTalkModal', () => {
     expect(screen.getByText('Nueva Charla')).toBeInTheDocument()
     expect(screen.getByLabelText('Título')).toBeInTheDocument()
     expect(screen.getByLabelText('Descripción')).toBeInTheDocument()
-    expect(screen.getByLabelText('Duración (minutos)')).toBeInTheDocument()
+    expect(screen.getByLabelText('Duración')).toBeInTheDocument()
     expect(screen.getByText('Cancelar')).toBeInTheDocument()
     expect(screen.getByText('Crear Charla')).toBeInTheDocument()
   })
@@ -89,18 +89,18 @@ describe('CreateTalkModal', () => {
     expect(mockOnSubmit).not.toHaveBeenCalled()
   })
 
-  it.skip('debería mostrar error cuando la duración es 0', async () => {
+  it('debería funcionar con las opciones de duración válidas', async () => {
+    mockOnSubmit.mockResolvedValue(undefined)
     render(<CreateTalkModal {...defaultProps} />)
 
     fireEvent.change(screen.getByLabelText('Título'), { target: { value: 'Test Title' } })
     fireEvent.change(screen.getByLabelText('Descripción'), { target: { value: 'Test Description' } })
-    fireEvent.change(screen.getByLabelText('Duración (minutos)'), { target: { value: '0' } })
+    fireEvent.change(screen.getByLabelText('Duración'), { target: { value: '45' } })
     fireEvent.click(screen.getByText('Crear Charla'))
 
     await waitFor(() => {
-      expect(screen.getByText('La duración debe ser mayor a 0')).toBeInTheDocument()
+      expect(mockOnSubmit).toHaveBeenCalledWith('Test Title', 'Test Description', 45)
     })
-    expect(mockOnSubmit).not.toHaveBeenCalled()
   })
 
   it('debería enviar el formulario con datos válidos', async () => {
@@ -109,7 +109,7 @@ describe('CreateTalkModal', () => {
 
     fireEvent.change(screen.getByLabelText('Título'), { target: { value: 'Test Title' } })
     fireEvent.change(screen.getByLabelText('Descripción'), { target: { value: 'Test Description' } })
-    fireEvent.change(screen.getByLabelText('Duración (minutos)'), { target: { value: '45' } })
+    fireEvent.change(screen.getByLabelText('Duración'), { target: { value: '45' } })
     fireEvent.click(screen.getByText('Crear Charla'))
 
     await waitFor(() => {
@@ -157,7 +157,7 @@ describe('CreateTalkModal', () => {
 
     fireEvent.change(screen.getByLabelText('Título'), { target: { value: 'Test Title' } })
     fireEvent.change(screen.getByLabelText('Descripción'), { target: { value: 'Test Description' } })
-    fireEvent.change(screen.getByLabelText('Duración (minutos)'), { target: { value: '45' } })
+    fireEvent.change(screen.getByLabelText('Duración'), { target: { value: '45' } })
     fireEvent.click(screen.getByText('Crear Charla'))
 
     await waitFor(() => {
@@ -170,7 +170,21 @@ describe('CreateTalkModal', () => {
 
     expect(screen.getByLabelText('Título')).toHaveValue('')
     expect(screen.getByLabelText('Descripción')).toHaveValue('')
-    expect(screen.getByLabelText('Duración (minutos)')).toHaveValue(30)
+    expect(screen.getByLabelText('Duración')).toHaveValue('30')
+  })
+
+  it('debería mostrar las opciones de duración correctas', () => {
+    render(<CreateTalkModal {...defaultProps} />)
+
+    const durationSelect = screen.getByLabelText('Duración')
+    expect(durationSelect).toBeInTheDocument()
+
+    const options = screen.getAllByRole('option')
+    expect(options).toHaveLength(2)
+    expect(options[0]).toHaveTextContent('30 minutos')
+    expect(options[0]).toHaveValue('30')
+    expect(options[1]).toHaveTextContent('45 minutos')
+    expect(options[1]).toHaveValue('45')
   })
 
   it('debería deshabilitar controles durante el envío', async () => {
@@ -188,7 +202,7 @@ describe('CreateTalkModal', () => {
 
     expect(screen.getByLabelText('Título')).toBeDisabled()
     expect(screen.getByLabelText('Descripción')).toBeDisabled()
-    expect(screen.getByLabelText('Duración (minutos)')).toBeDisabled()
+    expect(screen.getByLabelText('Duración')).toBeDisabled()
     expect(screen.getByText('Cancelar')).toBeDisabled()
     expect(screen.getByText('×')).toBeDisabled()
 
