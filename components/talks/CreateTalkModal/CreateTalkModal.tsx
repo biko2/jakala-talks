@@ -54,8 +54,8 @@ export default function CreateTalkModal({ isOpen, onClose, onSubmit }: CreateTal
       return
     }
 
-    if (description.length > 250) {
-      setError('La descripción no puede exceder los 250 caracteres')
+    if (description.length > 400) {
+      setError('La descripción no puede exceder los 400 caracteres')
       return
     }
 
@@ -135,7 +135,7 @@ export default function CreateTalkModal({ isOpen, onClose, onSubmit }: CreateTal
           <FormGroup>
             <LabelContainer>
               <Label htmlFor="description">Descripción</Label>
-              <CharacterCount>{description.length}/250</CharacterCount>
+              <CharacterCount>{description.length}/400</CharacterCount>
             </LabelContainer>
             <Textarea
               id="description"
@@ -143,8 +143,8 @@ export default function CreateTalkModal({ isOpen, onClose, onSubmit }: CreateTal
               onChange={(e) => setDescription(e.target.value)}
               placeholder="Describe brevemente de qué trata la charla"
               disabled={isSubmitting}
-              maxLength={250}
-              rows={4}
+              maxLength={400}
+              rows={10}
             />
           </FormGroup>
 

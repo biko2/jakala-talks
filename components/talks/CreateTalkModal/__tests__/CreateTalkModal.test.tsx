@@ -103,16 +103,16 @@ describe('CreateTalkModal', () => {
     expect(mockOnSubmit).not.toHaveBeenCalled()
   })
 
-  it('debería mostrar error cuando la descripción excede 250 caracteres', async () => {
+  it('debería mostrar error cuando la descripción excede 400 caracteres', async () => {
     render(<CreateTalkModal {...defaultProps} />)
 
-    const longDescription = 'a'.repeat(251)
+    const longDescription = 'a'.repeat(401)
     fireEvent.change(screen.getByLabelText('Título'), { target: { value: 'Título válido' } })
     fireEvent.change(screen.getByLabelText('Descripción'), { target: { value: longDescription } })
     fireEvent.click(screen.getByText('Crear Charla'))
 
     await waitFor(() => {
-      expect(screen.getByText('La descripción no puede exceder los 250 caracteres')).toBeInTheDocument()
+      expect(screen.getByText('La descripción no puede exceder los 400 caracteres')).toBeInTheDocument()
     })
     expect(mockOnSubmit).not.toHaveBeenCalled()
   })
@@ -121,7 +121,7 @@ describe('CreateTalkModal', () => {
     render(<CreateTalkModal {...defaultProps} />)
 
     expect(screen.getByText('0/50')).toBeInTheDocument()
-    expect(screen.getByText('0/250')).toBeInTheDocument()
+    expect(screen.getByText('0/400')).toBeInTheDocument()
   })
 
   it('debería actualizar el contador de caracteres del título', () => {
@@ -139,14 +139,14 @@ describe('CreateTalkModal', () => {
     const descriptionInput = screen.getByLabelText('Descripción')
     fireEvent.change(descriptionInput, { target: { value: 'Test description' } })
 
-    expect(screen.getByText('16/250')).toBeInTheDocument()
+    expect(screen.getByText('16/400')).toBeInTheDocument()
   })
 
   it('debería tener atributos maxLength en los campos', () => {
     render(<CreateTalkModal {...defaultProps} />)
 
     expect(screen.getByLabelText('Título')).toHaveAttribute('maxLength', '50')
-    expect(screen.getByLabelText('Descripción')).toHaveAttribute('maxLength', '250')
+    expect(screen.getByLabelText('Descripción')).toHaveAttribute('maxLength', '400')
   })
 
   it('debería funcionar con las opciones de duración válidas', async () => {
