@@ -24,8 +24,8 @@ export class Talk {
     if (!description.trim()) {
       throw new Error('La descripción es obligatoria')
     }
-    if (description.length > 250) {
-      throw new Error('La descripción no puede exceder los 250 caracteres')
+    if (description.length > 400) {
+      throw new Error('La descripción no puede exceder los 400 caracteres')
     }
   }
 

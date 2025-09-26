@@ -101,17 +101,17 @@ describe('Talk', () => {
       }).toThrow('La descripción es obligatoria')
     })
 
-    it('debería lanzar error si la descripción excede los 250 caracteres', () => {
-      const longDescription = 'a'.repeat(251)
+    it('debería lanzar error si la descripción excede los 400 caracteres', () => {
+      const longDescription = 'a'.repeat(401)
       expect(() => {
         new Talk('1', 'Título válido', longDescription, 'Autor', 30)
-      }).toThrow('La descripción no puede exceder los 250 caracteres')
+      }).toThrow('La descripción no puede exceder los 400 caracteres')
     })
 
-    it('debería aceptar una descripción de exactamente 250 caracteres', () => {
-      const description250Chars = 'a'.repeat(250)
-      const talk = new Talk('1', 'Título válido', description250Chars, 'Autor', 30)
-      expect(talk.description).toBe(description250Chars)
+    it('debería aceptar una descripción de exactamente 400 caracteres', () => {
+      const description400Chars = 'a'.repeat(400)
+      const talk = new Talk('1', 'Título válido', description400Chars, 'Autor', 30)
+      expect(talk.description).toBe(description400Chars)
     })
   })
 })
