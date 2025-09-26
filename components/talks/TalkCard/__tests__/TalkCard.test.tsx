@@ -24,13 +24,14 @@ describe('TalkCard', () => {
   it('no debería mostrar el ícono de voto cuando no está logeado', () => {
     render(<TalkCard talk={mockTalk} isLoggedIn={false} />)
 
-    expect(screen.queryByText('❤️')).not.toBeInTheDocument()
+    // Solo debería mostrar 2 iconos (User y Clock), no el de Heart (voto)
+    expect(screen.getAllByTestId('icon-container')).toHaveLength(2)
   })
 
   it('debería mostrar el ícono de voto cuando está logeado', () => {
     render(<TalkCard talk={mockTalk} isLoggedIn={true} />)
 
-    expect(screen.getByText('❤️')).toBeInTheDocument()
+    expect(screen.getAllByTestId('icon-container')).toHaveLength(3)
   })
 
   it('debería mostrar el número de votos', () => {
@@ -50,7 +51,8 @@ describe('TalkCard', () => {
       />
     )
 
-    fireEvent.click(screen.getByText('❤️'))
+    const talkContainer = screen.getByText('Arquitectura Hexagonal').closest('div')
+    fireEvent.click(talkContainer!)
 
     expect(mockOnVote).toHaveBeenCalledWith('1')
   })
@@ -65,8 +67,8 @@ describe('TalkCard', () => {
       />
     )
 
-    // No debería haber ícono de voto cuando no está logeado
-    expect(screen.queryByText('❤️')).not.toBeInTheDocument()
+    // No debería haber ícono de voto cuando no está logeado (solo iconos de autor y duración)
+    expect(screen.getAllByTestId('icon-container')).toHaveLength(2)
     expect(mockOnVote).not.toHaveBeenCalled()
   })
 })
