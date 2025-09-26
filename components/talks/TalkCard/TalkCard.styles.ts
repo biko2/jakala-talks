@@ -10,6 +10,9 @@ export const Container = styled.div<{ $isClickable?: boolean }>`
   transition: all 0.2s ease;
   border: 1px solid #e5e7eb;
   opacity: ${props => props.$isClickable ? 1 : 0.7};
+  height: 400px;
+  display: flex;
+  flex-direction: column;
 
   &:hover {
     transform: ${props => props.$isClickable ? 'translateY(-2px)' : 'none'};
@@ -49,6 +52,7 @@ export const Description = styled.div`
   line-height: 1.6;
   margin-bottom: 20px;
   font-size: 14px;
+  flex: 1;
 `
 
 export const Footer = styled.div`
