@@ -46,8 +46,15 @@ export const InfoSection = styled.div`
   margin: 0 auto;
   padding: 32px 20px;
   display: flex; 
-  justify-content: space-between;
-  align-items: flex-start;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+
+  @media (min-width: 768px) {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: flex-start;
+  }
 `
 
 export const MainTitle = styled.h1`
@@ -55,6 +62,11 @@ export const MainTitle = styled.h1`
   font-weight: 700;
   color: #1f2937;
   margin: 0 0 16px 0;
+  text-align: center;
+
+  @media (min-width: 768px) {
+    text-align: left;
+  }
 `
 
 export const LeftSection = styled.div`
@@ -64,6 +76,11 @@ export const LeftSection = styled.div`
 
 export const RightSection = styled.div`
   display: flex;
-  align-items: flex-end;
+  align-items: center;
   gap: 16px;
+
+  @media (min-width: 768px) {
+    flex-direction: row;
+    align-items: flex-end;
+  }
 `
