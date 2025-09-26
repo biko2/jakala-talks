@@ -35,10 +35,23 @@ SUPABASE_URL=tu_url_de_supabase
 SUPABASE_ANON_KEY=tu_clave_anonima_de_supabase
 ```
 
-**Nota importante**: Las variables de entorno se cargan automáticamente basándose en el `NODE_ENV`:
+**Nota importante**: Las variables de entorno se cargan automáticamente basándose en el entorno:
 
-- En **desarrollo** (`NODE_ENV=development`): Se usan las variables con prefijo `NEXT_PUBLIC_`
-- En **producción** (`NODE_ENV=production`): Se usan las variables sin prefijo `NEXT_PUBLIC_`
+- En **desarrollo**: Se usan las variables con prefijo `NEXT_PUBLIC_`
+- En **producción**:
+  - **Lado del servidor**: Se usan las variables sin prefijo `NEXT_PUBLIC_` (preferidas) o con prefijo como fallback
+  - **Lado del cliente**: Siempre se usan las variables con prefijo `NEXT_PUBLIC_`
+
+### Para deployment en Vercel
+
+Configura **ambas** versiones de las variables:
+
+```bash
+SUPABASE_URL=tu_url_de_supabase
+SUPABASE_ANON_KEY=tu_clave_anonima_de_supabase
+NEXT_PUBLIC_SUPABASE_URL=tu_url_de_supabase
+NEXT_PUBLIC_SUPABASE_ANON_KEY=tu_clave_anonima_de_supabase
+```
 
 ### 2. Obtener las Credenciales de Supabase
 
