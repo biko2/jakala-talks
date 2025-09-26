@@ -1,6 +1,7 @@
 import { ITalkRepository } from "../../domain/ports/TalkRepository"
 import { Talk } from "../../domain/entities/Talk"
-import { supabase } from "../../../lib/supabase/client/base"
+import { UserVote } from "../../domain/entities/UserVote"
+import { SupabaseClient } from "@supabase/supabase-js"
 
 interface TalkRow {
   id: string
@@ -14,6 +15,8 @@ interface TalkRow {
 }
 
 export class TalkRepository implements ITalkRepository {
+  constructor(private supabase: SupabaseClient) { }
+
   private mapRowToTalk(row: TalkRow): Talk {
     return new Talk(
       row.id,
@@ -26,7 +29,7 @@ export class TalkRepository implements ITalkRepository {
   }
 
   async findAll(): Promise<Talk[]> {
-    const { data, error } = await supabase
+    const { data, error } = await this.supabase
       .from('talks')
       .select('*')
       .order('created_at', { ascending: false })
@@ -39,7 +42,7 @@ export class TalkRepository implements ITalkRepository {
   }
 
   async findById(id: string): Promise<Talk | null> {
-    const { data, error } = await supabase
+    const { data, error } = await this.supabase
       .from('talks')
       .select('*')
       .eq('id', id)
@@ -56,7 +59,7 @@ export class TalkRepository implements ITalkRepository {
   }
 
   async create(talk: Talk): Promise<void> {
-    const { error } = await supabase
+    const { error } = await this.supabase
       .from('talks')
       .insert({
         id: talk.id,
@@ -73,7 +76,7 @@ export class TalkRepository implements ITalkRepository {
   }
 
   async incrementVote(talkId: string): Promise<void> {
-    const { error } = await supabase.rpc('increment_vote', { talk_id: talkId })
+    const { error } = await this.supabase.rpc('increment_vote', { talk_id: talkId })
 
     if (error) {
       throw new Error(`Error al incrementar voto: ${error.message}`)
@@ -81,11 +84,68 @@ export class TalkRepository implements ITalkRepository {
   }
 
   async decrementVote(talkId: string): Promise<void> {
-    const { error } = await supabase.rpc('decrement_vote', { talk_id: talkId })
+    const { error } = await this.supabase.rpc('decrement_vote', { talk_id: talkId })
 
     if (error) {
       throw new Error(`Error al decrementar voto: ${error.message}`)
     }
+  }
+
+  async addUserVote(userVote: UserVote): Promise<void> {
+    const { error } = await this.supabase
+      .from('user_votes')
+      .insert({
+        user_id: userVote.userId,
+        talk_id: userVote.talkId,
+        created_at: userVote.createdAt.toISOString()
+      })
+
+    if (error) {
+      throw new Error(`Error al agregar voto de usuario: ${error.message}`)
+    }
+  }
+
+  async removeUserVote(userId: string, talkId: string): Promise<void> {
+    const { error } = await this.supabase
+      .from('user_votes')
+      .delete()
+      .eq('user_id', userId)
+      .eq('talk_id', talkId)
+
+    if (error) {
+      throw new Error(`Error al eliminar voto de usuario: ${error.message}`)
+    }
+  }
+
+  async getUserVotes(userId: string): Promise<string[]> {
+    const { data, error } = await this.supabase
+      .from('user_votes')
+      .select('talk_id')
+      .eq('user_id', userId)
+
+    if (error) {
+      throw new Error(`Error al obtener votos del usuario: ${error.message}`)
+    }
+
+    return data.map(row => row.talk_id)
+  }
+
+  async hasUserVotedForTalk(userId: string, talkId: string): Promise<boolean> {
+    const { data, error } = await this.supabase
+      .from('user_votes')
+      .select('id')
+      .eq('user_id', userId)
+      .eq('talk_id', talkId)
+      .single()
+
+    if (error) {
+      if (error.code === 'PGRST116') {
+        return false
+      }
+      throw new Error(`Error al verificar voto del usuario: ${error.message}`)
+    }
+
+    return !!data
   }
 }
 

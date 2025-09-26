@@ -52,7 +52,7 @@ describe('TalkCard', () => {
 
     fireEvent.click(screen.getByText('❤️'))
 
-    expect(mockOnVote).toHaveBeenCalledWith('1', true)
+    expect(mockOnVote).toHaveBeenCalledWith('1')
   })
 
   it('no debería llamar onVote cuando no está logeado', () => {

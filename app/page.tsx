@@ -10,19 +10,22 @@ import { Talk } from '@/src/domain/entities/Talk'
 import { GetAllTalks } from '@/src/application/services/GetAllTalks'
 import { VoteTalk } from '@/src/application/services/VoteTalk'
 import { CreateTalk } from '@/src/application/services/CreateTalk'
+import { GetUserVotes } from '@/src/application/services/GetUserVotes'
 import { TalkRepository } from '@/src/infrastructure/adapters/TalkRepository'
-
-const talkRepository = new TalkRepository()
-const getAllTalks = new GetAllTalks(talkRepository)
-const voteTalk = new VoteTalk(talkRepository)
-const createTalk = new CreateTalk(talkRepository)
 
 export default function Home() {
   const [user, setUser] = useState<User | null>(null)
   const [talks, setTalks] = useState<Talk[]>([])
+  const [userVotes, setUserVotes] = useState<string[]>([])
   const [loading, setLoading] = useState(true)
   const [isModalOpen, setIsModalOpen] = useState(false)
   const supabase = createBrowserClient()
+
+  const talkRepository = new TalkRepository(supabase)
+  const getAllTalks = new GetAllTalks(talkRepository)
+  const voteTalk = new VoteTalk(talkRepository)
+  const createTalk = new CreateTalk(talkRepository)
+  const getUserVotes = new GetUserVotes(talkRepository)
 
   useEffect(() => {
     const getUser = async () => {
@@ -48,12 +51,21 @@ export default function Home() {
     return () => subscription.unsubscribe()
   }, [supabase.auth])
 
-  const handleVote = async (talkId: string, isVoted: boolean) => {
+  const handleVote = async (talkId: string) => {
     if (!user) return
 
-    await voteTalk.execute(talkId, isVoted)
-    const updatedTalks = await getAllTalks.execute()
-    setTalks(updatedTalks)
+    try {
+      await voteTalk.execute(user.id, talkId)
+      const [updatedTalks, updatedUserVotes] = await Promise.all([
+        getAllTalks.execute(),
+        getUserVotes.execute(user.id)
+      ])
+      setTalks(updatedTalks)
+      setUserVotes(updatedUserVotes)
+    } catch (error) {
+      console.error('Error al votar:', error)
+      alert(error instanceof Error ? error.message : 'Error desconocido al votar')
+    }
   }
 
   const handleCreateTalk = async (title: string, description: string, duration: number) => {
@@ -119,6 +131,7 @@ export default function Home() {
             talks={talks}
             onVote={handleVote}
             isLoggedIn={!!user}
+            userVotes={userVotes}
           />
         </div>
       </div>

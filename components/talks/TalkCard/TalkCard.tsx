@@ -5,7 +5,7 @@ import { TalkCardStyles } from './TalkCard.styles'
 
 interface TalkCardProps {
   talk: Talk
-  onVote?: (talkId: string, isVoted: boolean) => void
+  onVote?: (talkId: string) => void
   isLoggedIn?: boolean
   isVoted?: boolean
 }
@@ -13,7 +13,7 @@ interface TalkCardProps {
 export default function TalkCard({ talk, onVote, isLoggedIn = false, isVoted = false }: TalkCardProps) {
   const handleVoteClick = () => {
     if (isLoggedIn && onVote) {
-      onVote(talk.id, !isVoted)
+      onVote(talk.id)
     }
   }
 

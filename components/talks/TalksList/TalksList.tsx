@@ -1,19 +1,29 @@
 'use client'
 
 import { Talk } from '@/src/domain/entities/Talk'
+import { VotingRules } from '@/src/domain/valueObjects/VotingRules'
 import TalkCard from '../TalkCard'
-import { Container, Header, List } from './TalksList.styles'
+import { Container, Header, List, VotingStatus } from './TalksList.styles'
 
 interface TalksListProps {
   talks: Talk[]
-  onVote?: (talkId: string, isVoted: boolean) => void
+  onVote?: (talkId: string) => void
   isLoggedIn?: boolean
+  userVotes?: string[]
 }
 
-export default function TalksList({ talks, onVote, isLoggedIn = false }: TalksListProps) {
+export default function TalksList({ talks, onVote, isLoggedIn = false, userVotes = [] }: TalksListProps) {
+  const remainingVotes = VotingRules.MAX_VOTES_PER_USER - userVotes.length
+
   return (
     <Container>
       <Header>Todas las charlas</Header>
+      {isLoggedIn && (
+        <VotingStatus>
+          Has votado {userVotes.length} de {VotingRules.MAX_VOTES_PER_USER} charlas
+          {remainingVotes > 0 && ` (${remainingVotes} votos restantes)`}
+        </VotingStatus>
+      )}
       <List>
         {talks.map(talk => (
           <TalkCard
@@ -21,7 +31,7 @@ export default function TalksList({ talks, onVote, isLoggedIn = false }: TalksLi
             talk={talk}
             onVote={onVote}
             isLoggedIn={isLoggedIn}
-            isVoted={false}
+            isVoted={userVotes.includes(talk.id)}
           />
         ))}
       </List>
