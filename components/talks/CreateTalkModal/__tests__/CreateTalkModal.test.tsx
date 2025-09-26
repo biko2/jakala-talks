@@ -66,7 +66,7 @@ describe('CreateTalkModal', () => {
     expect(mockOnClose).not.toHaveBeenCalled()
   })
 
-  it.skip('debería mostrar error cuando el título está vacío', async () => {
+  it('debería mostrar error cuando el título está vacío', async () => {
     render(<CreateTalkModal {...defaultProps} />)
 
     fireEvent.click(screen.getByText('Crear Charla'))
@@ -77,7 +77,7 @@ describe('CreateTalkModal', () => {
     expect(mockOnSubmit).not.toHaveBeenCalled()
   })
 
-  it.skip('debería mostrar error cuando la descripción está vacía', async () => {
+  it('debería mostrar error cuando la descripción está vacía', async () => {
     render(<CreateTalkModal {...defaultProps} />)
 
     fireEvent.change(screen.getByLabelText('Título'), { target: { value: 'Test Title' } })
@@ -87,6 +87,66 @@ describe('CreateTalkModal', () => {
       expect(screen.getByText('La descripción es obligatoria')).toBeInTheDocument()
     })
     expect(mockOnSubmit).not.toHaveBeenCalled()
+  })
+
+  it('debería mostrar error cuando el título excede 50 caracteres', async () => {
+    render(<CreateTalkModal {...defaultProps} />)
+
+    const longTitle = 'a'.repeat(51)
+    fireEvent.change(screen.getByLabelText('Título'), { target: { value: longTitle } })
+    fireEvent.change(screen.getByLabelText('Descripción'), { target: { value: 'Descripción válida' } })
+    fireEvent.click(screen.getByText('Crear Charla'))
+
+    await waitFor(() => {
+      expect(screen.getByText('El título no puede exceder los 50 caracteres')).toBeInTheDocument()
+    })
+    expect(mockOnSubmit).not.toHaveBeenCalled()
+  })
+
+  it('debería mostrar error cuando la descripción excede 250 caracteres', async () => {
+    render(<CreateTalkModal {...defaultProps} />)
+
+    const longDescription = 'a'.repeat(251)
+    fireEvent.change(screen.getByLabelText('Título'), { target: { value: 'Título válido' } })
+    fireEvent.change(screen.getByLabelText('Descripción'), { target: { value: longDescription } })
+    fireEvent.click(screen.getByText('Crear Charla'))
+
+    await waitFor(() => {
+      expect(screen.getByText('La descripción no puede exceder los 250 caracteres')).toBeInTheDocument()
+    })
+    expect(mockOnSubmit).not.toHaveBeenCalled()
+  })
+
+  it('debería mostrar contadores de caracteres para título y descripción', () => {
+    render(<CreateTalkModal {...defaultProps} />)
+
+    expect(screen.getByText('0/50')).toBeInTheDocument()
+    expect(screen.getByText('0/250')).toBeInTheDocument()
+  })
+
+  it('debería actualizar el contador de caracteres del título', () => {
+    render(<CreateTalkModal {...defaultProps} />)
+
+    const titleInput = screen.getByLabelText('Título')
+    fireEvent.change(titleInput, { target: { value: 'Test' } })
+
+    expect(screen.getByText('4/50')).toBeInTheDocument()
+  })
+
+  it('debería actualizar el contador de caracteres de la descripción', () => {
+    render(<CreateTalkModal {...defaultProps} />)
+
+    const descriptionInput = screen.getByLabelText('Descripción')
+    fireEvent.change(descriptionInput, { target: { value: 'Test description' } })
+
+    expect(screen.getByText('16/250')).toBeInTheDocument()
+  })
+
+  it('debería tener atributos maxLength en los campos', () => {
+    render(<CreateTalkModal {...defaultProps} />)
+
+    expect(screen.getByLabelText('Título')).toHaveAttribute('maxLength', '50')
+    expect(screen.getByLabelText('Descripción')).toHaveAttribute('maxLength', '250')
   })
 
   it('debería funcionar con las opciones de duración válidas', async () => {

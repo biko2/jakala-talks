@@ -60,4 +60,58 @@ describe('Talk', () => {
     expect(votedTalk.votes).toBe(6)
     expect(sampleTalk).not.toBe(votedTalk)
   })
+
+  describe('Validaciones de título', () => {
+    it('debería lanzar error si el título está vacío', () => {
+      expect(() => {
+        new Talk('1', '', 'Descripción válida', 'Autor', 30)
+      }).toThrow('El título es obligatorio')
+    })
+
+    it('debería lanzar error si el título solo contiene espacios', () => {
+      expect(() => {
+        new Talk('1', '   ', 'Descripción válida', 'Autor', 30)
+      }).toThrow('El título es obligatorio')
+    })
+
+    it('debería lanzar error si el título excede los 50 caracteres', () => {
+      const longTitle = 'a'.repeat(51)
+      expect(() => {
+        new Talk('1', longTitle, 'Descripción válida', 'Autor', 30)
+      }).toThrow('El título no puede exceder los 50 caracteres')
+    })
+
+    it('debería aceptar un título de exactamente 50 caracteres', () => {
+      const title50Chars = 'a'.repeat(50)
+      const talk = new Talk('1', title50Chars, 'Descripción válida', 'Autor', 30)
+      expect(talk.title).toBe(title50Chars)
+    })
+  })
+
+  describe('Validaciones de descripción', () => {
+    it('debería lanzar error si la descripción está vacía', () => {
+      expect(() => {
+        new Talk('1', 'Título válido', '', 'Autor', 30)
+      }).toThrow('La descripción es obligatoria')
+    })
+
+    it('debería lanzar error si la descripción solo contiene espacios', () => {
+      expect(() => {
+        new Talk('1', 'Título válido', '   ', 'Autor', 30)
+      }).toThrow('La descripción es obligatoria')
+    })
+
+    it('debería lanzar error si la descripción excede los 250 caracteres', () => {
+      const longDescription = 'a'.repeat(251)
+      expect(() => {
+        new Talk('1', 'Título válido', longDescription, 'Autor', 30)
+      }).toThrow('La descripción no puede exceder los 250 caracteres')
+    })
+
+    it('debería aceptar una descripción de exactamente 250 caracteres', () => {
+      const description250Chars = 'a'.repeat(250)
+      const talk = new Talk('1', 'Título válido', description250Chars, 'Autor', 30)
+      expect(talk.description).toBe(description250Chars)
+    })
+  })
 })

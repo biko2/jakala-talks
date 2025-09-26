@@ -17,7 +17,9 @@ import {
   ButtonGroup,
   CancelButton,
   SubmitButton,
-  ErrorMessage
+  ErrorMessage,
+  CharacterCount,
+  LabelContainer
 } from './CreateTalkModal.styles'
 
 interface CreateTalkModalProps {
@@ -42,8 +44,18 @@ export default function CreateTalkModal({ isOpen, onClose, onSubmit }: CreateTal
       return
     }
 
+    if (title.length > 50) {
+      setError('El título no puede exceder los 50 caracteres')
+      return
+    }
+
     if (!description.trim()) {
       setError('La descripción es obligatoria')
+      return
+    }
+
+    if (description.length > 250) {
+      setError('La descripción no puede exceder los 250 caracteres')
       return
     }
 
@@ -105,7 +117,10 @@ export default function CreateTalkModal({ isOpen, onClose, onSubmit }: CreateTal
 
         <Form onSubmit={handleSubmit}>
           <FormGroup>
-            <Label htmlFor="title">Título</Label>
+            <LabelContainer>
+              <Label htmlFor="title">Título</Label>
+              <CharacterCount>{title.length}/50</CharacterCount>
+            </LabelContainer>
             <Input
               id="title"
               type="text"
@@ -113,19 +128,22 @@ export default function CreateTalkModal({ isOpen, onClose, onSubmit }: CreateTal
               onChange={(e) => setTitle(e.target.value)}
               placeholder="Título de la charla"
               disabled={isSubmitting}
-              required
+              maxLength={50}
             />
           </FormGroup>
 
           <FormGroup>
-            <Label htmlFor="description">Descripción</Label>
+            <LabelContainer>
+              <Label htmlFor="description">Descripción</Label>
+              <CharacterCount>{description.length}/250</CharacterCount>
+            </LabelContainer>
             <Textarea
               id="description"
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               placeholder="Describe brevemente de qué trata la charla"
               disabled={isSubmitting}
-              required
+              maxLength={250}
               rows={4}
             />
           </FormGroup>
@@ -137,7 +155,6 @@ export default function CreateTalkModal({ isOpen, onClose, onSubmit }: CreateTal
               value={duration}
               onChange={(e) => setDuration(Number(e.target.value))}
               disabled={isSubmitting}
-              required
             >
               <option value={30}>30 minutos</option>
               <option value={45}>45 minutos</option>

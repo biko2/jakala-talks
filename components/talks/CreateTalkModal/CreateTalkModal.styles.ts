@@ -224,3 +224,17 @@ export const ErrorMessage = styled.div`
   font-size: 0.875rem;
   margin-bottom: 16px;
 `
+
+export const CharacterCount = styled.span`
+  font-size: 0.75rem;
+  color: #6b7280;
+  margin-top: 4px;
+  display: block;
+`
+
+export const LabelContainer = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 6px;
+`
