@@ -1,7 +1,7 @@
 'use client'
 
 import { Talk } from '@/src/domain/entities/Talk'
-import { TalkCardStyles } from './TalkCard.styles'
+import { Author, AuthorIcon, AuthorName, Container, Description, Duration, DurationIcon, DurationText, Footer, Header, Title, VoteIcon, VotesCount } from './TalkCard.styles'
 
 interface TalkCardProps {
   talk: Talk
@@ -18,43 +18,43 @@ export default function TalkCard({ talk, onVote, isLoggedIn = false, isVoted = f
   }
 
   return (
-    <TalkCardStyles.Container onClick={handleVoteClick}>
-      <TalkCardStyles.Header>
-        <TalkCardStyles.Title>{talk.title}</TalkCardStyles.Title>
+    <Container onClick={handleVoteClick}>
+      <Header>
+        <Title>{talk.title}</Title>
         {isLoggedIn && (
-          <TalkCardStyles.VoteIcon $isVoted={isVoted}>
+          <VoteIcon $isVoted={isVoted}>
             ❤️
-          </TalkCardStyles.VoteIcon>
+          </VoteIcon>
         )}
-      </TalkCardStyles.Header>
+      </Header>
 
-      <TalkCardStyles.Description>
+      <Description>
         {talk.description}
-      </TalkCardStyles.Description>
+      </Description>
 
-      <TalkCardStyles.Footer>
-        <TalkCardStyles.Author>
-          <TalkCardStyles.AuthorIcon>
+      <Footer>
+        <Author>
+          <AuthorIcon>
             👤
-          </TalkCardStyles.AuthorIcon>
-          <TalkCardStyles.AuthorName>
+          </AuthorIcon>
+          <AuthorName>
             {talk.author}
-          </TalkCardStyles.AuthorName>
-        </TalkCardStyles.Author>
+          </AuthorName>
+        </Author>
 
-        <TalkCardStyles.Duration>
-          <TalkCardStyles.DurationIcon>
+        <Duration>
+          <DurationIcon>
             ⏱️
-          </TalkCardStyles.DurationIcon>
-          <TalkCardStyles.DurationText>
+          </DurationIcon>
+          <DurationText>
             {talk.duration} min
-          </TalkCardStyles.DurationText>
-        </TalkCardStyles.Duration>
-      </TalkCardStyles.Footer>
+          </DurationText>
+        </Duration>
+      </Footer>
 
-      <TalkCardStyles.VotesCount>
+      <VotesCount>
         {talk.votes}
-      </TalkCardStyles.VotesCount>
-    </TalkCardStyles.Container>
+      </VotesCount>
+    </Container>
   )
 }

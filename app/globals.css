@@ -3,12 +3,17 @@
 :root {
   --background: #ffffff;
   --foreground: #171717;
+  --primary: #040066;
+  --secondary: #f00a0a;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
+  --color-primary: var(--primary);
+  --color-secondary: var(--secondary);
+  --font-sans: var(--font-raleway);
+  --font-serif: var(--font-merriweather);
   --font-mono: var(--font-geist-mono);
 }
 
@@ -16,11 +21,13 @@
   :root {
     --background: #0a0a0a;
     --foreground: #ededed;
+    --primary: #040066;
+    --secondary: #f00a0a;
   }
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-raleway), Arial, Helvetica, sans-serif;
 }

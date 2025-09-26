@@ -1,6 +1,6 @@
 import styled from 'styled-components'
 
-const Container = styled.div`
+export const Container = styled.div`
   background: white;
   border-radius: 8px;
   padding: 24px;
@@ -16,14 +16,14 @@ const Container = styled.div`
   }
 `
 
-const Header = styled.div`
+export const Header = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
   margin-bottom: 16px;
 `
 
-const Title = styled.h2`
+export const Title = styled.h2`
   font-size: 20px;
   font-weight: 600;
   color: #1f2937;
@@ -33,7 +33,7 @@ const Title = styled.h2`
   margin-right: 16px;
 `
 
-const VoteIcon = styled.div<{ $isVoted: boolean }>`
+export const VoteIcon = styled.div<{ $isVoted: boolean }>`
   font-size: 20px;
   opacity: ${props => props.$isVoted ? 1 : 0.3};
   transition: opacity 0.2s ease;
@@ -43,27 +43,27 @@ const VoteIcon = styled.div<{ $isVoted: boolean }>`
   }
 `
 
-const Description = styled.div`
+export const Description = styled.div`
   color: #6b7280;
   line-height: 1.6;
   margin-bottom: 20px;
   font-size: 14px;
 `
 
-const Footer = styled.div`
+export const Footer = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
   gap: 16px;
 `
 
-const Author = styled.div`
+export const Author = styled.div`
   display: flex;
   align-items: center;
   gap: 12px;
 `
 
-const AuthorIcon = styled.div`
+export const AuthorIcon = styled.div`
   width: 40px;
   height: 40px;
   border-radius: 50%;
@@ -75,29 +75,29 @@ const AuthorIcon = styled.div`
   border: 2px solid #e5e7eb;
 `
 
-const AuthorName = styled.div`
+export const AuthorName = styled.div`
   font-weight: 500;
   color: #374151;
   font-size: 14px;
 `
 
-const Duration = styled.div`
+export const Duration = styled.div`
   display: flex;
   align-items: center;
   gap: 6px;
 `
 
-const DurationIcon = styled.div`
+export const DurationIcon = styled.div`
   font-size: 14px;
 `
 
-const DurationText = styled.div`
+export const DurationText = styled.div`
   font-size: 12px;
   color: #6b7280;
   font-weight: 500;
 `
 
-const VotesCount = styled.div`
+export const VotesCount = styled.div`
   margin-top: 16px;
   padding-top: 16px;
   border-top: 1px solid #e5e7eb;
@@ -106,19 +106,3 @@ const VotesCount = styled.div`
   color: #374151;
   text-align: center;
 `
-
-export const TalkCardStyles = {
-  Container,
-  Header,
-  Title,
-  VoteIcon,
-  Description,
-  Footer,
-  Author,
-  AuthorIcon,
-  AuthorName,
-  Duration,
-  DurationIcon,
-  DurationText,
-  VotesCount
-}

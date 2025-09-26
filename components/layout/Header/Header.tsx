@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { User } from '@supabase/supabase-js'
 import UserProfile from '@/components/auth/UserProfile'
-import { Banner, Container, Content, InfoSection, MainTitle, Subtitle, Title, TitlePrimary, TitleSecondary } from './Header.styles'
+import { Banner, Container, Content, InfoSection, Logo, LogoContainer, MainTitle, Subtitle } from './Header.styles'
 import { GoogleSignInButtonOfficial } from '@/components/google/GoogleSignInButton/GoogleSignInButton'
 import { createClient } from '@/lib/supabase/client/browser'
 
@@ -41,11 +41,9 @@ export default function Header({ user }: HeaderProps) {
     <Container>
       <Banner>
         <Content>
-          <Title>
-            <TitlePrimary>Jakala</TitlePrimary>
-            <TitleSecondary>Talks</TitleSecondary>
-          </Title>
-          <Subtitle>Rincón de charlas</Subtitle>
+          <LogoContainer>
+            <Logo src="/Jakala logo_rgb_white.png" alt="Jakala Logo" />
+          </LogoContainer>
         </Content>
       </Banner>
 
