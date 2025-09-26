@@ -4,9 +4,9 @@ export const NewTalkButton = styled.button`
   background-color: var(--color-secondary);
   color: white;
   border: none;
-  border-radius: 8px;
-  width: 56px;
-  height: 56px;
+  border-radius: 50%;
+  width: 50px;
+  height: 50px;
   font-size: 24px;
   font-weight: 600;
   cursor: pointer;

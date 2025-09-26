@@ -2,10 +2,12 @@
 
 import { useState } from 'react'
 import { User } from '@supabase/supabase-js'
+import { Plus } from 'lucide-react'
 import UserProfile from '@/components/auth/UserProfile'
 import { Banner, Container, Content, InfoSection, Logo, LogoContainer, MainTitle, Subtitle, LeftSection, RightSection } from './Header.styles'
 import { GoogleSignInButtonOfficial } from '@/components/google/GoogleSignInButton/GoogleSignInButton'
 import NewTalk from '@/components/NewTalk'
+import Icon from '@/components/ui/Icon'
 import { createClient } from '@/lib/supabase/client/browser'
 
 interface HeaderProps {
@@ -59,7 +61,7 @@ export default function Header({ user, onNewTalkClick }: HeaderProps) {
 
           {user && onNewTalkClick && (
             <NewTalk onClick={onNewTalkClick}>
-              +
+              <Icon icon={Plus} size={30} color="white" />
             </NewTalk>
           )}
         </RightSection>
