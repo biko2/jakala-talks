@@ -26,9 +26,19 @@ La aplicación está construida siguiendo los principios de arquitectura hexagon
 Crea un archivo `.env.local` en la raíz del proyecto con las siguientes variables:
 
 ```bash
+# Para desarrollo
 NEXT_PUBLIC_SUPABASE_URL=tu_url_de_supabase
 NEXT_PUBLIC_SUPABASE_ANON_KEY=tu_clave_anonima_de_supabase
+
+# Para producción
+SUPABASE_URL=tu_url_de_supabase
+SUPABASE_ANON_KEY=tu_clave_anonima_de_supabase
 ```
+
+**Nota importante**: Las variables de entorno se cargan automáticamente basándose en el `NODE_ENV`:
+
+- En **desarrollo** (`NODE_ENV=development`): Se usan las variables con prefijo `NEXT_PUBLIC_`
+- En **producción** (`NODE_ENV=production`): Se usan las variables sin prefijo `NEXT_PUBLIC_`
 
 ### 2. Obtener las Credenciales de Supabase
 
