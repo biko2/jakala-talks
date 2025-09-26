@@ -44,4 +44,4 @@ describe('NewTalk', () => {
 
     expect(screen.getByRole('button')).toHaveAttribute('type', 'submit')
   })
-}
+})

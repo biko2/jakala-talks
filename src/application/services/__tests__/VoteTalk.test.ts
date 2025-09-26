@@ -1,5 +1,8 @@
 import { VoteTalk } from '../VoteTalk'
 import { ITalkRepository } from '@/src/domain/ports/TalkRepository'
+import { VotingRules } from '@/src/domain/valueObjects/VotingRules'
+
+jest.mock('@/src/domain/valueObjects/VotingRules')
 
 const mockTalkRepository = (): ITalkRepository => ({
   findAll: jest.fn(),
@@ -13,7 +16,30 @@ const mockTalkRepository = (): ITalkRepository => ({
   hasUserVotedForTalk: jest.fn()
 })
 
+const mockedVotingRules = VotingRules as jest.Mocked<typeof VotingRules>
+
 describe('VoteTalk', () => {
+  beforeEach(() => {
+    mockedVotingRules.isVotingEnabled.mockReturnValue(true)
+    mockedVotingRules.hasUserVotedForTalk.mockImplementation((userVotes: string[], talkId: string) => {
+      return userVotes.includes(talkId)
+    })
+    mockedVotingRules.canUserVote.mockImplementation((userVotesCount: number) => {
+      return userVotesCount < 3
+    })
+    mockedVotingRules.validateVoteAction.mockImplementation((userVotes: string[], talkId: string, isVoting: boolean) => {
+      if (isVoting && !userVotes.includes(talkId) && userVotes.length >= 3) {
+        throw new Error('Solo puedes votar un máximo de 3 charlas')
+      }
+    })
+    mockedVotingRules.determineVoteAction.mockImplementation((userVotes: string[], talkId: string) => {
+      return !userVotes.includes(talkId)
+    })
+  })
+
+  afterEach(() => {
+    jest.clearAllMocks()
+  })
   describe('cuando el usuario no ha votado por la charla', () => {
     it('debería agregar voto si no se han alcanzado los límites', async () => {
       const repository = mockTalkRepository()

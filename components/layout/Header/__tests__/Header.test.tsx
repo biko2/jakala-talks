@@ -27,9 +27,8 @@ describe('Header', () => {
   it('debería renderizar el título principal', () => {
     render(<Header user={null} />)
 
-    expect(screen.getByText('Jakala')).toBeInTheDocument()
-    expect(screen.getByText('Talks')).toBeInTheDocument()
-    expect(screen.getByText('Rincón de charlas')).toBeInTheDocument()
+    expect(screen.getByText('Rincón de Charlas')).toBeInTheDocument()
+    expect(screen.getByAltText('Jakala Logo')).toBeInTheDocument()
   })
 
   it('debería mostrar botón de Google Sign In cuando no hay usuario', () => {
@@ -48,6 +47,7 @@ describe('Header', () => {
   it('debería tener estructura de navegación correcta', () => {
     render(<Header user={null} />)
 
-    expect(screen.getByText('Rincón de Charlas')).toBeInTheDocument()
+    const logo = screen.getByAltText('Jakala Logo')
+    expect(logo).toHaveAttribute('src', '/Jakala logo_rgb_white.png')
   })
 })

@@ -1,6 +1,9 @@
 import { render, screen, fireEvent } from '@testing-library/react'
 import TalkCard from '../TalkCard'
 import { Talk } from '@/src/domain/entities/Talk'
+import { VotingRules } from '@/src/domain/valueObjects/VotingRules'
+
+jest.mock('@/src/domain/valueObjects/VotingRules')
 
 const mockTalk = new Talk(
   '1',
@@ -11,7 +14,16 @@ const mockTalk = new Talk(
   5
 )
 
+const mockedVotingRules = VotingRules as jest.Mocked<typeof VotingRules>
+
 describe('TalkCard', () => {
+  beforeEach(() => {
+    mockedVotingRules.isVotingEnabled.mockReturnValue(true)
+  })
+
+  afterEach(() => {
+    jest.clearAllMocks()
+  })
   it('debería renderizar la información de la charla', () => {
     render(<TalkCard talk={mockTalk} />)
 
@@ -24,7 +36,6 @@ describe('TalkCard', () => {
   it('no debería mostrar el ícono de voto cuando no está logeado', () => {
     render(<TalkCard talk={mockTalk} isLoggedIn={false} />)
 
-    // Solo debería mostrar 2 iconos (User y Clock), no el de Heart (voto)
     expect(screen.getAllByTestId('icon-container')).toHaveLength(2)
   })
 
@@ -51,7 +62,8 @@ describe('TalkCard', () => {
       />
     )
 
-    const talkContainer = screen.getByText('Arquitectura Hexagonal').closest('div')
+    const talkTitle = screen.getByText('Arquitectura Hexagonal')
+    const talkContainer = talkTitle.closest('div')
     fireEvent.click(talkContainer!)
 
     expect(mockOnVote).toHaveBeenCalledWith('1')
@@ -67,8 +79,12 @@ describe('TalkCard', () => {
       />
     )
 
-    // No debería haber ícono de voto cuando no está logeado (solo iconos de autor y duración)
     expect(screen.getAllByTestId('icon-container')).toHaveLength(2)
+
+    const talkTitle = screen.getByText('Arquitectura Hexagonal')
+    const talkContainer = talkTitle.closest('div')
+    fireEvent.click(talkContainer!)
+
     expect(mockOnVote).not.toHaveBeenCalled()
   })
 })

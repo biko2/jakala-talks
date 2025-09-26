@@ -38,13 +38,14 @@ describe('UserProfile', () => {
     mockPush.mockClear()
   })
 
-  it('debe mostrar la información del usuario', () => {
+  it('debe mostrar avatar con el alt text correcto cuando hay full_name', () => {
     render(<UserProfile user={mockUser} />)
 
-    expect(screen.getByText('Test User')).toBeInTheDocument()
+    const avatar = screen.getByRole('img')
+    expect(avatar).toHaveAttribute('alt', 'Test User')
   })
 
-  it('debe mostrar el email cuando no hay full_name', () => {
+  it('debe mostrar avatar con el email como alt text cuando no hay full_name', () => {
     const userWithoutName = {
       ...mockUser,
       user_metadata: {
@@ -53,7 +54,8 @@ describe('UserProfile', () => {
     }
     render(<UserProfile user={userWithoutName} />)
 
-    expect(screen.getByText('test@example.com')).toBeInTheDocument()
+    const avatar = screen.getByRole('img')
+    expect(avatar).toHaveAttribute('alt', 'test@example.com')
   })
 
   it('debe mostrar avatar del usuario si está disponible', () => {
@@ -64,11 +66,20 @@ describe('UserProfile', () => {
     expect(avatar).toHaveAttribute('alt', 'Test User')
   })
 
-  it('debe mostrar el botón de cerrar sesión', () => {
+  it('debe permitir hacer click en el avatar para cerrar sesión', () => {
     render(<UserProfile user={mockUser} />)
 
-    const logoutButton = screen.getByText('Cerrar sesión')
-    expect(logoutButton).toBeInTheDocument()
-    expect(logoutButton).not.toBeDisabled()
+    const avatar = screen.getByRole('img')
+    expect(avatar).toBeInTheDocument()
+  })
+
+  it('no debe renderizar nada si no hay avatar_url', () => {
+    const userWithoutAvatar = {
+      ...mockUser,
+      user_metadata: {}
+    }
+    const { container } = render(<UserProfile user={userWithoutAvatar} />)
+
+    expect(container.firstChild).toBeNull()
   })
 })

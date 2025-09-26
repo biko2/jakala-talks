@@ -1,13 +1,41 @@
 import { render, screen } from '@testing-library/react'
 import TalksList from '../TalksList'
 import { Talk } from '@/src/domain/entities/Talk'
+import { VotingRules } from '@/src/domain/valueObjects/VotingRules'
+
+jest.mock('@/src/domain/valueObjects/VotingRules')
+jest.mock('@/components/talks/TalkCard', () => ({
+  __esModule: true,
+  default: function MockTalkCard({ talk, isLoggedIn }: any) {
+    return (
+      <div>
+        <h2>{talk.title}</h2>
+        <p>{talk.description}</p>
+        <span>{talk.author}</span>
+        <span>{talk.duration} min</span>
+        {isLoggedIn && <span>❤️</span>}
+      </div>
+    )
+  }
+}))
 
 const mockTalks = [
   new Talk('1', 'Charla 1', 'Descripción 1', 'Autor 1', 30),
   new Talk('2', 'Charla 2', 'Descripción 2', 'Autor 2', 45)
 ]
 
+const mockedVotingRules = VotingRules as jest.Mocked<typeof VotingRules>
+
 describe('TalksList', () => {
+  beforeEach(() => {
+    mockedVotingRules.isVotingEnabled.mockReturnValue(true)
+    mockedVotingRules.MAX_VOTES_PER_USER = 3
+    mockedVotingRules.getVotingStatusMessage.mockReturnValue('La votación estará disponible a partir del 14 de noviembre de 2025')
+  })
+
+  afterEach(() => {
+    jest.clearAllMocks()
+  })
   it('debería renderizar el título de la sección', () => {
     render(<TalksList talks={mockTalks} />)
 
@@ -66,6 +94,20 @@ describe('TalksList', () => {
     render(<TalksList talks={mockTalks} isLoggedIn={false} />)
 
     expect(screen.queryByText(/Has votado/)).not.toBeInTheDocument()
+  })
+
+  it('debería mostrar mensaje de votación no disponible cuando no está habilitada', () => {
+    mockedVotingRules.isVotingEnabled.mockReturnValue(false)
+
+    render(
+      <TalksList
+        talks={mockTalks}
+        isLoggedIn={true}
+        userVotes={[]}
+      />
+    )
+
+    expect(screen.getByText('La votación estará disponible a partir del 14 de noviembre de 2025')).toBeInTheDocument()
   })
 
   it('debería pasar userVotes correctamente a los componentes TalkCard', () => {
