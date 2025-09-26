@@ -28,6 +28,14 @@ export default function Home() {
   const getUserVotes = new GetUserVotes(talkRepository)
 
   useEffect(() => {
+    document.body.style.backgroundColor = '#f9fafb'
+
+    return () => {
+      document.body.style.backgroundColor = ''
+    }
+  }, [])
+
+  useEffect(() => {
     const getUser = async () => {
       const { data: { user } } = await supabase.auth.getUser()
       setUser(user)
@@ -92,7 +100,11 @@ export default function Home() {
 
   return (
     <>
-      <div style={{ minHeight: '100vh', backgroundColor: '#f9fafb' }}>
+      <div style={{
+        minHeight: '100vh',
+        minWidth: '100%',
+        backgroundColor: '#f9fafb'
+      }}>
         <Header user={user} onNewTalkClick={() => setIsModalOpen(true)} />
 
         <div style={{
