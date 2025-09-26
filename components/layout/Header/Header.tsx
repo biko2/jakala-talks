@@ -10,6 +10,7 @@ import { GoogleSignInButtonOfficial } from '@/components/google/GoogleSignInButt
 import NewTalk from '@/components/NewTalk'
 import Icon from '@/components/ui/Icon'
 import { createClient } from '@/lib/supabase/client/browser'
+import { getAppUrl } from '@/lib/supabase/config/env'
 
 interface HeaderProps {
   user: User | null
@@ -27,7 +28,7 @@ export default function Header({ user, onNewTalkClick }: HeaderProps) {
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: `${window.location.origin}/auth/callback`,
+          redirectTo: `${getAppUrl()}/auth/callback`,
         },
       })
       if (error) throw error
