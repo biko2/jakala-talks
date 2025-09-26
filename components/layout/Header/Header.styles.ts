@@ -47,6 +47,7 @@ export const InfoSection = styled.div`
   padding: 32px 20px;
   display: flex; 
   justify-content: space-between;
+  align-items: flex-start;
 `
 
 export const MainTitle = styled.h1`
@@ -56,4 +57,13 @@ export const MainTitle = styled.h1`
   margin: 0 0 16px 0;
 `
 
+export const LeftSection = styled.div`
+  display: flex;
+  flex-direction: column;
+`
 
+export const RightSection = styled.div`
+  display: flex;
+  align-items: flex-end;
+  gap: 16px;
+`

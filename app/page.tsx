@@ -93,39 +93,13 @@ export default function Home() {
   return (
     <>
       <div style={{ minHeight: '100vh', backgroundColor: '#f9fafb' }}>
-        <Header user={user} />
+        <Header user={user} onNewTalkClick={() => setIsModalOpen(true)} />
 
         <div style={{
           maxWidth: '1200px',
           margin: '0 auto',
           padding: '0 20px 40px'
         }}>
-          {user && (
-            <div style={{
-              display: 'flex',
-              justifyContent: 'flex-end',
-              marginBottom: '24px'
-            }}>
-              <button
-                onClick={() => setIsModalOpen(true)}
-                style={{
-                  backgroundColor: '#3b82f6',
-                  color: 'white',
-                  border: 'none',
-                  borderRadius: '8px',
-                  padding: '12px 20px',
-                  fontSize: '0.875rem',
-                  fontWeight: '500',
-                  cursor: 'pointer',
-                  transition: 'background-color 0.2s ease'
-                }}
-                onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#2563eb'}
-                onMouseOut={(e) => e.currentTarget.style.backgroundColor = '#3b82f6'}
-              >
-                Nueva Charla
-              </button>
-            </div>
-          )}
 
           <TalksList
             talks={talks}

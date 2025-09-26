@@ -3,21 +3,18 @@
 import { useState } from 'react'
 import { User } from '@supabase/supabase-js'
 import UserProfile from '@/components/auth/UserProfile'
-import { Banner, Container, Content, InfoSection, Logo, LogoContainer, MainTitle, Subtitle } from './Header.styles'
+import { Banner, Container, Content, InfoSection, Logo, LogoContainer, MainTitle, Subtitle, LeftSection, RightSection } from './Header.styles'
 import { GoogleSignInButtonOfficial } from '@/components/google/GoogleSignInButton/GoogleSignInButton'
+import NewTalk from '@/components/NewTalk'
 import { createClient } from '@/lib/supabase/client/browser'
 
 interface HeaderProps {
   user: User | null
+  onNewTalkClick?: () => void
 }
 
-export default function Header({ user }: HeaderProps) {
-  const [showLogin, setShowLogin] = useState(false)
+export default function Header({ user, onNewTalkClick }: HeaderProps) {
   const [loading, setLoading] = useState(false)
-
-  const handleLoginClick = () => {
-    setShowLogin(!showLogin)
-  }
 
   const handleGoogleLogin = async () => {
     setLoading(true)
@@ -50,13 +47,22 @@ export default function Header({ user }: HeaderProps) {
 
       <InfoSection>
         <MainTitle>Rincón de Charlas</MainTitle>
-        <Subtitle>
-          {user ? (
-            <UserProfile user={user} />
-          ) : (
-            <GoogleSignInButtonOfficial disabled={loading} onClick={handleGoogleLogin} />
+        <RightSection>
+          <Subtitle>
+            {user ? (
+              <UserProfile user={user} />
+            ) : (
+              <GoogleSignInButtonOfficial disabled={loading} onClick={handleGoogleLogin} />
+            )}
+          </Subtitle>
+
+
+          {user && onNewTalkClick && (
+            <NewTalk onClick={onNewTalkClick}>
+              +
+            </NewTalk>
           )}
-        </Subtitle>
+        </RightSection>
       </InfoSection>
     </Container>
   )
