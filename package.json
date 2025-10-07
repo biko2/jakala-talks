@@ -4,6 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev --turbopack",
+    "dev:mock": "./scripts/dev-with-mock.sh",
     "build": "next build --turbopack",
     "start": "next start",
     "test": "jest",

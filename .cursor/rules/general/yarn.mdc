@@ -1,0 +1,9 @@
+---
+alwaysApply: true
+---
+
+# Regla: Cumplimiento de las Reglas del Linter
+
+### Descripción
+
+- Cuando se lancen comandos de node, se deben lanzar con yarn

@@ -137,6 +137,8 @@ bun install
 
 ### 2. Ejecutar en modo desarrollo
 
+#### Opción A: Desarrollo normal (requiere configuración de Supabase)
+
 ```bash
 npm run dev
 # o
@@ -146,6 +148,25 @@ pnpm dev
 # o
 bun dev
 ```
+
+#### Opción B: Desarrollo con modo mock (sin autenticación)
+
+```bash
+npm run dev:mock
+# o
+yarn dev:mock
+# o
+pnpm dev:mock
+# o
+bun dev:mock
+```
+
+El modo mock incluye:
+
+- Usuario ficticio preconfigurado
+- Charlas de ejemplo precargadas
+- Votaciones simuladas localmente
+- No requiere configuración de Supabase
 
 La aplicación estará disponible en [http://localhost:3000](http://localhost:3000).
 
@@ -201,11 +222,36 @@ app/                    # App Router de Next.js
 
 ## Scripts Disponibles
 
-- `npm run dev` - Ejecuta el servidor de desarrollo con Turbopack
+- `npm run dev` - Ejecuta el servidor de desarrollo con Turbopack (requiere Supabase)
+- `npm run dev:mock` - Ejecuta el servidor de desarrollo con modo mock habilitado
 - `npm run build` - Compila la aplicación para producción
 - `npm start` - Ejecuta la aplicación compilada
 - `npm test` - Ejecuta todos los tests
 - `npm run test:watch` - Ejecuta tests en modo watch
+
+## Modos de Entorno
+
+La aplicación soporta diferentes modos de funcionamiento:
+
+### 🎭 Modo Mock (Recomendado para desarrollo)
+
+- Usuario ficticio preconfigurado
+- Charlas de ejemplo precargadas
+- No requiere configuración de Supabase
+- Ideal para desarrollo y testing
+
+### 🏠 Modo Local con Supabase
+
+- Autenticación real con Supabase
+- Base de datos real
+- Requiere configuración de variables de entorno
+
+### 🚀 Modo Producción
+
+- Configuración optimizada para producción
+- Variables de entorno de producción
+
+Para más detalles, consulta [Modos de Entorno](docs/ENVIRONMENT_MODES.md).
 
 ## Contribuir
 

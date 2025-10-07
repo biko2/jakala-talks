@@ -11,7 +11,7 @@ describe('VotingRules', () => {
 
   describe('isVotingEnabled', () => {
     it('debería devolver false antes del 14 de noviembre de 2025', () => {
-      jest.setSystemTime(new Date('2025-11-13T23:59:59.999Z'))
+      jest.setSystemTime(new Date('2025-11-06T23:59:59.999Z'))
       expect(VotingRules.isVotingEnabled()).toBe(false)
     })
 
@@ -28,14 +28,14 @@ describe('VotingRules', () => {
 
   describe('canUserVote', () => {
     it('debería permitir votar si la votación está habilitada y el usuario tiene menos de 3 votos', () => {
-      jest.setSystemTime(new Date('2025-11-14T00:00:00.000Z'))
+      jest.setSystemTime(new Date('2025-11-07T00:00:00.000Z'))
       expect(VotingRules.canUserVote(0)).toBe(true)
       expect(VotingRules.canUserVote(1)).toBe(true)
       expect(VotingRules.canUserVote(2)).toBe(true)
     })
 
     it('no debería permitir votar si la votación no está habilitada', () => {
-      jest.setSystemTime(new Date('2025-11-13T23:59:59.999Z'))
+      jest.setSystemTime(new Date('2025-11-06T23:59:59.999Z'))
       expect(VotingRules.canUserVote(0)).toBe(false)
       expect(VotingRules.canUserVote(1)).toBe(false)
       expect(VotingRules.canUserVote(2)).toBe(false)
@@ -50,7 +50,7 @@ describe('VotingRules', () => {
 
   describe('canCreateNewTalks', () => {
     it('debería permitir crear charlas antes del 14 de noviembre de 2025', () => {
-      jest.setSystemTime(new Date('2025-11-13T23:59:59.999Z'))
+      jest.setSystemTime(new Date('2025-11-06T23:59:59.999Z'))
       expect(VotingRules.canCreateNewTalks()).toBe(true)
     })
 
@@ -80,10 +80,10 @@ describe('VotingRules', () => {
 
   describe('validateVoteAction', () => {
     it('debería lanzar error si la votación no está habilitada', () => {
-      jest.setSystemTime(new Date('2025-11-13T23:59:59.999Z'))
+      jest.setSystemTime(new Date('2025-11-06T23:59:59.999Z'))
       const userVotes = ['talk1']
       expect(() => VotingRules.validateVoteAction(userVotes, 'talk2', true))
-        .toThrow('La votación estará disponible a partir del 14 de noviembre de 2025')
+        .toThrow('La votación estará disponible a partir del 7 de noviembre de 2025')
     })
 
     it('debería permitir votar si la votación está habilitada y no se ha votado antes y se tiene votos disponibles', () => {
@@ -99,14 +99,14 @@ describe('VotingRules', () => {
     })
 
     it('debería lanzar error si el usuario ya tiene 3 votos y trata de votar por una nueva charla', () => {
-      jest.setSystemTime(new Date('2025-11-14T00:00:00.000Z'))
+      jest.setSystemTime(new Date('2025-11-07T00:00:00.000Z'))
       const userVotes = ['talk1', 'talk2', 'talk3']
       expect(() => VotingRules.validateVoteAction(userVotes, 'talk4', true))
         .toThrow('Solo puedes votar un máximo de 3 charlas')
     })
 
     it('debería permitir votar por una charla ya votada si hay límite disponible', () => {
-      jest.setSystemTime(new Date('2025-11-14T00:00:00.000Z'))
+      jest.setSystemTime(new Date('2025-11-10T00:00:00.000Z'))
       const userVotes = ['talk1', 'talk2']
       expect(() => VotingRules.validateVoteAction(userVotes, 'talk1', true)).not.toThrow()
     })
@@ -114,12 +114,12 @@ describe('VotingRules', () => {
 
   describe('getVotingStatusMessage', () => {
     it('debería devolver mensaje de votación no disponible antes del 14 de noviembre', () => {
-      jest.setSystemTime(new Date('2025-11-13T23:59:59.999Z'))
-      expect(VotingRules.getVotingStatusMessage()).toBe('La votación estará disponible a partir del 14 de noviembre de 2025')
+      jest.setSystemTime(new Date('2025-11-6T23:59:59.999Z'))
+      expect(VotingRules.getVotingStatusMessage()).toBe('La votación estará disponible a partir del 7 de noviembre de 2025')
     })
 
     it('debería devolver mensaje de votación activa el 14 de noviembre o después', () => {
-      jest.setSystemTime(new Date('2025-11-14T00:00:00.000Z'))
+      jest.setSystemTime(new Date('2025-11-10T00:00:00.000Z'))
       expect(VotingRules.getVotingStatusMessage()).toBe('Votación activa')
     })
   })

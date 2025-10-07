@@ -1,6 +1,6 @@
 export class VotingRules {
   public static readonly MAX_VOTES_PER_USER = 3
-  public static readonly VOTING_START_DATE = new Date('2025-11-14T00:00:00.000Z')
+  public static readonly VOTING_START_DATE = new Date('2025-11-07T00:00:00.000Z')
 
   static isVotingEnabled(): boolean {
     return new Date() >= this.VOTING_START_DATE
@@ -20,7 +20,7 @@ export class VotingRules {
 
   static validateVoteAction(userVotes: string[], talkId: string, isVoting: boolean): void {
     if (!this.isVotingEnabled()) {
-      throw new Error('La votación estará disponible a partir del 14 de noviembre de 2025')
+      throw new Error('La votación estará disponible a partir del 7 de noviembre de 2025')
     }
 
     if (isVoting && !this.hasUserVotedForTalk(userVotes, talkId)) {
@@ -37,7 +37,7 @@ export class VotingRules {
   static getVotingStatusMessage(): string {
     return this.isVotingEnabled()
       ? 'Votación activa'
-      : 'La votación estará disponible a partir del 14 de noviembre de 2025'
+      : 'La votación estará disponible a partir del 7 de noviembre de 2025'
   }
 }
 

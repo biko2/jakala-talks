@@ -11,7 +11,8 @@ import { GetAllTalks } from '@/src/application/services/GetAllTalks'
 import { VoteTalk } from '@/src/application/services/VoteTalk'
 import { CreateTalk } from '@/src/application/services/CreateTalk'
 import { GetUserVotes } from '@/src/application/services/GetUserVotes'
-import { TalkRepository } from '@/src/infrastructure/adapters/TalkRepository'
+import { MOCK_USER, isMockMode } from '@/lib/mock/user'
+import { TalkRepositoryFactory } from '@/lib/repositories/TalkRepositoryFactory'
 
 export default function Home() {
   const [user, setUser] = useState<User | null>(null)
@@ -21,7 +22,7 @@ export default function Home() {
   const [isModalOpen, setIsModalOpen] = useState(false)
   const supabase = createBrowserClient()
 
-  const talkRepository = new TalkRepository(supabase)
+  const talkRepository = TalkRepositoryFactory.create()
   const getAllTalks = new GetAllTalks(talkRepository)
   const voteTalk = new VoteTalk(talkRepository)
   const createTalk = new CreateTalk(talkRepository)
@@ -37,6 +38,11 @@ export default function Home() {
 
   useEffect(() => {
     const getUser = async () => {
+      if (isMockMode()) {
+        setUser(MOCK_USER)
+        return
+      }
+
       const { data: { user } } = await supabase.auth.getUser()
       setUser(user)
     }
@@ -47,17 +53,33 @@ export default function Home() {
       setLoading(false)
     }
 
+    const getUserVotesData = async () => {
+      if (isMockMode()) {
+        const votes = await getUserVotes.execute(MOCK_USER.id)
+        setUserVotes(votes)
+        return
+      }
+
+      if (user) {
+        const votes = await getUserVotes.execute(user.id)
+        setUserVotes(votes)
+      }
+    }
+
     getUser()
     getTalks()
+    getUserVotesData()
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (event, session) => {
-        setUser(session?.user ?? null)
-      }
-    )
+    if (!isMockMode()) {
+      const { data: { subscription } } = supabase.auth.onAuthStateChange(
+        (event, session) => {
+          setUser(session?.user ?? null)
+        }
+      )
 
-    return () => subscription.unsubscribe()
-  }, [supabase.auth])
+      return () => subscription.unsubscribe()
+    }
+  }, [supabase.auth, user])
 
   const handleVote = async (talkId: string) => {
     if (!user) return
