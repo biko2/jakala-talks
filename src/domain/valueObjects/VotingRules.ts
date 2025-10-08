@@ -3,7 +3,6 @@ export class VotingRules {
   public static readonly VOTING_START_DATE = new Date('2025-11-07T00:00:00.000Z')
 
   static isVotingEnabled(): boolean {
-    return true;
     return new Date() >= this.VOTING_START_DATE
   }
 

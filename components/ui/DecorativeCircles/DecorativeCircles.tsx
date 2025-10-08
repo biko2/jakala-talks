@@ -4,13 +4,13 @@ import { useMemo } from 'react'
 import { Circle } from './DecorativeCircles.styles'
 
 interface DecorativeCirclesProps {
-  count?: number
+  count: number
   primaryColor?: string
   secondaryColor?: string
 }
 
 export default function DecorativeCircles({
-  count = 8,
+  count,
   primaryColor = '#040066',
   secondaryColor = '#fa000a'
 }: DecorativeCirclesProps) {
@@ -41,7 +41,7 @@ export default function DecorativeCircles({
           $size={circle.size}
           $left={circle.left}
           $top={circle.top}
-          $color={circle.color}
+          $color={Math.random() > 0.5 ? primaryColor : secondaryColor}
           $opacity={circle.opacity}
         />
       ))}

@@ -27,7 +27,7 @@ export default function TalkCard({ talk, onVote, isLoggedIn = false, isVoted = f
     <Container onClick={handleVoteClick} $isClickable={isLoggedIn && isVotingEnabled}>
       {isVotingEnabled && (
         <DecorativeCircles
-          count={6}
+          count={talk.votes}
         />
       )}
 
