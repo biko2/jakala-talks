@@ -5,6 +5,7 @@ import { Talk } from '@/src/domain/entities/Talk'
 import { VotingRules } from '@/src/domain/valueObjects/VotingRules'
 import { Author, AuthorIcon, AuthorName, Container, Description, Duration, DurationIcon, DurationText, Footer, Header, Title, VoteIcon, VotesCount } from './TalkCard.styles'
 import Icon from '@/components/ui/Icon'
+import DecorativeCircles from '@/components/ui/DecorativeCircles'
 
 interface TalkCardProps {
   talk: Talk
@@ -24,6 +25,12 @@ export default function TalkCard({ talk, onVote, isLoggedIn = false, isVoted = f
 
   return (
     <Container onClick={handleVoteClick} $isClickable={isLoggedIn && isVotingEnabled}>
+      {isVotingEnabled && (
+        <DecorativeCircles
+          count={6}
+        />
+      )}
+
       <Header>
         <Title>{talk.title}</Title>
         {isLoggedIn && isVotingEnabled && (

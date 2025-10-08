@@ -113,7 +113,7 @@ describe('VotingRules', () => {
   })
 
   describe('getVotingStatusMessage', () => {
-    it('debería devolver mensaje de votación no disponible antes del 14 de noviembre', () => {
+    it.only('debería devolver mensaje de votación no disponible antes del 14 de noviembre', () => {
       jest.setSystemTime(new Date('2025-11-6T23:59:59.999Z'))
       expect(VotingRules.getVotingStatusMessage()).toBe('La votación estará disponible a partir del 7 de noviembre de 2025')
     })

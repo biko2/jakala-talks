@@ -13,6 +13,8 @@ export const Container = styled.div<{ $isClickable?: boolean }>`
   height: 400px;
   display: flex;
   flex-direction: column;
+  position: relative;
+  overflow: hidden;
 
   &:hover {
     transform: ${props => props.$isClickable ? 'translateY(-2px)' : 'none'};
