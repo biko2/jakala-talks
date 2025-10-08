@@ -7,7 +7,7 @@ export const MOCK_TALKS: Talk[] = [
     'Una charla sobre cómo implementar arquitectura hexagonal en proyectos reales',
     'Usuario Mock',
     30,
-    0
+    12
   ),
   new Talk(
     'mock-talk-2',
@@ -15,7 +15,7 @@ export const MOCK_TALKS: Talk[] = [
     'Exploramos las mejores prácticas para escribir tests efectivos en React',
     'Usuario Mock',
     45,
-    0
+    5
   ),
   new Talk(
     'mock-talk-3',
@@ -23,7 +23,7 @@ export const MOCK_TALKS: Talk[] = [
     'Técnicas avanzadas de TypeScript para proyectos enterprise',
     'Usuario Mock',
     60,
-    0
+    25
   )
 ]
 
