@@ -1,7 +1,6 @@
 'use client'
 
 import { Talk } from '@/src/domain/entities/Talk'
-import { VotingRules } from '@/src/domain/valueObjects/VotingRules'
 import TalkCard from '../TalkCard'
 import { Container, Header, List, VotingStatus } from './TalksList.styles'
 
@@ -10,18 +9,26 @@ interface TalksListProps {
   onVote?: (talkId: string) => void
   isLoggedIn?: boolean
   userVotes?: string[]
+  maxVotesPerUser?: number
+  isVotingEnabled?: boolean
 }
 
-export default function TalksList({ talks, onVote, isLoggedIn = false, userVotes = [] }: TalksListProps) {
-  const remainingVotes = VotingRules.MAX_VOTES_PER_USER - userVotes.length
-  const isVotingEnabled = VotingRules.isVotingEnabled()
+export default function TalksList({
+  talks,
+  onVote,
+  isLoggedIn = false,
+  userVotes = [],
+  maxVotesPerUser = 3,
+  isVotingEnabled = true,
+}: TalksListProps) {
+  const remainingVotes = maxVotesPerUser - userVotes.length
 
   const getVotingMessage = () => {
     if (!isVotingEnabled) {
-      return VotingRules.getVotingStatusMessage()
+      return 'La votación estára habilitada el 7 de Noviembre'
     }
 
-    return `Has votado ${userVotes.length} de ${VotingRules.MAX_VOTES_PER_USER} charlas${remainingVotes > 0 ? ` (${remainingVotes} votos restantes)` : ''
+    return `Has votado ${userVotes.length} de ${maxVotesPerUser} charlas${remainingVotes > 0 ? ` (${remainingVotes} votos restantes)` : ''
       }`
   }
 
@@ -41,6 +48,7 @@ export default function TalksList({ talks, onVote, isLoggedIn = false, userVotes
             onVote={onVote}
             isLoggedIn={isLoggedIn}
             isVoted={userVotes.includes(talk.id)}
+            isVotingEnabled={isVotingEnabled}
           />
         ))}
       </List>
