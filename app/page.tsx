@@ -106,6 +106,32 @@ export default function Home() {
   const handleVote = async (talkId: string) => {
     if (!user) return
 
+    const previousTalks = [...talks]
+    const previousUserVotes = [...userVotes]
+
+    const isCurrentlyVoted = userVotes.includes(talkId)
+
+    const optimisticTalks = talks.map(talk => {
+      if (talk.id === talkId) {
+        return new Talk(
+          talk.id,
+          talk.title,
+          talk.description,
+          talk.author,
+          talk.duration,
+          isCurrentlyVoted ? talk.votes - 1 : talk.votes + 1
+        )
+      }
+      return talk
+    })
+
+    const optimisticUserVotes = isCurrentlyVoted
+      ? userVotes.filter(id => id !== talkId)
+      : [...userVotes, talkId]
+
+    setTalks(optimisticTalks)
+    setUserVotes(optimisticUserVotes)
+
     try {
       await voteTalk.execute(user.id, talkId)
       const [updatedTalks, updatedUserVotes] = await Promise.all([
@@ -115,6 +141,8 @@ export default function Home() {
       setTalks(updatedTalks)
       setUserVotes(updatedUserVotes)
     } catch (error) {
+      setTalks(previousTalks)
+      setUserVotes(previousUserVotes)
       console.error('Error al votar:', error)
       alert(error instanceof Error ? error.message : 'Error desconocido al votar')
     }
