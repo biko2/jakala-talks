@@ -1,20 +1,18 @@
 import styled from 'styled-components'
 
 export const Circle = styled.div<{
-  $size: number
-  $left: number
-  $top: number
-  $color: string
-  $opacity: number
+  $size?: number
+  $right?: number
+  $bottom?: number
 }>`
   position: absolute;
   width: ${props => props.$size}px;
   height: ${props => props.$size}px;
   border-radius: 50%;
-  background-color: ${props => props.$color};
-  opacity: ${props => props.$opacity};
-  left: ${props => props.$left}%;
-  top: ${props => props.$top}%;
+  background-color: #fa000a;
+  opacity: 1;
+  right: ${props => props.$right}%;
+  bottom: ${props => props.$bottom}%;
   pointer-events: none;
   z-index: 1;
 `

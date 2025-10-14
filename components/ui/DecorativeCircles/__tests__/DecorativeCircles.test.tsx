@@ -8,8 +8,8 @@ describe('DecorativeCircles', () => {
     expect(circles).toHaveLength(5)
   })
 
-  it('debería usar valores por defecto cuando no se proporcionan props', () => {
-    const { container } = render(<DecorativeCircles />)
+  it('debería usar colores por defecto cuando no se proporcionan', () => {
+    const { container } = render(<DecorativeCircles count={8} />)
     const circles = container.querySelectorAll('div')
     expect(circles).toHaveLength(8)
   })

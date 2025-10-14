@@ -16,17 +16,24 @@ export default function DecorativeCircles({
 }: DecorativeCirclesProps) {
   const circles = useMemo(() => {
     return Array.from({ length: count }, (_, index) => {
+      if (index >= 20) {
+        return {}
+      }
+
       const size = 25
-      const left = Math.random() * 80 + 10
-      const top = Math.random() * 40 + 40
+      let right: number, bottom: number
+
+      right = Math.random() * 40
+      bottom = Math.random() * 20
+
       const color = Math.random() > 0.5 ? primaryColor : secondaryColor
       const opacity = 1
 
       return {
         id: index,
         size,
-        left,
-        top,
+        right,
+        bottom,
         color,
         opacity
       }
@@ -39,10 +46,8 @@ export default function DecorativeCircles({
         <Circle
           key={circle.id}
           $size={circle.size}
-          $left={circle.left}
-          $top={circle.top}
-          $color={Math.random() > 0.5 ? primaryColor : secondaryColor}
-          $opacity={circle.opacity}
+          $right={circle.right}
+          $bottom={circle.bottom}
         />
       ))}
     </>
