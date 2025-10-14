@@ -47,7 +47,7 @@ export const VoteWrapper = styled.div <{ $isVoted: boolean }>`
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 14px;
+  font-size: 12px;
   font-weight: 600;
   color: ${props => props.$isVoted ? 'white' : '#6b7280'};
   transition: all 0.2s ease;

@@ -34,7 +34,7 @@ export default function TalkCard({ talk, onVote, isLoggedIn = false, isVoted = f
         <Title>{talk.title}</Title>
         {isLoggedIn && isVotingEnabled && (
           <VoteWrapper $isVoted={isVoted}>
-            Votar
+            {isVoted ? 'Votada' : 'Votar'}
           </VoteWrapper>
         )}
       </Header>
