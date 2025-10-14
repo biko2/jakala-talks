@@ -1,5 +1,6 @@
 import { CreateTalk } from '../CreateTalk'
 import { ITalkRepository } from '../../../domain/ports/TalkRepository'
+import { VotingConfigRepository } from '../../../domain/ports/VotingConfigRepository'
 import { Talk } from '../../../domain/entities/Talk'
 
 const mockTalkRepository: ITalkRepository = {
@@ -14,13 +15,20 @@ const mockTalkRepository: ITalkRepository = {
   hasUserVotedForTalk: jest.fn()
 }
 
+const mockVotingConfigRepository: VotingConfigRepository = {
+  getVotingConfig: jest.fn().mockResolvedValue({
+    votingStartDate: new Date('2025-11-07T00:00:00.000Z'),
+    maxVotesPerUser: 3
+  })
+}
+
 describe('CreateTalk', () => {
   let createTalk: CreateTalk
 
   beforeEach(() => {
     jest.clearAllMocks()
     jest.useFakeTimers()
-    createTalk = new CreateTalk(mockTalkRepository)
+    createTalk = new CreateTalk(mockTalkRepository, mockVotingConfigRepository)
   })
 
   afterEach(() => {

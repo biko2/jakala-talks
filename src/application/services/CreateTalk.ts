@@ -1,12 +1,18 @@
 import { ITalkRepository } from "../../domain/ports/TalkRepository"
 import { Talk } from "../../domain/entities/Talk"
 import { VotingRules } from "../../domain/valueObjects/VotingRules"
+import { VotingConfigRepository } from "../../domain/ports/VotingConfigRepository"
 
 export class CreateTalk {
-  constructor(private readonly talkRepository: ITalkRepository) { }
+  constructor(
+    private readonly talkRepository: ITalkRepository,
+    private readonly votingConfigRepo: VotingConfigRepository
+  ) { }
 
   async execute(title: string, description: string, author: string, duration: number): Promise<Talk> {
-    if (!VotingRules.canCreateNewTalks()) {
+    const votingRules = new VotingRules(this.votingConfigRepo)
+
+    if (!await votingRules.canCreateNewTalks()) {
       throw new Error("No se pueden crear nuevas charlas cuando la votación está activa")
     }
 
