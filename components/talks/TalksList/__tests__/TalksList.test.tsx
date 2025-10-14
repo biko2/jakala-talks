@@ -90,7 +90,6 @@ describe('TalksList', () => {
         isLoggedIn={true}
         userVotes={[]}
         isVotingEnabled={false}
-        votingStatusMessage="La votación estára habilitada el 7 de Noviembre"
       />
     )
 
