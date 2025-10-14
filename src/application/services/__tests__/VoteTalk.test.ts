@@ -1,8 +1,7 @@
 import { VoteTalk } from '../VoteTalk'
 import { ITalkRepository } from '@/src/domain/ports/TalkRepository'
-import { VotingRules } from '@/src/domain/valueObjects/VotingRules'
-
-jest.mock('@/src/domain/valueObjects/VotingRules')
+import { VotingConfigRepository } from '@/src/domain/ports/VotingConfigRepository'
+import { InMemoryVotingConfigRepository } from '@/src/infrastructure/adapters/InMemoryVotingConfigRepository'
 
 const mockTalkRepository = (): ITalkRepository => ({
   findAll: jest.fn(),
@@ -16,38 +15,35 @@ const mockTalkRepository = (): ITalkRepository => ({
   hasUserVotedForTalk: jest.fn()
 })
 
-const mockedVotingRules = VotingRules as jest.Mocked<typeof VotingRules>
+const mockVotingConfigRepository = (): VotingConfigRepository => ({
+  getVotingConfig: jest.fn()
+})
 
 describe('VoteTalk', () => {
+  let mockConfigRepo: jest.Mocked<VotingConfigRepository>
+
   beforeEach(() => {
-    mockedVotingRules.isVotingEnabled.mockReturnValue(true)
-    mockedVotingRules.hasUserVotedForTalk.mockImplementation((userVotes: string[], talkId: string) => {
-      return userVotes.includes(talkId)
-    })
-    mockedVotingRules.canUserVote.mockImplementation((userVotesCount: number) => {
-      return userVotesCount < 3
-    })
-    mockedVotingRules.validateVoteAction.mockImplementation((userVotes: string[], talkId: string, isVoting: boolean) => {
-      if (isVoting && !userVotes.includes(talkId) && userVotes.length >= 3) {
-        throw new Error('Solo puedes votar un máximo de 3 charlas')
-      }
-    })
-    mockedVotingRules.determineVoteAction.mockImplementation((userVotes: string[], talkId: string) => {
-      return !userVotes.includes(talkId)
+    jest.useFakeTimers()
+    mockConfigRepo = mockVotingConfigRepository() as jest.Mocked<VotingConfigRepository>
+    mockConfigRepo.getVotingConfig.mockResolvedValue({
+      votingStartDate: new Date('2025-11-07T00:00:00.000Z'),
+      maxVotesPerUser: 3
     })
   })
 
   afterEach(() => {
     jest.clearAllMocks()
+    jest.useRealTimers()
   })
   describe('cuando el usuario no ha votado por la charla', () => {
     it('debería agregar voto si no se han alcanzado los límites', async () => {
+      jest.setSystemTime(new Date('2025-11-07T00:00:00.000Z'))
       const repository = mockTalkRepository()
         ; (repository.getUserVotes as jest.Mock).mockResolvedValue(['talk1'])
         ; (repository.addUserVote as jest.Mock).mockResolvedValue(undefined)
         ; (repository.incrementVote as jest.Mock).mockResolvedValue(undefined)
 
-      const useCase = new VoteTalk(repository)
+      const useCase = new VoteTalk(repository, mockConfigRepo)
       await useCase.execute('user1', 'talk2')
 
       expect(repository.getUserVotes).toHaveBeenCalledWith('user1')
@@ -59,10 +55,11 @@ describe('VoteTalk', () => {
     })
 
     it('debería lanzar error si el usuario ya tiene 3 votos', async () => {
+      jest.setSystemTime(new Date('2025-11-07T00:00:00.000Z'))
       const repository = mockTalkRepository()
         ; (repository.getUserVotes as jest.Mock).mockResolvedValue(['talk1', 'talk2', 'talk3'])
 
-      const useCase = new VoteTalk(repository)
+      const useCase = new VoteTalk(repository, mockConfigRepo)
 
       await expect(useCase.execute('user1', 'talk4'))
         .rejects.toThrow('Solo puedes votar un máximo de 3 charlas')
@@ -71,12 +68,13 @@ describe('VoteTalk', () => {
 
   describe('cuando el usuario ya ha votado por la charla', () => {
     it('debería quitar el voto (toggle)', async () => {
+      jest.setSystemTime(new Date('2025-11-07T00:00:00.000Z'))
       const repository = mockTalkRepository()
         ; (repository.getUserVotes as jest.Mock).mockResolvedValue(['talk1', 'talk2'])
         ; (repository.removeUserVote as jest.Mock).mockResolvedValue(undefined)
         ; (repository.decrementVote as jest.Mock).mockResolvedValue(undefined)
 
-      const useCase = new VoteTalk(repository)
+      const useCase = new VoteTalk(repository, mockConfigRepo)
       await useCase.execute('user1', 'talk1')
 
       expect(repository.getUserVotes).toHaveBeenCalledWith('user1')
@@ -87,12 +85,13 @@ describe('VoteTalk', () => {
 
   describe('casos edge', () => {
     it('debería permitir votar cuando no tiene votos previos', async () => {
+      jest.setSystemTime(new Date('2025-11-07T00:00:00.000Z'))
       const repository = mockTalkRepository()
         ; (repository.getUserVotes as jest.Mock).mockResolvedValue([])
         ; (repository.addUserVote as jest.Mock).mockResolvedValue(undefined)
         ; (repository.incrementVote as jest.Mock).mockResolvedValue(undefined)
 
-      const useCase = new VoteTalk(repository)
+      const useCase = new VoteTalk(repository, mockConfigRepo)
       await useCase.execute('user1', 'talk1')
 
       expect(repository.addUserVote).toHaveBeenCalled()
