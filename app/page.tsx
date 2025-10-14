@@ -60,19 +60,6 @@ export default function Home() {
       setLoading(false)
     }
 
-    const getUserVotesData = async () => {
-      if (isMockMode()) {
-        const votes = await getUserVotes.execute(MOCK_USER.id)
-        setUserVotes(votes)
-        return
-      }
-
-      if (user) {
-        const votes = await getUserVotes.execute(user.id)
-        setUserVotes(votes)
-      }
-    }
-
     const checkCanCreateTalks = async () => {
       const canCreate = await votingRules.canCreateNewTalks()
       setCanCreateNewTalks(canCreate)
@@ -88,7 +75,6 @@ export default function Home() {
 
     getUser()
     getTalks()
-    getUserVotesData()
     checkCanCreateTalks()
     checkVotingStatus()
 
@@ -101,7 +87,21 @@ export default function Home() {
 
       return () => subscription.unsubscribe()
     }
-  }, [supabase.auth, user])
+  }, [supabase.auth, getAllTalks, votingRules, votingConfigRepository])
+
+  useEffect(() => {
+    const getUserVotesData = async () => {
+      if (!user) {
+        setUserVotes([])
+        return
+      }
+
+      const votes = await getUserVotes.execute(user.id)
+      setUserVotes(votes)
+    }
+
+    getUserVotesData()
+  }, [user, getUserVotes])
 
   const handleVote = async (talkId: string) => {
     if (!user) return
