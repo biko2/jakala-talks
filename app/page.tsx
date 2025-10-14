@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useMemo } from 'react'
 import { createBrowserClient } from '@/lib/supabase/client'
 import { User } from '@supabase/supabase-js'
 import Header from '@/components/layout/Header'
@@ -27,13 +27,13 @@ export default function Home() {
   const [maxVotesPerUser, setMaxVotesPerUser] = useState(3)
   const supabase = createBrowserClient()
 
-  const talkRepository = TalkRepositoryFactory.create()
-  const votingConfigRepository = VotingConfigRepositoryFactory.create()
-  const getAllTalks = new GetAllTalks(talkRepository)
-  const voteTalk = new VoteTalk(talkRepository, votingConfigRepository)
-  const createTalk = new CreateTalk(talkRepository, votingConfigRepository)
-  const getUserVotes = new GetUserVotes(talkRepository)
-  const votingRules = new VotingRules(votingConfigRepository)
+  const talkRepository = useMemo(() => TalkRepositoryFactory.create(), [])
+  const votingConfigRepository = useMemo(() => VotingConfigRepositoryFactory.create(), [])
+  const getAllTalks = useMemo(() => new GetAllTalks(talkRepository), [talkRepository])
+  const voteTalk = useMemo(() => new VoteTalk(talkRepository, votingConfigRepository), [talkRepository, votingConfigRepository])
+  const createTalk = useMemo(() => new CreateTalk(talkRepository, votingConfigRepository), [talkRepository, votingConfigRepository])
+  const getUserVotes = useMemo(() => new GetUserVotes(talkRepository), [talkRepository])
+  const votingRules = useMemo(() => new VotingRules(votingConfigRepository), [votingConfigRepository])
 
   useEffect(() => {
     document.body.style.backgroundColor = '#f9fafb'
@@ -80,7 +80,6 @@ export default function Home() {
 
     const checkVotingStatus = async () => {
       const isEnabled = await votingRules.isVotingEnabled()
-      const message = await votingRules.getVotingStatusMessage()
       const config = await votingConfigRepository.getVotingConfig()
 
       setIsVotingEnabled(isEnabled)
