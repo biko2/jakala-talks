@@ -44,4 +44,10 @@ describe('NewTalk', () => {
 
     expect(screen.getByRole('button')).toHaveAttribute('type', 'submit')
   })
+
+  it('debería tener aria-label cuando se proporciona', () => {
+    render(<NewTalk onClick={() => { }} ariaLabel="Nueva charla">+</NewTalk>)
+
+    expect(screen.getByRole('button', { name: 'Nueva charla' })).toBeInTheDocument()
+  })
 })

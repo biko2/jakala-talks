@@ -50,4 +50,31 @@ describe('Header', () => {
     const logo = screen.getByAltText('Jakala Logo')
     expect(logo).toHaveAttribute('src', '/Jakala logo_rgb_white.png')
   })
+
+  it('debería mostrar botón de nueva charla cuando usuario está logeado y canCreateNewTalks es true', () => {
+    const onNewTalkClick = jest.fn()
+    render(<Header user={mockUser} onNewTalkClick={onNewTalkClick} canCreateNewTalks={true} />)
+
+    const newTalkButton = screen.getByRole('button', { name: /nueva charla/i })
+    expect(newTalkButton).toBeInTheDocument()
+
+    fireEvent.click(newTalkButton)
+    expect(onNewTalkClick).toHaveBeenCalledTimes(1)
+  })
+
+  it('no debería mostrar botón de nueva charla cuando canCreateNewTalks es false', () => {
+    const onNewTalkClick = jest.fn()
+    render(<Header user={mockUser} onNewTalkClick={onNewTalkClick} canCreateNewTalks={false} />)
+
+    const newTalkButton = screen.queryByRole('button', { name: /nueva charla/i })
+    expect(newTalkButton).not.toBeInTheDocument()
+  })
+
+  it('no debería mostrar botón de nueva charla cuando no hay usuario', () => {
+    const onNewTalkClick = jest.fn()
+    render(<Header user={null} onNewTalkClick={onNewTalkClick} canCreateNewTalks={true} />)
+
+    const newTalkButton = screen.queryByRole('button', { name: /nueva charla/i })
+    expect(newTalkButton).not.toBeInTheDocument()
+  })
 })

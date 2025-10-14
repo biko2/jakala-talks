@@ -1,9 +1,6 @@
 import { render, screen, fireEvent } from '@testing-library/react'
 import TalkCard from '../TalkCard'
 import { Talk } from '@/src/domain/entities/Talk'
-import { VotingRules } from '@/src/domain/valueObjects/VotingRules'
-
-jest.mock('@/src/domain/valueObjects/VotingRules')
 
 const mockTalk = new Talk(
   '1',
@@ -14,16 +11,7 @@ const mockTalk = new Talk(
   5
 )
 
-const mockedVotingRules = VotingRules as jest.Mocked<typeof VotingRules>
-
 describe('TalkCard', () => {
-  beforeEach(() => {
-    mockedVotingRules.isVotingEnabled.mockReturnValue(true)
-  })
-
-  afterEach(() => {
-    jest.clearAllMocks()
-  })
   it('debería renderizar la información de la charla', () => {
     render(<TalkCard talk={mockTalk} />)
 

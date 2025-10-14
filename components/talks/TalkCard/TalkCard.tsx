@@ -2,8 +2,7 @@
 
 import { Heart, User, Clock } from 'lucide-react'
 import { Talk } from '@/src/domain/entities/Talk'
-import { VotingRules } from '@/src/domain/valueObjects/VotingRules'
-import { Author, AuthorIcon, AuthorName, Container, Description, Duration, DurationIcon, DurationText, Footer, Header, Title, VoteIcon, VotesCount } from './TalkCard.styles'
+import { Author, AuthorName, Container, Description, Duration, DurationIcon, DurationText, Footer, Header, Title, VoteIcon, VotesCount } from './TalkCard.styles'
 import Icon from '@/components/ui/Icon'
 import DecorativeCircles from '@/components/ui/DecorativeCircles'
 
@@ -12,10 +11,10 @@ interface TalkCardProps {
   onVote?: (talkId: string) => void
   isLoggedIn?: boolean
   isVoted?: boolean
+  isVotingEnabled?: boolean
 }
 
-export default function TalkCard({ talk, onVote, isLoggedIn = false, isVoted = false }: TalkCardProps) {
-  const isVotingEnabled = VotingRules.isVotingEnabled()
+export default function TalkCard({ talk, onVote, isLoggedIn = false, isVoted = false, isVotingEnabled = true }: TalkCardProps) {
 
   const handleVoteClick = () => {
     if (isLoggedIn && onVote && isVotingEnabled) {

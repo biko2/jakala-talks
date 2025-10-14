@@ -4,22 +4,21 @@ import { useState } from 'react'
 import { User } from '@supabase/supabase-js'
 import { Plus } from 'lucide-react'
 import UserProfile from '@/components/auth/UserProfile'
-import { VotingRules } from '@/src/domain/valueObjects/VotingRules'
 import { Banner, Container, Content, InfoSection, Logo, LogoContainer, MainTitle, Subtitle, LeftSection, RightSection } from './Header.styles'
 import { GoogleSignInButtonOfficial } from '@/components/google/GoogleSignInButton/GoogleSignInButton'
-import NewTalk from '@/components/NewTalk'
 import Icon from '@/components/ui/Icon'
 import { createClient } from '@/lib/supabase/client/browser'
 import { getAppUrl } from '@/lib/supabase/config/env'
+import NewTalk from '@/components/NewTalk'
 
 interface HeaderProps {
   user: User | null
   onNewTalkClick?: () => void
+  canCreateNewTalks?: boolean
 }
 
-export default function Header({ user, onNewTalkClick }: HeaderProps) {
+export default function Header({ user, onNewTalkClick, canCreateNewTalks = true }: HeaderProps) {
   const [loading, setLoading] = useState(false)
-  const canCreateNewTalks = VotingRules.canCreateNewTalks()
 
   const handleGoogleLogin = async () => {
     setLoading(true)
@@ -63,7 +62,7 @@ export default function Header({ user, onNewTalkClick }: HeaderProps) {
 
 
           {user && onNewTalkClick && canCreateNewTalks && (
-            <NewTalk onClick={onNewTalkClick}>
+            <NewTalk onClick={onNewTalkClick} ariaLabel="Nueva charla">
               <Icon icon={Plus} size={30} color="white" />
             </NewTalk>
           )}
