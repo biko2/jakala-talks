@@ -87,7 +87,7 @@ describe('TalkCard', () => {
   it('debería mostrar el botón de voto con estilo votado', () => {
     render(<TalkCard talk={mockTalk} isLoggedIn={true} isVoted={true} />)
 
-    const voteButton = screen.getByText('Votar')
+    const voteButton = screen.getByText('Votada')
     expect(voteButton).toBeInTheDocument()
   })
 
