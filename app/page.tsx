@@ -13,6 +13,8 @@ import { CreateTalk } from '@/src/application/services/CreateTalk'
 import { GetUserVotes } from '@/src/application/services/GetUserVotes'
 import { MOCK_USER, isMockMode } from '@/lib/mock/user'
 import { TalkRepositoryFactory } from '@/lib/repositories/TalkRepositoryFactory'
+import { VotingConfigRepositoryFactory } from '@/lib/repositories/VotingConfigRepositoryFactory'
+import { VotingRules } from '@/src/domain/valueObjects/VotingRules'
 
 export default function Home() {
   const [user, setUser] = useState<User | null>(null)
@@ -20,13 +22,18 @@ export default function Home() {
   const [userVotes, setUserVotes] = useState<string[]>([])
   const [loading, setLoading] = useState(true)
   const [isModalOpen, setIsModalOpen] = useState(false)
+  const [canCreateNewTalks, setCanCreateNewTalks] = useState(true)
+  const [isVotingEnabled, setIsVotingEnabled] = useState(false)
+  const [maxVotesPerUser, setMaxVotesPerUser] = useState(3)
   const supabase = createBrowserClient()
 
   const talkRepository = TalkRepositoryFactory.create()
+  const votingConfigRepository = VotingConfigRepositoryFactory.create()
   const getAllTalks = new GetAllTalks(talkRepository)
-  const voteTalk = new VoteTalk(talkRepository)
-  const createTalk = new CreateTalk(talkRepository)
+  const voteTalk = new VoteTalk(talkRepository, votingConfigRepository)
+  const createTalk = new CreateTalk(talkRepository, votingConfigRepository)
   const getUserVotes = new GetUserVotes(talkRepository)
+  const votingRules = new VotingRules(votingConfigRepository)
 
   useEffect(() => {
     document.body.style.backgroundColor = '#f9fafb'
@@ -66,9 +73,25 @@ export default function Home() {
       }
     }
 
+    const checkCanCreateTalks = async () => {
+      const canCreate = await votingRules.canCreateNewTalks()
+      setCanCreateNewTalks(canCreate)
+    }
+
+    const checkVotingStatus = async () => {
+      const isEnabled = await votingRules.isVotingEnabled()
+      const message = await votingRules.getVotingStatusMessage()
+      const config = await votingConfigRepository.getVotingConfig()
+
+      setIsVotingEnabled(isEnabled)
+      setMaxVotesPerUser(config.maxVotesPerUser)
+    }
+
     getUser()
     getTalks()
     getUserVotesData()
+    checkCanCreateTalks()
+    checkVotingStatus()
 
     if (!isMockMode()) {
       const { data: { subscription } } = supabase.auth.onAuthStateChange(
@@ -127,7 +150,7 @@ export default function Home() {
         minWidth: '100%',
         backgroundColor: '#f9fafb'
       }}>
-        <Header user={user} onNewTalkClick={() => setIsModalOpen(true)} />
+        <Header user={user} onNewTalkClick={() => setIsModalOpen(true)} canCreateNewTalks={canCreateNewTalks} />
 
         <div style={{
           maxWidth: '1200px',
@@ -140,6 +163,8 @@ export default function Home() {
             onVote={handleVote}
             isLoggedIn={!!user}
             userVotes={userVotes}
+            maxVotesPerUser={maxVotesPerUser}
+            isVotingEnabled={isVotingEnabled}
           />
         </div>
       </div>
