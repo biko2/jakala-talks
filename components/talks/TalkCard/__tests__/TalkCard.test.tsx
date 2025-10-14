@@ -27,10 +27,11 @@ describe('TalkCard', () => {
     expect(screen.getAllByTestId('icon-container')).toHaveLength(2)
   })
 
-  it('debería mostrar el ícono de voto cuando está logeado', () => {
+  it('debería mostrar el botón de voto cuando está logeado', () => {
     render(<TalkCard talk={mockTalk} isLoggedIn={true} />)
 
-    expect(screen.getAllByTestId('icon-container')).toHaveLength(3)
+    expect(screen.getByText('Votar')).toBeInTheDocument()
+    expect(screen.getAllByTestId('icon-container')).toHaveLength(2)
   })
 
   it('debería mostrar el número de votos', () => {
@@ -74,5 +75,25 @@ describe('TalkCard', () => {
     fireEvent.click(talkContainer!)
 
     expect(mockOnVote).not.toHaveBeenCalled()
+  })
+
+  it('debería mostrar el botón de voto con estilo no votado', () => {
+    render(<TalkCard talk={mockTalk} isLoggedIn={true} isVoted={false} />)
+
+    const voteButton = screen.getByText('Votar')
+    expect(voteButton).toBeInTheDocument()
+  })
+
+  it('debería mostrar el botón de voto con estilo votado', () => {
+    render(<TalkCard talk={mockTalk} isLoggedIn={true} isVoted={true} />)
+
+    const voteButton = screen.getByText('Votar')
+    expect(voteButton).toBeInTheDocument()
+  })
+
+  it('no debería mostrar el botón de voto cuando la votación está deshabilitada', () => {
+    render(<TalkCard talk={mockTalk} isLoggedIn={true} isVotingEnabled={false} />)
+
+    expect(screen.queryByText('Votar')).not.toBeInTheDocument()
   })
 })

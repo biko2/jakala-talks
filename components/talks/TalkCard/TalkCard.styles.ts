@@ -39,13 +39,24 @@ export const Title = styled.h2`
   margin-right: 16px;
 `
 
-export const VoteIcon = styled.div<{ $isVoted: boolean }>`
-  font-size: 20px;
-  opacity: ${props => props.$isVoted ? 1 : 0.3};
-  transition: opacity 0.2s ease;
-  
-  ${Container}:hover & {
-    opacity: ${props => props.$isVoted ? 1 : 0.7};
+export const VoteWrapper = styled.div <{ $isVoted: boolean }>`
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  background-color: ${props => props.$isVoted ? '#f00a0a' : '#e5e7eb'};
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: 600;
+  color: ${props => props.$isVoted ? 'white' : '#6b7280'};
+  transition: all 0.2s ease;
+  cursor: pointer;
+  user-select: none;
+
+  &:hover {
+    transform: scale(1.05);
+    background-color: ${props => props.$isVoted ? '#d00909' : '#d1d5db'};
   }
 `
 
