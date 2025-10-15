@@ -5,8 +5,7 @@ export const Circle = styled.div<{
   $right?: number
   $bottom?: number
 }>`
-  -webkit-box-shadow: 1px 1px 5px 1px rgba(0,0,0,0.47); 
-  box-shadow: 1px 1px 5px 1px rgba(0,0,0,0.47);
+  box-shadow: 0 1px 3px #0000000a, 0 1px 1px #00000014, 0 2px 1px -1px #00000029;
 
   position: absolute;
   width: ${props => props.$size}px;
