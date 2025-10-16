@@ -116,7 +116,6 @@ describe('TalksList', () => {
   it('debería renderizar lista vacía sin errores', () => {
     render(<TalksList talks={[]} />)
 
-    expect(screen.getByText('Todas las charlas')).toBeInTheDocument()
-    expect(screen.queryByText('Charla 1')).not.toBeInTheDocument()
+    expect(screen.getByText('No hay charlas... todavía')).toBeInTheDocument()
   })
 })
