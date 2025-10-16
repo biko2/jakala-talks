@@ -2,7 +2,7 @@
 
 import { Talk } from '@/src/domain/entities/Talk'
 import TalkCard from '../TalkCard'
-import { Container, Header, List, VotingStatus } from './TalksList.styles'
+import { Container, EmptyTalksListHeader, Header, List, VotingStatus } from './TalksList.styles'
 
 interface TalksListProps {
   talks: Talk[]
@@ -34,24 +34,29 @@ export default function TalksList({
 
   return (
     <Container>
-      <Header>Todas las charlas</Header>
-      {isLoggedIn && (
-        <VotingStatus>
-          {getVotingMessage()}
-        </VotingStatus>
-      )}
-      <List>
-        {talks.map(talk => (
-          <TalkCard
-            key={talk.id}
-            talk={talk}
-            onVote={onVote}
-            isLoggedIn={isLoggedIn}
-            isVoted={userVotes.includes(talk.id)}
-            isVotingEnabled={isVotingEnabled}
-          />
-        ))}
-      </List>
+      {talks.length === 0
+        ? <EmptyTalksListHeader>No hay charlas... todavía</EmptyTalksListHeader>
+        : <>
+          <Header>Todas las charlas</Header>
+          {isLoggedIn && (
+            <VotingStatus>
+              {getVotingMessage()}
+            </VotingStatus>
+          )}
+          <List>
+            {talks.map(talk => (
+              <TalkCard
+                key={talk.id}
+                talk={talk}
+                onVote={onVote}
+                isLoggedIn={isLoggedIn}
+                isVoted={userVotes.includes(talk.id)}
+                isVotingEnabled={isVotingEnabled}
+              />
+            ))}
+          </List>
+        </>
+      }
     </Container>
   )
 }

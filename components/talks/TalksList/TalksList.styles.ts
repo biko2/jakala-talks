@@ -4,6 +4,14 @@ export const Container = styled.main`
   width: 100%;
 `;
 
+export const EmptyTalksListHeader = styled.h2`
+  font-size: 30px;
+  font-weight: 600;
+  color: #1f2937;
+  display: flex;
+  justify-content: center;
+`;
+
 export const Header = styled.h2`
   font-size: 18px;
   font-weight: 600;
