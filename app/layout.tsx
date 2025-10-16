@@ -32,7 +32,7 @@ const merriweather = Merriweather({
 
 export const metadata: Metadata = {
   title: "Jakala Open",
-  description: "Site para proponer y cvotar charlas para el Open de Jakala",
+  description: "Site para proponer y votar charlas para el Open de Jakala",
 };
 
 export default function RootLayout({
