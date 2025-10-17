@@ -34,15 +34,15 @@ export default function TalksList({
 
   return (
     <Container>
+      {isLoggedIn && (
+        <VotingStatus>
+          {getVotingMessage()}
+        </VotingStatus>
+      )}
       {talks.length === 0
         ? <EmptyTalksListHeader>No hay charlas... todavía</EmptyTalksListHeader>
         : <>
           <Header>Todas las charlas</Header>
-          {isLoggedIn && (
-            <VotingStatus>
-              {getVotingMessage()}
-            </VotingStatus>
-          )}
           <List>
             {talks.map(talk => (
               <TalkCard
