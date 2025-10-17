@@ -173,13 +173,17 @@ export default function Home() {
   return (
     <>
       <div style={{
-        minHeight: '100vh',
-        minWidth: '100%',
+        height: '100vh',
+        width: '100%',
         backgroundImage: 'url(/OpenBiko2.jpg)',
         backgroundSize: 'cover',
         backgroundPosition: 'center',
         backgroundRepeat: 'no-repeat',
-        position: 'relative'
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0
       }}>
         <div style={{
           position: 'absolute',
@@ -190,25 +194,29 @@ export default function Home() {
           backgroundColor: 'rgba(4, 0, 102, 0.85)',
           zIndex: 1
         }} />
+      </div>
 
-        <div style={{ position: 'relative', zIndex: 2 }}>
-          <Header user={user} onNewTalkClick={() => setIsModalOpen(true)} canCreateNewTalks={canCreateNewTalks} />
+      <div style={{
+        position: 'relative',
+        zIndex: 2,
+        minHeight: '100vh',
+        marginBottom: '20px'
+      }}>
+        <Header user={user} onNewTalkClick={() => setIsModalOpen(true)} canCreateNewTalks={canCreateNewTalks} />
 
-          <div style={{
-            maxWidth: '1200px',
-            margin: '0 auto',
-            padding: '0 20px 40px'
-          }}>
-
-            <TalksList
-              talks={talks}
-              onVote={handleVote}
-              isLoggedIn={!!user}
-              userVotes={userVotes}
-              maxVotesPerUser={maxVotesPerUser}
-              isVotingEnabled={isVotingEnabled}
-            />
-          </div>
+        <div style={{
+          maxWidth: '1200px',
+          margin: '0 auto',
+          padding: '0 20px 40px'
+        }}>
+          <TalksList
+            talks={talks}
+            onVote={handleVote}
+            isLoggedIn={!!user}
+            userVotes={userVotes}
+            maxVotesPerUser={maxVotesPerUser}
+            isVotingEnabled={isVotingEnabled}
+          />
         </div>
       </div>
 
