@@ -48,7 +48,7 @@ describe('Header', () => {
     render(<Header user={null} />)
 
     const logo = screen.getByAltText('Jakala Logo')
-    expect(logo).toHaveAttribute('src', '/Logo.png')
+    expect(logo).toHaveAttribute('src', '/Logo.svg')
   })
 
   it('debería mostrar botón de nueva charla cuando usuario está logeado y canCreateNewTalks es true', () => {
