@@ -43,7 +43,7 @@ export default function Header({ user, onNewTalkClick, canCreateNewTalks = true 
       <Banner>
         <Content>
           <LogoContainer>
-            <Logo src="/Jakala logo_rgb_white.png" alt="Jakala Logo" />
+            <Logo src="/Logo.svg" alt="Jakala Logo" />
           </LogoContainer>
         </Content>
       </Banner>
