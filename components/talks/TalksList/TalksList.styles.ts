@@ -28,7 +28,7 @@ export const VotingStatus = styled.div`
   color: #1e40af;
   font-weight: 500;
   text-align: center;
-  margin-bottom: 16px;
+  margin-bottom: 24px;
 `;
 
 export const List = styled.div`

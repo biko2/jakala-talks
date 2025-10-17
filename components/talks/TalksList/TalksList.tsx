@@ -28,17 +28,17 @@ export default function TalksList({
       return 'La votación estára habilitada el 7 de Noviembre'
     }
 
-    return `Has votado ${userVotes.length} de ${maxVotesPerUser} charlas${remainingVotes > 0 ? ` (${remainingVotes} votos restantes)` : ''
-      }`
+    if (isLoggedIn) {
+      return `Has votado ${userVotes.length} de ${maxVotesPerUser} charlas${remainingVotes > 0 ? ` (${remainingVotes} votos restantes)` : ''
+        }`
+    }
   }
 
   return (
     <Container>
-      {isLoggedIn && (
-        <VotingStatus>
-          {getVotingMessage()}
-        </VotingStatus>
-      )}
+      <VotingStatus>
+        {getVotingMessage()}
+      </VotingStatus>
       {talks.length === 0
         ? <EmptyTalksListHeader>No hay charlas... todavía</EmptyTalksListHeader>
         : <>
