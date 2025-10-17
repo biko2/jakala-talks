@@ -4,7 +4,7 @@ import { useState } from 'react'
 import { User } from '@supabase/supabase-js'
 import { Plus } from 'lucide-react'
 import UserProfile from '@/components/auth/UserProfile'
-import { Banner, Container, Content, InfoSection, Logo, LogoContainer, MainTitle, Subtitle, LeftSection, RightSection } from './Header.styles'
+import { Banner, Container, InfoSection, Logo, MainTitle, Subtitle, RightSection, SecondLine } from './Header.styles'
 import { GoogleSignInButtonOfficial } from '@/components/google/GoogleSignInButton/GoogleSignInButton'
 import Icon from '@/components/ui/Icon'
 import { createClient } from '@/lib/supabase/client/browser'
@@ -40,33 +40,28 @@ export default function Header({ user, onNewTalkClick, canCreateNewTalks = true 
 
   return (
     <Container>
-      <Banner>
-        <Content>
-          <LogoContainer>
-            <Logo src="/Logo.svg" alt="Jakala Logo" />
-          </LogoContainer>
-        </Content>
-      </Banner>
-
-
       <InfoSection>
-        <MainTitle>Rincón de Charlas</MainTitle>
-        <RightSection>
-          <Subtitle>
-            {user ? (
-              <UserProfile user={user} />
-            ) : (
-              <GoogleSignInButtonOfficial disabled={loading} onClick={handleGoogleLogin} />
+        <Logo src="/Logo.svg" alt="Jakala Logo" />
+
+        <SecondLine>
+          <MainTitle>Rincón de Charlas</MainTitle>
+          <RightSection>
+            <Subtitle>
+              {user ? (
+                <UserProfile user={user} />
+              ) : (
+                <GoogleSignInButtonOfficial disabled={loading} onClick={handleGoogleLogin} />
+              )}
+            </Subtitle>
+
+
+            {user && onNewTalkClick && canCreateNewTalks && (
+              <NewTalk onClick={onNewTalkClick} ariaLabel="Nueva charla">
+                <Icon icon={Plus} size={30} color="white" />
+              </NewTalk>
             )}
-          </Subtitle>
-
-
-          {user && onNewTalkClick && canCreateNewTalks && (
-            <NewTalk onClick={onNewTalkClick} ariaLabel="Nueva charla">
-              <Icon icon={Plus} size={30} color="white" />
-            </NewTalk>
-          )}
-        </RightSection>
+          </RightSection>
+        </SecondLine>
       </InfoSection>
     </Container>
   )

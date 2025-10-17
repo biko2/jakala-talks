@@ -175,24 +175,40 @@ export default function Home() {
       <div style={{
         minHeight: '100vh',
         minWidth: '100%',
-        backgroundColor: '#f9fafb'
+        backgroundImage: 'url(/OpenBiko2.jpg)',
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        backgroundRepeat: 'no-repeat',
+        position: 'relative'
       }}>
-        <Header user={user} onNewTalkClick={() => setIsModalOpen(true)} canCreateNewTalks={canCreateNewTalks} />
-
         <div style={{
-          maxWidth: '1200px',
-          margin: '0 auto',
-          padding: '0 20px 40px'
-        }}>
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          backgroundColor: 'rgba(4, 0, 102, 0.85)',
+          zIndex: 1
+        }} />
 
-          <TalksList
-            talks={talks}
-            onVote={handleVote}
-            isLoggedIn={!!user}
-            userVotes={userVotes}
-            maxVotesPerUser={maxVotesPerUser}
-            isVotingEnabled={isVotingEnabled}
-          />
+        <div style={{ position: 'relative', zIndex: 2 }}>
+          <Header user={user} onNewTalkClick={() => setIsModalOpen(true)} canCreateNewTalks={canCreateNewTalks} />
+
+          <div style={{
+            maxWidth: '1200px',
+            margin: '0 auto',
+            padding: '0 20px 40px'
+          }}>
+
+            <TalksList
+              talks={talks}
+              onVote={handleVote}
+              isLoggedIn={!!user}
+              userVotes={userVotes}
+              maxVotesPerUser={maxVotesPerUser}
+              isVotingEnabled={isVotingEnabled}
+            />
+          </div>
         </div>
       </div>
 

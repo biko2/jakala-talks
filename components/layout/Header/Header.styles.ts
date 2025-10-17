@@ -42,6 +42,14 @@ export const Subtitle = styled.div`
   font-weight: 300;
 `
 
+
+export const SecondLine = styled.div`
+  display: flex;
+  width: 100%;
+  align-items: center;
+  justify-content: space-between;
+`;
+
 export const InfoSection = styled.div`
   max-width: 1200px;
   margin: 0 auto;
@@ -52,16 +60,15 @@ export const InfoSection = styled.div`
   gap: 16px;
 
   @media (min-width: 768px) {
-    flex-direction: row;
     justify-content: space-between;
-    align-items: flex-start;
+    align-items: center;
   }
 `
 
 export const MainTitle = styled.h1`
   font-size: 32px;
   font-weight: 700;
-  color: #1f2937;
+  color: white;
   margin: 0 0 16px 0;
   text-align: center;
 

@@ -7,7 +7,7 @@ export const Container = styled.main`
 export const EmptyTalksListHeader = styled.h2`
   font-size: 30px;
   font-weight: 600;
-  color: #1f2937;
+  color: white;
   display: flex;
   justify-content: center;
 `;
@@ -15,7 +15,7 @@ export const EmptyTalksListHeader = styled.h2`
 export const Header = styled.h2`
   font-size: 18px;
   font-weight: 600;
-  color: #1f2937;
+  color: white;
   margin-bottom: 20px;
   padding-left: 4px;
 `;

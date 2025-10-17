@@ -32,7 +32,7 @@ export const Header = styled.div`
 export const Title = styled.h2`
   font-size: 20px;
   font-weight: 600;
-  color: #1f2937;
+  color: white;
   margin: 0;
   line-height: 1.3;
   flex: 1;
@@ -61,7 +61,7 @@ export const VoteWrapper = styled.div <{ $isVoted: boolean }>`
 `
 
 export const Description = styled.div`
-  color: #6b7280;
+  color: white;
   line-height: 1.6;
   margin-bottom: 20px;
   font-size: 14px;
@@ -95,7 +95,7 @@ export const AuthorIcon = styled.div`
 
 export const AuthorName = styled.div`
   font-weight: 500;
-  color: #374151;
+  color: white;
   font-size: 14px;
 `
 
@@ -111,7 +111,7 @@ export const DurationIcon = styled.div`
 
 export const DurationText = styled.div`
   font-size: 12px;
-  color: #6b7280;
+  color: white;
   font-weight: 500;
 `
 
@@ -121,6 +121,6 @@ export const VotesCount = styled.div`
   border-top: 1px solid #e5e7eb;
   font-weight: 600;
   font-size: 16px;
-  color: #374151;
+  color: white;
   text-align: center;
 `
