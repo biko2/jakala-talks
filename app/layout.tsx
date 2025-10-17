@@ -33,6 +33,24 @@ const merriweather = Merriweather({
 export const metadata: Metadata = {
   title: "Jakala Open",
   description: "Site para proponer y votar charlas para el Open de Jakala",
+  openGraph: {
+    title: "Jakala Open",
+    description: "Site para proponer y votar charlas para el Open de Jakala",
+    images: [
+      {
+        url: "/OpenBiko2.jpg",
+        width: 1200,
+        height: 630,
+        alt: "Jakala Open",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Jakala Open",
+    description: "Site para proponer y votar charlas para el Open de Jakala",
+    images: ["/OpenBiko2.jpg"],
+  },
 };
 
 export default function RootLayout({
