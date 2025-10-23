@@ -6,6 +6,10 @@ export const Container = styled.div`
   position: relative;
   max-width: 1440px;
   margin: 0 auto;
+
+  @media (max-width: 768px) {
+    margin: 0;
+  }
 `
 
 export const Banner = styled.div`
@@ -22,6 +26,10 @@ export const Content = styled.div`
   flex-direction: column;
   align-items: center;
   gap: 16px;
+
+  @media (max-width: 768px) {
+    margin: 0;
+  }
 `
 
 export const LogoContainer = styled.div`
@@ -38,6 +46,10 @@ export const LogoRow = styled.div`
   position: relative;
   margin-bottom: 16px;
   padding: 8px 0;
+
+  @media (max-width: 768px) {
+    justify-content: space-around;
+  }
 `
 
 export const Logo = styled.img`
@@ -45,7 +57,7 @@ export const Logo = styled.img`
   width: auto;
   
   @media (max-width: 768px) {
-    height: 50px;
+    height: 48px;
   }
 `
 
@@ -81,6 +93,10 @@ export const SecondLine = styled.div`
   align-items: center;
   margin: 0 auto;
   justify-content: space-between;
+
+  @media (max-width: 768px) {
+    flex-direction: column;
+  }
 `;
 
 export const InfoSection = styled.div`
@@ -98,7 +114,7 @@ export const InfoSection = styled.div`
   }
 
   @media (max-width: 768px) {
-    padding: 0px 20px;
+    padding: 0;
   }
 `
 
