@@ -77,4 +77,14 @@ describe('Header', () => {
     const newTalkButton = screen.queryByRole('button', { name: /nueva charla/i })
     expect(newTalkButton).not.toBeInTheDocument()
   })
+
+  it('debería renderizar el link a la última edición de Open Space', () => {
+    render(<Header user={null} />)
+
+    const openSpaceLink = screen.getByText('Open de Jakala')
+    expect(openSpaceLink).toBeInTheDocument()
+    expect(openSpaceLink).toHaveAttribute('href', 'https://open-space.jakala.es/')
+    expect(openSpaceLink).toHaveAttribute('target', '_blank')
+    expect(openSpaceLink).toHaveAttribute('rel', 'noopener noreferrer')
+  })
 })

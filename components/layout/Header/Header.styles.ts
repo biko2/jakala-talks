@@ -3,6 +3,9 @@ import styled from 'styled-components'
 export const Container = styled.div`
   width: 100%;
   padding: 16px 0px;
+  position: relative;
+  max-width: 1440px;
+  margin: 0 auto;
 `
 
 export const Banner = styled.div`
@@ -27,12 +30,42 @@ export const LogoContainer = styled.div`
   align-items: center;
 `
 
+export const LogoRow = styled.div`
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  margin-bottom: 16px;
+  padding: 8px 0;
+`
+
 export const Logo = styled.img`
   height: 96px;
   width: auto;
   
   @media (max-width: 768px) {
     height: 50px;
+  }
+`
+
+export const OpenSpaceLink = styled.a`
+  position: absolute;
+  right: 0;
+  color: white;
+  font-size: 14px;
+  font-weight: 500;
+  font-family: var(--font-raleway), system-ui, sans-serif;
+  text-decoration: none;
+  transition: color 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+  &:hover {
+    color: rgb(240, 10, 10);
+  }
+
+  @media (max-width: 768px) {
+    position: static;
+    margin-top: 8px;
   }
 `
 
@@ -46,13 +79,14 @@ export const SecondLine = styled.div`
   display: flex;
   width: 100%;
   align-items: center;
+  margin: 0 auto;
   justify-content: space-between;
 `;
 
 export const InfoSection = styled.div`
-  max-width: 1200px;
+  max-width: 1024px;
   margin: 0 auto;
-  padding: 0px 20px;
+  padding: 0px 56px;
   display: flex; 
   flex-direction: column;
   align-items: center;
@@ -61,6 +95,10 @@ export const InfoSection = styled.div`
   @media (min-width: 768px) {
     justify-content: space-between;
     align-items: center;
+  }
+
+  @media (max-width: 768px) {
+    padding: 0px 20px;
   }
 `
 

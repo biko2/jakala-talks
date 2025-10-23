@@ -4,7 +4,7 @@ import { useState } from 'react'
 import { User } from '@supabase/supabase-js'
 import { Plus } from 'lucide-react'
 import UserProfile from '@/components/auth/UserProfile'
-import { Banner, Container, InfoSection, Logo, MainTitle, Subtitle, RightSection, SecondLine } from './Header.styles'
+import { Banner, Container, InfoSection, Logo, LogoRow, OpenSpaceLink, MainTitle, Subtitle, RightSection, SecondLine } from './Header.styles'
 import { GoogleSignInButtonOfficial } from '@/components/google/GoogleSignInButton/GoogleSignInButton'
 import Icon from '@/components/ui/Icon'
 import { createClient } from '@/lib/supabase/client/browser'
@@ -41,7 +41,12 @@ export default function Header({ user, onNewTalkClick, canCreateNewTalks = true 
   return (
     <Container>
       <InfoSection>
-        <Logo src="/Logo.svg" alt="Jakala Logo" />
+        <LogoRow>
+          <Logo src="/Logo.svg" alt="Jakala Logo" />
+          <OpenSpaceLink href="https://open-space.jakala.es/" target="_blank" rel="noopener noreferrer">
+            Open de Jakala
+          </OpenSpaceLink>
+        </LogoRow>
 
         <SecondLine>
           <MainTitle>Rincón de Charlas</MainTitle>
