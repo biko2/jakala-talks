@@ -2,6 +2,7 @@ import styled from 'styled-components'
 
 export const Container = styled.div`
   width: 100%;
+  padding: 16px 0px;
 `
 
 export const Banner = styled.div`
@@ -27,8 +28,7 @@ export const LogoContainer = styled.div`
 `
 
 export const Logo = styled.img`
-  height: 80px;
-  margin: 20px;
+  height: 96px;
   width: auto;
   
   @media (max-width: 768px) {
@@ -42,7 +42,6 @@ export const Subtitle = styled.div`
   font-weight: 300;
 `
 
-
 export const SecondLine = styled.div`
   display: flex;
   width: 100%;
@@ -53,7 +52,7 @@ export const SecondLine = styled.div`
 export const InfoSection = styled.div`
   max-width: 1200px;
   margin: 0 auto;
-  padding: 32px 20px;
+  padding: 0px 20px;
   display: flex; 
   flex-direction: column;
   align-items: center;
