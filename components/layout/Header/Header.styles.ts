@@ -132,7 +132,7 @@ export const ThirdLine = styled.div`
 `;
 
 export const InfoSection = styled.div`
-  max-width: 1024px;
+  max-width: 1084px;
   margin: 0 auto;
   padding: 0px 56px;
   display: flex; 

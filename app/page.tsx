@@ -205,7 +205,7 @@ export default function Home() {
         <Header user={user} onNewTalkClick={() => setIsModalOpen(true)} canCreateNewTalks={canCreateNewTalks} />
 
         <div style={{
-          maxWidth: '1024px',
+          maxWidth: '1084x',
           margin: '0 auto',
           padding: '0 32px 40px'
         }}>
