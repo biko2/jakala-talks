@@ -66,10 +66,12 @@ export default function Header({ user, onNewTalkClick, canCreateNewTalks = true 
           </RightSection>
         </SecondLine>
 
-        <ThirdLine>
-          <span>¡IMPORTANTE! Debes <strong>iniciar sesión con Google</strong> para poder votar.</span>
-          <GoogleSignInButtonOfficial disabled={loading} onClick={handleGoogleLogin} />
-        </ThirdLine>
+        {!user && (
+          <ThirdLine>
+            <span>¡IMPORTANTE! Debes <strong>iniciar sesión con Google</strong> para poder votar.</span>
+            <GoogleSignInButtonOfficial disabled={loading} onClick={handleGoogleLogin} />
+          </ThirdLine>
+        )}
       </InfoSection>
     </Container>
   )
