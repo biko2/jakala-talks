@@ -4,7 +4,7 @@ import { useState } from 'react'
 import { User } from '@supabase/supabase-js'
 import { Plus } from 'lucide-react'
 import UserProfile from '@/components/auth/UserProfile'
-import { Banner, Container, InfoSection, Logo, LogoRow, OpenSpaceLink, MainTitle, Subtitle, RightSection, SecondLine } from './Header.styles'
+import { Banner, Container, InfoSection, Logo, LogoRow, OpenSpaceLink, MainTitle, Subtitle, RightSection, SecondLine, ThirdLine } from './Header.styles'
 import { GoogleSignInButtonOfficial } from '@/components/google/GoogleSignInButton/GoogleSignInButton'
 import Icon from '@/components/ui/Icon'
 import { createClient } from '@/lib/supabase/client/browser'
@@ -52,21 +52,24 @@ export default function Header({ user, onNewTalkClick, canCreateNewTalks = true 
           <MainTitle>Rincón de Charlas</MainTitle>
           <RightSection>
             <Subtitle>
-              {user ? (
+              {user && (
                 <UserProfile user={user} />
-              ) : (
-                <GoogleSignInButtonOfficial disabled={loading} onClick={handleGoogleLogin} />
               )}
             </Subtitle>
-
-
             {user && onNewTalkClick && canCreateNewTalks && (
               <NewTalk onClick={onNewTalkClick} ariaLabel="Nueva charla">
                 <Icon icon={Plus} size={30} color="white" />
               </NewTalk>
             )}
+
+
           </RightSection>
         </SecondLine>
+
+        <ThirdLine>
+          <span>¡IMPORTANTE! Debes <strong>iniciar sesión con Google</strong> para poder votar.</span>
+          <GoogleSignInButtonOfficial disabled={loading} onClick={handleGoogleLogin} />
+        </ThirdLine>
       </InfoSection>
     </Container>
   )

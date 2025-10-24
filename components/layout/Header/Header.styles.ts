@@ -99,6 +99,38 @@ export const SecondLine = styled.div`
   }
 `;
 
+export const ThirdLine = styled.div`
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  background-color: rgb(221, 228, 233);
+  color: rgb(32, 49, 75);
+  padding: 32px;
+  border-radius: 12px;
+  margin: 0px 24px 32px;
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 24px;
+  width: 100%;
+
+  span {
+    display: block;
+    font-size: 16px;
+    line-height: 24px;
+    color: rgb(32, 49, 75);
+  }
+
+  @media (max-width: 768px) {
+    flex-direction: column;
+    padding: 24px 16px;
+    margin: 0px 16px 24px;
+    gap: 16px;
+    text-align: center;
+  }
+`;
+
 export const InfoSection = styled.div`
   max-width: 1024px;
   margin: 0 auto;
