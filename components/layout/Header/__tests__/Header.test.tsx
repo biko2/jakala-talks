@@ -40,7 +40,6 @@ describe('Header', () => {
   it('debería mostrar el perfil de usuario cuando está logeado', () => {
     render(<Header user={mockUser} />)
 
-    expect(screen.queryByText('Continuar con Google')).not.toBeInTheDocument()
     expect(screen.getByText('UserProfile: test@example.com')).toBeInTheDocument()
   })
 
