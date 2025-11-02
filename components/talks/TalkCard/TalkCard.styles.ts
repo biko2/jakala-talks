@@ -10,7 +10,7 @@ export const Container = styled.div<{ $isClickable?: boolean }>`
   transition: all 0.2s ease;
   border: 1px solid #e5e7eb;
   opacity: 1;
-  height: 400px;
+  height: 480px;
   display: flex;
   flex-direction: column;
   position: relative;
