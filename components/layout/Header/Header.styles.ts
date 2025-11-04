@@ -171,7 +171,6 @@ export const MainTitle = styled.h1`
   font-size: 24px;
   font-weight: 700;
   color: white;
-  margin: 0 0 16px 0;
   text-align: center;
   flex: 1;
 
@@ -180,6 +179,7 @@ export const MainTitle = styled.h1`
     flex: 1;
     height: 1px;
     background-color: white;
+    margin-right: 16px;
   }
 
   @media (min-width: 768px) {
