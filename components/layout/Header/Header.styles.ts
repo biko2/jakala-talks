@@ -87,7 +87,8 @@ export const Subtitle = styled.div`
   font-weight: 300;
 `
 
-export const SecondLine = styled.div`
+
+export const ThirdLine = styled.div`
   display: flex;
   width: 100%;
   align-items: center;
@@ -99,7 +100,20 @@ export const SecondLine = styled.div`
   }
 `;
 
-export const ThirdLine = styled.div`
+export const SecondLine = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 40px 0px;
+`;
+
+export const InfoPargraph = styled.p`
+  text-align: center;
+  font-weight: 600;
+  font-size: 18px;
+`;
+
+export const FourthLine = styled.div`
   display: flex;
   flex-direction: row;
   align-items: center;
@@ -132,7 +146,7 @@ export const ThirdLine = styled.div`
 `;
 
 export const InfoSection = styled.div`
-  max-width: 1084px;
+  max-width: 1330px;
   margin: 0 auto;
   padding: 0px 56px;
   display: flex; 
@@ -151,14 +165,31 @@ export const InfoSection = styled.div`
 `
 
 export const MainTitle = styled.h1`
-  font-size: 32px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  font-size: 24px;
   font-weight: 700;
   color: white;
   margin: 0 0 16px 0;
   text-align: center;
+  flex: 1;
+
+  &::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background-color: white;
+  }
 
   @media (min-width: 768px) {
     text-align: left;
+  }
+
+  @media (max-width: 768px) {
+    &::after {
+      display: none;
+    }
   }
 `
 

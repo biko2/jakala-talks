@@ -4,7 +4,7 @@ import { useState } from 'react'
 import { User } from '@supabase/supabase-js'
 import { Plus } from 'lucide-react'
 import UserProfile from '@/components/auth/UserProfile'
-import { Banner, Container, InfoSection, Logo, LogoRow, OpenSpaceLink, MainTitle, Subtitle, RightSection, SecondLine, ThirdLine } from './Header.styles'
+import { Container, InfoSection, Logo, LogoRow, OpenSpaceLink, MainTitle, Subtitle, RightSection, ThirdLine, FourthLine, InfoPargraph, SecondLine } from './Header.styles'
 import { GoogleSignInButtonOfficial } from '@/components/google/GoogleSignInButton/GoogleSignInButton'
 import Icon from '@/components/ui/Icon'
 import { createClient } from '@/lib/supabase/client/browser'
@@ -49,6 +49,11 @@ export default function Header({ user, onNewTalkClick, canCreateNewTalks = true 
         </LogoRow>
 
         <SecondLine>
+          <InfoPargraph>¿Qué puedes proponer? Lo que quieras: una charla técnica, un debate, ¡COMO SI QUIERES PROPONER UN TALLER DE COCINA! Los asistentes decidirán si sale o no.</InfoPargraph>
+          <InfoPargraph>La idea es que estas charlas se lleven a cabo por la mañana en 2 huecos, de 9:30 a 10: 15 (45 minutos) y de 10:30 a 11:00 (30 minutos)</InfoPargraph>
+        </SecondLine>
+
+        <ThirdLine>
           <MainTitle>Rincón de Charlas</MainTitle>
           <RightSection>
             <Subtitle>
@@ -64,13 +69,13 @@ export default function Header({ user, onNewTalkClick, canCreateNewTalks = true 
 
 
           </RightSection>
-        </SecondLine>
+        </ThirdLine>
 
         {!user && (
-          <ThirdLine>
+          <FourthLine>
             <span>¡IMPORTANTE! Debes <strong>iniciar sesión con Google</strong> para poder proponer charlas y luego votar.</span>
             <GoogleSignInButtonOfficial disabled={loading} onClick={handleGoogleLogin} />
-          </ThirdLine>
+          </FourthLine>
         )}
       </InfoSection>
     </Container>
