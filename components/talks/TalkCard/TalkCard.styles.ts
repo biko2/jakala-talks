@@ -20,6 +20,10 @@ export const Container = styled.div<{ $isClickable?: boolean }>`
     transform: ${props => props.$isClickable ? 'translateY(-2px)' : 'none'};
     box-shadow: ${props => props.$isClickable ? '0 4px 12px rgba(0, 0, 0, 0.15)' : '0 2px 4px rgba(0, 0, 0, 0.1)'};
   }
+
+  @media (max-width: 768px) {
+    height: 600px;
+  }
 `
 
 export const Header = styled.div`
