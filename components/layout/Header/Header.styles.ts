@@ -104,7 +104,7 @@ export const SecondLine = styled.div`
   display: flex;
   flex-direction: column;
   gap: 16px;
-  padding: 40px 0px;
+  padding: 40px 20px;
 `;
 
 export const InfoPargraph = styled.p`
