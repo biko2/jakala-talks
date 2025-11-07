@@ -148,7 +148,6 @@ export default function Home() {
       setTalks(previousTalks)
       setUserVotes(previousUserVotes)
       console.error('Error al votar:', error)
-      alert(error instanceof Error ? error.message : 'Error desconocido al votar')
     }
   }
 
