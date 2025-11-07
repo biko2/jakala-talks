@@ -36,7 +36,7 @@ export default function TalksList({
 
   return (
     <Container>
-      {isVotingEnabled && !isLoggedIn && (
+      {(!isVotingEnabled || isLoggedIn) && (
         <VotingStatus>
           {getVotingMessage()}
         </VotingStatus>
