@@ -106,10 +106,14 @@ export default function Home() {
   const handleVote = async (talkId: string) => {
     if (!user) return
 
+    const isCurrentlyVoted = userVotes.includes(talkId)
+
+    if (!isCurrentlyVoted && userVotes.length >= maxVotesPerUser) {
+      return
+    }
+
     const previousTalks = [...talks]
     const previousUserVotes = [...userVotes]
-
-    const isCurrentlyVoted = userVotes.includes(talkId)
 
     const optimisticTalks = talks.map(talk => {
       if (talk.id === talkId) {
