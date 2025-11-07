@@ -5,8 +5,6 @@ const mockTalkRepository = (): ITalkRepository => ({
   findAll: jest.fn(),
   findById: jest.fn(),
   create: jest.fn(),
-  incrementVote: jest.fn(),
-  decrementVote: jest.fn(),
   addUserVote: jest.fn(),
   removeUserVote: jest.fn(),
   getUserVotes: jest.fn(),

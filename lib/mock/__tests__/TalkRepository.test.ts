@@ -48,41 +48,35 @@ describe('MockTalkRepository', () => {
       await repository.create(newTalk)
       const savedTalk = await repository.findById('new-talk-id')
 
-      expect(savedTalk).toEqual(newTalk)
+      expect(savedTalk?.id).toBe(newTalk.id)
+      expect(savedTalk?.title).toBe(newTalk.title)
+      expect(savedTalk?.description).toBe(newTalk.description)
+      expect(savedTalk?.author).toBe(newTalk.author)
+      expect(savedTalk?.duration).toBe(newTalk.duration)
     })
   })
 
-  describe('incrementVote', () => {
-    it('debería incrementar los votos de una charla', async () => {
+  describe('conteo de votos', () => {
+    it('debería contar los votos desde user_votes', async () => {
+      await repository.addUserVote({ userId: 'user-1', talkId: 'mock-talk-2', createdAt: new Date() })
+      await repository.addUserVote({ userId: 'user-2', talkId: 'mock-talk-2', createdAt: new Date() })
+      await repository.addUserVote({ userId: 'user-3', talkId: 'mock-talk-2', createdAt: new Date() })
+
       const talk = await repository.findById('mock-talk-2')
-      const initialVotes = talk?.votes || 0
-
-      await repository.incrementVote('mock-talk-2')
-
-      const updatedTalk = await repository.findById('mock-talk-2')
-      expect(updatedTalk?.votes).toBe(initialVotes + 1)
+      expect(talk?.votes).toBe(3)
     })
 
-    it('debería lanzar error para charla inexistente', async () => {
-      await expect(repository.incrementVote('non-existent-id'))
-        .rejects.toThrow('Charla no encontrada')
-    })
-  })
+    it('debería actualizar el conteo cuando se elimina un voto', async () => {
+      await repository.addUserVote({ userId: 'user-1', talkId: 'mock-talk-3', createdAt: new Date() })
+      await repository.addUserVote({ userId: 'user-2', talkId: 'mock-talk-3', createdAt: new Date() })
 
-  describe('decrementVote', () => {
-    it('debería decrementar los votos de una charla', async () => {
-      const talk = await repository.findById('mock-talk-1')
-      const initialVotes = talk?.votes || 0
+      let talk = await repository.findById('mock-talk-3')
+      expect(talk?.votes).toBe(2)
 
-      await repository.decrementVote('mock-talk-1')
+      await repository.removeUserVote('user-1', 'mock-talk-3')
 
-      const updatedTalk = await repository.findById('mock-talk-1')
-      expect(updatedTalk?.votes).toBe(Math.max(0, initialVotes - 1))
-    })
-
-    it('debería lanzar error para charla inexistente', async () => {
-      await expect(repository.decrementVote('non-existent-id'))
-        .rejects.toThrow('Charla no encontrada')
+      talk = await repository.findById('mock-talk-3')
+      expect(talk?.votes).toBe(1)
     })
   })
 
@@ -99,22 +93,22 @@ describe('MockTalkRepository', () => {
 
   describe('removeUserVote', () => {
     it('debería quitar un voto de usuario', async () => {
-      await repository.removeUserVote('user-id', 'mock-talk-1')
+      await repository.removeUserVote('mock-user', 'mock-talk-1')
 
-      const votes = await repository.getUserVotes('user-id')
+      const votes = await repository.getUserVotes('mock-user')
       expect(votes).not.toContain('mock-talk-1')
     })
   })
 
   describe('hasUserVotedForTalk', () => {
     it('debería retornar true si el usuario votó por la charla', async () => {
-      const hasVoted = await repository.hasUserVotedForTalk('user-id', 'mock-talk-1')
+      const hasVoted = await repository.hasUserVotedForTalk('mock-user', 'mock-talk-1')
 
       expect(hasVoted).toBe(true)
     })
 
     it('debería retornar false si el usuario no votó por la charla', async () => {
-      const hasVoted = await repository.hasUserVotedForTalk('user-id', 'mock-talk-2')
+      const hasVoted = await repository.hasUserVotedForTalk('mock-user', 'mock-talk-2')
 
       expect(hasVoted).toBe(false)
     })
@@ -122,7 +116,7 @@ describe('MockTalkRepository', () => {
 
   describe('getUserVotes', () => {
     it('debería retornar los votos del usuario', async () => {
-      const votes = await repository.getUserVotes('user-id')
+      const votes = await repository.getUserVotes('mock-user')
 
       expect(votes).toContain('mock-talk-1')
       expect(votes).toHaveLength(1)

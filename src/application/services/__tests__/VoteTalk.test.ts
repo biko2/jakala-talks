@@ -7,8 +7,6 @@ const mockTalkRepository = (): ITalkRepository => ({
   findAll: jest.fn(),
   findById: jest.fn(),
   create: jest.fn(),
-  incrementVote: jest.fn(),
-  decrementVote: jest.fn(),
   addUserVote: jest.fn(),
   removeUserVote: jest.fn(),
   getUserVotes: jest.fn(),
@@ -41,7 +39,6 @@ describe('VoteTalk', () => {
       const repository = mockTalkRepository()
         ; (repository.getUserVotes as jest.Mock).mockResolvedValue(['talk1'])
         ; (repository.addUserVote as jest.Mock).mockResolvedValue(undefined)
-        ; (repository.incrementVote as jest.Mock).mockResolvedValue(undefined)
 
       const useCase = new VoteTalk(repository, mockConfigRepo)
       await useCase.execute('user1', 'talk2')
@@ -51,7 +48,6 @@ describe('VoteTalk', () => {
         userId: 'user1',
         talkId: 'talk2'
       }))
-      expect(repository.incrementVote).toHaveBeenCalledWith('talk2')
     })
 
     it('debería lanzar error si el usuario ya tiene 3 votos', async () => {
@@ -72,14 +68,12 @@ describe('VoteTalk', () => {
       const repository = mockTalkRepository()
         ; (repository.getUserVotes as jest.Mock).mockResolvedValue(['talk1', 'talk2'])
         ; (repository.removeUserVote as jest.Mock).mockResolvedValue(undefined)
-        ; (repository.decrementVote as jest.Mock).mockResolvedValue(undefined)
 
       const useCase = new VoteTalk(repository, mockConfigRepo)
       await useCase.execute('user1', 'talk1')
 
       expect(repository.getUserVotes).toHaveBeenCalledWith('user1')
       expect(repository.removeUserVote).toHaveBeenCalledWith('user1', 'talk1')
-      expect(repository.decrementVote).toHaveBeenCalledWith('talk1')
     })
   })
 
@@ -89,13 +83,11 @@ describe('VoteTalk', () => {
       const repository = mockTalkRepository()
         ; (repository.getUserVotes as jest.Mock).mockResolvedValue([])
         ; (repository.addUserVote as jest.Mock).mockResolvedValue(undefined)
-        ; (repository.incrementVote as jest.Mock).mockResolvedValue(undefined)
 
       const useCase = new VoteTalk(repository, mockConfigRepo)
       await useCase.execute('user1', 'talk1')
 
       expect(repository.addUserVote).toHaveBeenCalled()
-      expect(repository.incrementVote).toHaveBeenCalledWith('talk1')
     })
   })
 })

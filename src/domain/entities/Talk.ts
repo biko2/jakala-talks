@@ -28,26 +28,4 @@ export class Talk {
       throw new Error('La descripción no puede exceder los 400 caracteres')
     }
   }
-
-  addVote(): Talk {
-    return new Talk(
-      this.id,
-      this.title,
-      this.description,
-      this.author,
-      this.duration,
-      this.votes + 1
-    )
-  }
-
-  removeVote(): Talk {
-    return new Talk(
-      this.id,
-      this.title,
-      this.description,
-      this.author,
-      this.duration,
-      Math.max(0, this.votes - 1)
-    )
-  }
 }

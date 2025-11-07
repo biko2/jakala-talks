@@ -31,34 +31,17 @@ describe('Talk', () => {
     expect(defaultTalk.votes).toBe(0)
   })
 
-  it('debería añadir un voto correctamente', () => {
-    const votedTalk = sampleTalk.addVote()
+  it('debería permitir crear una charla con votos especificados', () => {
+    const talkWithVotes = new Talk(
+      '3',
+      'Test Talk',
+      'Test Description',
+      'Test Author',
+      30,
+      10
+    )
 
-    expect(votedTalk.votes).toBe(6)
-    expect(votedTalk.id).toBe(sampleTalk.id)
-    expect(votedTalk.title).toBe(sampleTalk.title)
-  })
-
-  it('debería quitar un voto correctamente', () => {
-    const unvotedTalk = sampleTalk.removeVote()
-
-    expect(unvotedTalk.votes).toBe(4)
-    expect(unvotedTalk.id).toBe(sampleTalk.id)
-  })
-
-  it('no debería permitir votos negativos', () => {
-    const zeroVotesTalk = new Talk('3', 'Test', 'Test', 'Test', 30, 0)
-    const unvotedTalk = zeroVotesTalk.removeVote()
-
-    expect(unvotedTalk.votes).toBe(0)
-  })
-
-  it('debería mantener inmutabilidad al modificar votos', () => {
-    const votedTalk = sampleTalk.addVote()
-
-    expect(sampleTalk.votes).toBe(5)
-    expect(votedTalk.votes).toBe(6)
-    expect(sampleTalk).not.toBe(votedTalk)
+    expect(talkWithVotes.votes).toBe(10)
   })
 
   describe('Validaciones de título', () => {

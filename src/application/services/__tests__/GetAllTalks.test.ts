@@ -1,13 +1,15 @@
 import { GetAllTalks } from '../GetAllTalks'
-import { TalkRepository } from '@/src/domain/ports/TalkRepository'
+import { ITalkRepository } from '@/src/domain/ports/TalkRepository'
 import { Talk } from '@/src/domain/entities/Talk'
 
-const mockTalkRepository = (): TalkRepository => ({
+const mockTalkRepository = (): ITalkRepository => ({
   findAll: jest.fn(),
   findById: jest.fn(),
   create: jest.fn(),
-  incrementVote: jest.fn(),
-  decrementVote: jest.fn()
+  addUserVote: jest.fn(),
+  removeUserVote: jest.fn(),
+  getUserVotes: jest.fn(),
+  hasUserVotedForTalk: jest.fn()
 })
 
 describe('GetAllTalks', () => {

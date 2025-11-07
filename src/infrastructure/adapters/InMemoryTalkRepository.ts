@@ -6,36 +6,45 @@ export class InMemoryTalkRepository implements ITalkRepository {
   private talks: Map<string, Talk> = new Map()
   private userVotes: Map<string, Set<string>> = new Map()
 
+  private countVotesForTalk(talkId: string): number {
+    let count = 0
+    for (const votes of this.userVotes.values()) {
+      if (votes.has(talkId)) {
+        count++
+      }
+    }
+    return count
+  }
+
   async findAll(): Promise<Talk[]> {
-    return Array.from(this.talks.values())
+    const talks = Array.from(this.talks.values())
+    return talks.map(talk => new Talk(
+      talk.id,
+      talk.title,
+      talk.description,
+      talk.author,
+      talk.duration,
+      this.countVotesForTalk(talk.id)
+    ))
   }
 
   async findById(id: string): Promise<Talk | null> {
-    return this.talks.get(id) ?? null
+    const talk = this.talks.get(id)
+    if (!talk) {
+      return null
+    }
+    return new Talk(
+      talk.id,
+      talk.title,
+      talk.description,
+      talk.author,
+      talk.duration,
+      this.countVotesForTalk(talk.id)
+    )
   }
 
   async create(talk: Talk): Promise<void> {
     this.talks.set(talk.id, talk)
-  }
-
-  async incrementVote(talkId: string): Promise<void> {
-    const talk = this.talks.get(talkId)
-    if (!talk) {
-      throw new Error('Charla no encontrada')
-    }
-
-    const updatedTalk = talk.addVote()
-    this.talks.set(talkId, updatedTalk)
-  }
-
-  async decrementVote(talkId: string): Promise<void> {
-    const talk = this.talks.get(talkId)
-    if (!talk) {
-      throw new Error('Charla no encontrada')
-    }
-
-    const updatedTalk = talk.removeVote()
-    this.talks.set(talkId, updatedTalk)
   }
 
   async addUserVote(userVote: UserVote): Promise<void> {

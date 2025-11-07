@@ -50,24 +50,62 @@ describe('InMemoryTalkRepository', () => {
     expect(talk).toBeNull()
   })
 
-  it('debería incrementar votos correctamente', async () => {
+  it('debería contar votos desde user_votes', async () => {
     const newTalk = new Talk('1', 'Test Talk', 'Test Description', 'Test Author', 30, 0)
     await repository.create(newTalk)
 
-    await repository.incrementVote('1')
+    const userVote1 = { userId: 'user-1', talkId: '1', createdAt: new Date() }
+    const userVote2 = { userId: 'user-2', talkId: '1', createdAt: new Date() }
+    const userVote3 = { userId: 'user-3', talkId: '1', createdAt: new Date() }
 
-    const updatedTalk = await repository.findById('1')
-    expect(updatedTalk!.votes).toBe(1)
+    await repository.addUserVote(userVote1)
+    await repository.addUserVote(userVote2)
+    await repository.addUserVote(userVote3)
+
+    const talkWithVotes = await repository.findById('1')
+    expect(talkWithVotes!.votes).toBe(3)
   })
 
-  it('debería decrementar votos correctamente', async () => {
-    const newTalk = new Talk('1', 'Test Talk', 'Test Description', 'Test Author', 30, 5)
+  it('debería actualizar el conteo de votos cuando se elimina un voto', async () => {
+    const newTalk = new Talk('1', 'Test Talk', 'Test Description', 'Test Author', 30, 0)
     await repository.create(newTalk)
 
-    await repository.decrementVote('1')
+    const userVote1 = { userId: 'user-1', talkId: '1', createdAt: new Date() }
+    const userVote2 = { userId: 'user-2', talkId: '1', createdAt: new Date() }
 
-    const updatedTalk = await repository.findById('1')
-    expect(updatedTalk!.votes).toBe(4)
+    await repository.addUserVote(userVote1)
+    await repository.addUserVote(userVote2)
+
+    let talkWithVotes = await repository.findById('1')
+    expect(talkWithVotes!.votes).toBe(2)
+
+    await repository.removeUserVote('user-1', '1')
+
+    talkWithVotes = await repository.findById('1')
+    expect(talkWithVotes!.votes).toBe(1)
+  })
+
+  it('debería contar correctamente votos de diferentes charlas', async () => {
+    const talk1 = new Talk('1', 'Talk 1', 'Description 1', 'Author 1', 30, 0)
+    const talk2 = new Talk('2', 'Talk 2', 'Description 2', 'Author 2', 45, 0)
+
+    await repository.create(talk1)
+    await repository.create(talk2)
+
+    const userVote1 = { userId: 'user-1', talkId: '1', createdAt: new Date() }
+    const userVote2 = { userId: 'user-2', talkId: '1', createdAt: new Date() }
+    const userVote3 = { userId: 'user-3', talkId: '2', createdAt: new Date() }
+
+    await repository.addUserVote(userVote1)
+    await repository.addUserVote(userVote2)
+    await repository.addUserVote(userVote3)
+
+    const talks = await repository.findAll()
+    const talkWithId1 = talks.find(t => t.id === '1')
+    const talkWithId2 = talks.find(t => t.id === '2')
+
+    expect(talkWithId1!.votes).toBe(2)
+    expect(talkWithId2!.votes).toBe(1)
   })
 
   it('debería crear una nueva charla correctamente', async () => {

@@ -19,10 +19,8 @@ export class VoteTalk {
     if (shouldVote) {
       const userVote = new UserVote(userId, talkId)
       await this.talkRepository.addUserVote(userVote)
-      await this.talkRepository.incrementVote(talkId)
     } else {
       await this.talkRepository.removeUserVote(userId, talkId)
-      await this.talkRepository.decrementVote(talkId)
     }
   }
 }
