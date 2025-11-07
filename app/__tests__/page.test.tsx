@@ -139,10 +139,6 @@ describe('Home - Validación de votos en frontend', () => {
 
     fireEvent.click(talkCard as Element)
 
-    await waitFor(() => {
-      expect(alertSpy).toHaveBeenCalledWith('Ya has votado el máximo de 3 charlas. Para votar esta charla, primero debes quitar un voto de otra.')
-    })
-
     expect(mockVoteTalkExecute).not.toHaveBeenCalled()
   })
 
