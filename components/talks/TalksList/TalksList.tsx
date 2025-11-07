@@ -36,9 +36,11 @@ export default function TalksList({
 
   return (
     <Container>
-      <VotingStatus>
-        {getVotingMessage()}
-      </VotingStatus>
+      {isVotingEnabled && !isLoggedIn && (
+        <VotingStatus>
+          {getVotingMessage()}
+        </VotingStatus>
+      )}
       {talks.length === 0
         ? <EmptyTalksListHeader>No hay charlas... todavía</EmptyTalksListHeader>
         : <>
