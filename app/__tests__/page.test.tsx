@@ -105,10 +105,13 @@ describe('Home - Validación de votos en frontend', () => {
   beforeEach(() => {
     jest.clearAllMocks()
     jest.spyOn(window, 'alert').mockImplementation(() => { })
+    jest.useFakeTimers()
   })
 
   afterEach(() => {
     jest.restoreAllMocks()
+    jest.runOnlyPendingTimers()
+    jest.useRealTimers()
   })
 
   it('debería prevenir votar una cuarta charla cuando ya se tienen 3 votos', async () => {
@@ -139,7 +142,11 @@ describe('Home - Validación de votos en frontend', () => {
 
     fireEvent.click(talkCard as Element)
 
-    expect(mockVoteTalkExecute).not.toHaveBeenCalled()
+    jest.advanceTimersByTime(3000)
+
+    await waitFor(() => {
+      expect(mockVoteTalkExecute).not.toHaveBeenCalled()
+    })
   })
 
   it('debería permitir votar cuando el usuario tiene menos de 3 votos', async () => {
@@ -168,6 +175,10 @@ describe('Home - Validación de votos en frontend', () => {
     const talkCard = voteLabel.closest('[class*="gLaqbQ"]')
 
     fireEvent.click(talkCard as Element)
+
+    expect(mockVoteTalkExecute).not.toHaveBeenCalled()
+
+    jest.advanceTimersByTime(3000)
 
     await waitFor(() => {
       expect(mockVoteTalkExecute).toHaveBeenCalledWith('user-123', 'talk-2')
@@ -205,6 +216,10 @@ describe('Home - Validación de votos en frontend', () => {
 
     fireEvent.click(talkCard as Element)
 
+    expect(mockVoteTalkExecute).not.toHaveBeenCalled()
+
+    jest.advanceTimersByTime(3000)
+
     await waitFor(() => {
       expect(mockVoteTalkExecute).toHaveBeenCalledWith('user-123', 'talk-1')
     })
@@ -240,11 +255,57 @@ describe('Home - Validación de votos en frontend', () => {
 
     fireEvent.click(talkCard as Element)
 
+    expect(mockVoteTalkExecute).not.toHaveBeenCalled()
+
+    jest.advanceTimersByTime(3000)
+
     await waitFor(() => {
       expect(mockVoteTalkExecute).toHaveBeenCalledWith('user-123', 'talk-3')
     })
 
     expect(alertSpy).not.toHaveBeenCalled()
+  })
+
+  it('debería hacer debounce de múltiples votos en 3 segundos', async () => {
+    const mockTalks = [
+      new Talk('talk-1', 'Charla 1', 'Descripción 1', 'Autor', 30, 0),
+      new Talk('talk-2', 'Charla 2', 'Descripción 2', 'Autor', 30, 0),
+      new Talk('talk-3', 'Charla 3', 'Descripción 3', 'Autor', 30, 0)
+    ]
+
+    mockGetAllTalksExecute.mockResolvedValue(mockTalks)
+    mockGetUserVotesExecute.mockResolvedValue([])
+    mockVoteTalkExecute.mockResolvedValue(undefined)
+
+    render(<Home />)
+
+    await waitFor(() => {
+      expect(screen.getByText('Charla 1')).toBeInTheDocument()
+    })
+
+    const voteLabels = screen.getAllByText('Votar')
+    const talkCard1 = voteLabels[0].closest('[class*="gLaqbQ"]')
+    const talkCard2 = voteLabels[1].closest('[class*="gLaqbQ"]')
+    const talkCard3 = voteLabels[2].closest('[class*="gLaqbQ"]')
+
+    fireEvent.click(talkCard1 as Element)
+    jest.advanceTimersByTime(1000)
+
+    fireEvent.click(talkCard2 as Element)
+    jest.advanceTimersByTime(1000)
+
+    fireEvent.click(talkCard3 as Element)
+
+    expect(mockVoteTalkExecute).not.toHaveBeenCalled()
+
+    jest.advanceTimersByTime(3000)
+
+    await waitFor(() => {
+      expect(mockVoteTalkExecute).toHaveBeenCalledTimes(3)
+      expect(mockVoteTalkExecute).toHaveBeenCalledWith('user-123', 'talk-1')
+      expect(mockVoteTalkExecute).toHaveBeenCalledWith('user-123', 'talk-2')
+      expect(mockVoteTalkExecute).toHaveBeenCalledWith('user-123', 'talk-3')
+    })
   })
 })
 

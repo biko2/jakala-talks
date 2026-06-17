@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState, useMemo } from 'react'
+import { useEffect, useState, useMemo, useRef } from 'react'
 import { createBrowserClient } from '@/lib/supabase/client'
 import { User } from '@supabase/supabase-js'
 import Header from '@/components/layout/Header'
@@ -16,6 +16,8 @@ import { TalkRepositoryFactory } from '@/lib/repositories/TalkRepositoryFactory'
 import { VotingConfigRepositoryFactory } from '@/lib/repositories/VotingConfigRepositoryFactory'
 import { VotingRules } from '@/src/domain/valueObjects/VotingRules'
 
+const VOTE_DEBOUNCE_MS = 3000
+
 export default function Home() {
   const [user, setUser] = useState<User | null>(null)
   const [talks, setTalks] = useState<Talk[]>([])
@@ -26,6 +28,9 @@ export default function Home() {
   const [isVotingEnabled, setIsVotingEnabled] = useState(false)
   const [maxVotesPerUser, setMaxVotesPerUser] = useState(3)
   const supabase = createBrowserClient()
+
+  const voteDebounceTimerRef = useRef<NodeJS.Timeout | null>(null)
+  const pendingVotesRef = useRef<Map<string, boolean>>(new Map())
 
   const talkRepository = useMemo(() => TalkRepositoryFactory.create(), [])
   const votingConfigRepository = useMemo(() => VotingConfigRepositoryFactory.create(), [])
@@ -40,6 +45,9 @@ export default function Home() {
 
     return () => {
       document.body.style.backgroundColor = ''
+      if (voteDebounceTimerRef.current) {
+        clearTimeout(voteDebounceTimerRef.current)
+      }
     }
   }, [])
 
@@ -103,6 +111,35 @@ export default function Home() {
     getUserVotesData()
   }, [user, getUserVotes])
 
+  const syncPendingVotes = async () => {
+    if (!user || pendingVotesRef.current.size === 0) return
+
+    const votesToSync = Array.from(pendingVotesRef.current.entries())
+    pendingVotesRef.current.clear()
+
+    try {
+      await Promise.all(
+        votesToSync.map(([talkId]) => voteTalk.execute(user.id, talkId))
+      )
+
+      const [updatedTalks, updatedUserVotes] = await Promise.all([
+        getAllTalks.execute(),
+        getUserVotes.execute(user.id)
+      ])
+      setTalks(updatedTalks)
+      setUserVotes(updatedUserVotes)
+    } catch (error) {
+      console.error('Error al sincronizar votos:', error)
+
+      const [updatedTalks, updatedUserVotes] = await Promise.all([
+        getAllTalks.execute(),
+        getUserVotes.execute(user.id)
+      ])
+      setTalks(updatedTalks)
+      setUserVotes(updatedUserVotes)
+    }
+  }
+
   const handleVote = async (talkId: string) => {
     if (!user) return
 
@@ -111,9 +148,6 @@ export default function Home() {
     if (!isCurrentlyVoted && userVotes.length >= maxVotesPerUser) {
       return
     }
-
-    const previousTalks = [...talks]
-    const previousUserVotes = [...userVotes]
 
     const optimisticTalks = talks.map(talk => {
       if (talk.id === talkId) {
@@ -136,19 +170,15 @@ export default function Home() {
     setTalks(optimisticTalks)
     setUserVotes(optimisticUserVotes)
 
-    try {
-      await voteTalk.execute(user.id, talkId)
-      const [updatedTalks, updatedUserVotes] = await Promise.all([
-        getAllTalks.execute(),
-        getUserVotes.execute(user.id)
-      ])
-      setTalks(updatedTalks)
-      setUserVotes(updatedUserVotes)
-    } catch (error) {
-      setTalks(previousTalks)
-      setUserVotes(previousUserVotes)
-      console.error('Error al votar:', error)
+    pendingVotesRef.current.set(talkId, !isCurrentlyVoted)
+
+    if (voteDebounceTimerRef.current) {
+      clearTimeout(voteDebounceTimerRef.current)
     }
+
+    voteDebounceTimerRef.current = setTimeout(() => {
+      syncPendingVotes()
+    }, VOTE_DEBOUNCE_MS)
   }
 
   const handleCreateTalk = async (title: string, description: string, duration: number) => {
