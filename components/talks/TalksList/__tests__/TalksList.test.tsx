@@ -58,6 +58,7 @@ describe('TalksList', () => {
         talks={mockTalks}
         isLoggedIn={true}
         userVotes={userVotes}
+        votingStatus="voting"
       />
     )
 
@@ -71,6 +72,7 @@ describe('TalksList', () => {
         talks={mockTalks}
         isLoggedIn={true}
         userVotes={userVotes}
+        votingStatus="voting"
       />
     )
 
@@ -78,18 +80,18 @@ describe('TalksList', () => {
   })
 
   it('no debería mostrar estado de votación cuando el usuario no está logueado', () => {
-    render(<TalksList talks={mockTalks} isLoggedIn={false} />)
+    render(<TalksList talks={mockTalks} isLoggedIn={false} votingStatus="voting" />)
 
     expect(screen.queryByText(/Has votado/)).not.toBeInTheDocument()
   })
 
-  it('debería mostrar la fecha de inicio de votación proporcionada cuando no está habilitada', () => {
+  it('debería mostrar la fecha de inicio de votación cuando está en fase de propuesta', () => {
     render(
       <TalksList
         talks={mockTalks}
         isLoggedIn={true}
         userVotes={[]}
-        isVotingEnabled={false}
+        votingStatus="proposing"
         votingStartDate={new Date('2025-11-07T00:00:00.000Z')}
       />
     )
@@ -97,13 +99,26 @@ describe('TalksList', () => {
     expect(screen.getByText('La votación estará habilitada el 7 de Noviembre')).toBeInTheDocument()
   })
 
-  it('debería mostrar un mensaje genérico cuando no está habilitada y no hay fecha', () => {
+  it('debería mostrar la fecha de inicio de propuestas cuando está en fase de espera', () => {
     render(
       <TalksList
         talks={mockTalks}
         isLoggedIn={true}
         userVotes={[]}
-        isVotingEnabled={false}
+        votingStatus="waiting"
+        proposingStartDate={new Date('2025-10-01T00:00:00.000Z')}
+      />
+    )
+
+    expect(screen.getByText('La propuesta de charlas estará habilitada el 1 de Octubre')).toBeInTheDocument()
+  })
+
+  it('debería mostrar un mensaje genérico cuando no hay estado de votación', () => {
+    render(
+      <TalksList
+        talks={mockTalks}
+        isLoggedIn={true}
+        userVotes={[]}
       />
     )
 

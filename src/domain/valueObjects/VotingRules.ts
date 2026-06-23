@@ -1,21 +1,38 @@
 import { VotingConfigRepository } from '../ports/VotingConfigRepository'
 
 export class VotingRules {
-  constructor(private readonly votingConfigRepo: VotingConfigRepository) { }
+  public votingStatus: 'voting' | 'proposing' | 'waiting'
+  
+  constructor(private readonly votingConfigRepo: VotingConfigRepository) { 
+    this.votingStatus = 'waiting';
+  }
 
-  public async isVotingEnabled(): Promise<boolean> {
-    const config = await this.votingConfigRepo.getVotingConfig()
-    return new Date() >= config.votingStartDate
+  public async getVotingStatus(): Promise<'voting' | 'proposing' | 'waiting'> {
+    const config = await this.votingConfigRepo.getVotingConfig();
+    if (new Date() < config.proposingStartDate) {
+      this.votingStatus = 'waiting';
+    } else if (new Date() < config.votingStartDate) {
+      this.votingStatus = 'proposing';
+    } else {
+      this.votingStatus = 'voting';
+    }
+
+    return this.votingStatus;
+  }
+
+  public isVotingEnabled(): boolean {
+    return this.votingStatus === 'voting'
   }
 
   async canUserVote(userVotesCount: number): Promise<boolean> {
     const config = await this.votingConfigRepo.getVotingConfig()
-    const isEnabled = await this.isVotingEnabled()
-    return isEnabled && userVotesCount < config.maxVotesPerUser
+    await this.getVotingStatus()
+    return this.isVotingEnabled() && userVotesCount < config.maxVotesPerUser
   }
 
   async canCreateNewTalks(): Promise<boolean> {
-    return !(await this.isVotingEnabled())
+    await this.getVotingStatus()
+    return !this.isVotingEnabled()
   }
 
   static hasUserVotedForTalk(userVotes: string[], talkId: string): boolean {
@@ -24,7 +41,8 @@ export class VotingRules {
 
   async validateVoteAction(userVotes: string[], talkId: string, isVoting: boolean): Promise<void> {
     const config = await this.votingConfigRepo.getVotingConfig()
-    const isEnabled = await this.isVotingEnabled()
+    await this.getVotingStatus()
+    const isEnabled = this.isVotingEnabled()
 
     if (!isEnabled) {
       const formattedDate = config.votingStartDate.toLocaleDateString('es-ES', {
@@ -48,7 +66,8 @@ export class VotingRules {
 
   async getVotingStatusMessage(): Promise<string> {
     const config = await this.votingConfigRepo.getVotingConfig()
-    const isEnabled = await this.isVotingEnabled()
+    await this.getVotingStatus()
+    const isEnabled = this.isVotingEnabled()
 
     if (isEnabled) {
       return 'Votación activa'

@@ -10,11 +10,16 @@ interface TalksListProps {
   isLoggedIn?: boolean
   userVotes?: string[]
   maxVotesPerUser?: number
-  isVotingEnabled?: boolean
+  votingStatus?: 'voting' | 'proposing' | 'waiting'
   votingStartDate?: Date
+  proposingStartDate?: Date
 }
 
-function formatVotingStartDate(date: Date): string {
+function formatDate(date: Date | undefined): string {
+  if (!date) {
+    return ''
+  }
+
   const day = date.toLocaleDateString('es-ES', { day: 'numeric', timeZone: 'UTC' })
   const month = date.toLocaleDateString('es-ES', { month: 'long', timeZone: 'UTC' })
   const capitalizedMonth = month.charAt(0).toUpperCase() + month.slice(1)
@@ -27,29 +32,36 @@ export default function TalksList({
   isLoggedIn = false,
   userVotes = [],
   maxVotesPerUser = 3,
-  isVotingEnabled = true,
+  votingStatus,
   votingStartDate,
+  proposingStartDate
 }: TalksListProps) {
   const remainingVotes = maxVotesPerUser - userVotes.length
+  const isVotingEnabled = votingStatus === 'voting'
 
   const getVotingMessage = () => {
-    if (!isVotingEnabled) {
-      return votingStartDate
-        ? `La votación estará habilitada el ${formatVotingStartDate(votingStartDate)}`
-        : 'La votación aún no está habilitada'
+    if (votingStatus === 'waiting') {
+      return `La propuesta de charlas estará habilitada el ${formatDate(proposingStartDate)}`
     }
 
-    if (isLoggedIn) {
-      return `Has votado ${userVotes.length} de ${maxVotesPerUser} charlas${remainingVotes > 0 ? ` (${remainingVotes} votos restantes)` : ''
-        }`
+    if (votingStatus === 'proposing') {
+      return `La votación estará habilitada el ${formatDate(votingStartDate)}`
     }
+
+    return 'La votación aún no está habilitada'
   }
+
+  const votedMessage = `Has votado ${userVotes.length} de ${maxVotesPerUser} charlas${remainingVotes > 0 ? ` (${remainingVotes} votos restantes)` : ''}`
+
+  const statusMessage = isVotingEnabled
+    ? (isLoggedIn ? votedMessage : null)
+    : getVotingMessage()
 
   return (
     <Container>
-      {(!isVotingEnabled || isLoggedIn) && (
+      {statusMessage && (
         <VotingStatus>
-          {getVotingMessage()}
+          {statusMessage}
         </VotingStatus>
       )}
       {talks.length === 0

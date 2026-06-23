@@ -7,7 +7,7 @@ export class SupabaseVotingConfigRepository implements VotingConfigRepository {
   async getVotingConfig(): Promise<VotingConfig> {
     const { data, error } = await this.supabase
       .from('voting_config')
-      .select('voting_start_date, max_votes_per_user')
+      .select('voting_start_date, max_votes_per_user, proposing_talks_start_date')
       .order('created_at', { ascending: false })
       .limit(1)
       .single()
@@ -22,7 +22,8 @@ export class SupabaseVotingConfigRepository implements VotingConfigRepository {
 
     return {
       votingStartDate: new Date(data.voting_start_date),
-      maxVotesPerUser: data.max_votes_per_user
+      maxVotesPerUser: data.max_votes_per_user,
+      proposingStartDate: new Date(data.proposing_talks_start_date)
     }
   }
 }

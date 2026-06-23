@@ -18,14 +18,14 @@ const mockGetUserVotesExecute = jest.fn()
 const mockCreateTalkExecute = jest.fn()
 
 const mockGetVotingConfig = jest.fn().mockResolvedValue({
-  votingEnabled: true,
   maxVotesPerUser: 3,
-  startDate: new Date('2025-11-07T00:00:00.000Z'),
-  endDate: new Date('2025-11-14T23:59:59.000Z')
+  votingStartDate: new Date('2025-01-01T00:00:00.000Z'),
+  proposingStartDate: new Date('2025-01-01T00:00:00.000Z')
 })
 
 const mockCanCreateNewTalks = jest.fn().mockResolvedValue(true)
 const mockIsVotingEnabled = jest.fn().mockResolvedValue(true)
+const mockGetVotingStatus = jest.fn().mockResolvedValue('voting')
 
 jest.mock('next/navigation', () => ({
   useRouter: jest.fn(() => ({
@@ -97,7 +97,8 @@ jest.mock('@/src/application/services/CreateTalk', () => ({
 jest.mock('@/src/domain/valueObjects/VotingRules', () => ({
   VotingRules: jest.fn().mockImplementation(() => ({
     canCreateNewTalks: mockCanCreateNewTalks,
-    isVotingEnabled: mockIsVotingEnabled
+    isVotingEnabled: mockIsVotingEnabled,
+    getVotingStatus: mockGetVotingStatus,
   }))
 }))
 

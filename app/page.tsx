@@ -25,9 +25,11 @@ export default function Home() {
   const [loading, setLoading] = useState(true)
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [canCreateNewTalks, setCanCreateNewTalks] = useState(true)
-  const [isVotingEnabled, setIsVotingEnabled] = useState(false)
+  const [votingStatus, setVotingStatus] = useState<'voting' | 'proposing' | 'waiting'>()
   const [maxVotesPerUser, setMaxVotesPerUser] = useState(3)
   const [votingStartDate, setVotingStartDate] = useState<Date | undefined>(undefined)
+  const [proposingStartDate, setProposingStartDate] = useState<Date | undefined>(undefined)
+
   const supabase = createBrowserClient()
 
   const voteDebounceTimerRef = useRef<NodeJS.Timeout | null>(null)
@@ -75,12 +77,13 @@ export default function Home() {
     }
 
     const checkVotingStatus = async () => {
-      const isEnabled = await votingRules.isVotingEnabled()
+      const votingStatus = await votingRules.getVotingStatus()
       const config = await votingConfigRepository.getVotingConfig()
 
-      setIsVotingEnabled(isEnabled)
+      setVotingStatus(votingStatus)
       setMaxVotesPerUser(config.maxVotesPerUser)
       setVotingStartDate(config.votingStartDate)
+      setProposingStartDate(config.proposingStartDate)
     }
 
     getUser()
@@ -250,8 +253,9 @@ export default function Home() {
             isLoggedIn={!!user}
             userVotes={userVotes}
             maxVotesPerUser={maxVotesPerUser}
-            isVotingEnabled={isVotingEnabled}
+            votingStatus={votingStatus}
             votingStartDate={votingStartDate}
+            proposingStartDate={proposingStartDate}
           />
         </div>
       </div>

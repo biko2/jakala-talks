@@ -25,7 +25,8 @@ describe('SupabaseVotingConfigRepository', () => {
     it('debería obtener la configuración de votación correctamente', async () => {
       const mockData = {
         voting_start_date: '2025-11-07',
-        max_votes_per_user: 3
+        max_votes_per_user: 3,
+        proposing_talks_start_date: '2025-06-24'
       }
 
       mockQuery.single.mockResolvedValue({
@@ -36,14 +37,15 @@ describe('SupabaseVotingConfigRepository', () => {
       const result = await repository.getVotingConfig()
 
       expect(mockSupabase.from).toHaveBeenCalledWith('voting_config')
-      expect(mockQuery.select).toHaveBeenCalledWith('voting_start_date, max_votes_per_user')
+      expect(mockQuery.select).toHaveBeenCalledWith('voting_start_date, max_votes_per_user, proposing_talks_start_date')
       expect(mockQuery.order).toHaveBeenCalledWith('created_at', { ascending: false })
       expect(mockQuery.limit).toHaveBeenCalledWith(1)
       expect(mockQuery.single).toHaveBeenCalled()
 
       expect(result).toEqual({
         votingStartDate: new Date('2025-11-07'),
-        maxVotesPerUser: 3
+        maxVotesPerUser: 3,
+        proposingStartDate: new Date('2025-06-24')
       })
     })
 
