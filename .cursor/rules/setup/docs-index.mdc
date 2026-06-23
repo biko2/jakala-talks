@@ -1,0 +1,13 @@
+---
+description: Índice de documentación de setup del proyecto. Úsalo cuando alguien pregunte por onboarding, arranque, login/OAuth (Google/Supabase), Site URL/Redirect URLs, deploy o variables de entorno.
+alwaysApply: false
+---
+
+# Documentación de setup
+
+La documentación detallada vive en `docs/`. Léela cuando ayudes con estos temas:
+
+- **Onboarding, arranque y autenticación (Google/Supabase, OAuth, Site URL/Redirect URLs, deploy, MCP)** → `docs/ONBOARDING.md`
+- **Variables de entorno (de dónde sacar cada una de `.env.example`)** → `docs/VARIABLES_ENTORNO.md`
+
+Si un compañero tiene problemas de login en producción, revisa la tabla de "Síntomas y diagnóstico" en `docs/ONBOARDING.md`.
