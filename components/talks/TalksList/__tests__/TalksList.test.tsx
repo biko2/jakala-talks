@@ -83,7 +83,21 @@ describe('TalksList', () => {
     expect(screen.queryByText(/Has votado/)).not.toBeInTheDocument()
   })
 
-  it('debería mostrar mensaje de votación no disponible cuando no está habilitada', () => {
+  it('debería mostrar la fecha de inicio de votación proporcionada cuando no está habilitada', () => {
+    render(
+      <TalksList
+        talks={mockTalks}
+        isLoggedIn={true}
+        userVotes={[]}
+        isVotingEnabled={false}
+        votingStartDate={new Date('2025-11-07T00:00:00.000Z')}
+      />
+    )
+
+    expect(screen.getByText('La votación estará habilitada el 7 de Noviembre')).toBeInTheDocument()
+  })
+
+  it('debería mostrar un mensaje genérico cuando no está habilitada y no hay fecha', () => {
     render(
       <TalksList
         talks={mockTalks}
@@ -93,7 +107,7 @@ describe('TalksList', () => {
       />
     )
 
-    expect(screen.getByText('La votación estára habilitada el 7 de Noviembre')).toBeInTheDocument()
+    expect(screen.getByText('La votación aún no está habilitada')).toBeInTheDocument()
   })
 
   it('debería pasar userVotes correctamente a los componentes TalkCard', () => {

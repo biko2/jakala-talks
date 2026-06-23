@@ -11,6 +11,14 @@ interface TalksListProps {
   userVotes?: string[]
   maxVotesPerUser?: number
   isVotingEnabled?: boolean
+  votingStartDate?: Date
+}
+
+function formatVotingStartDate(date: Date): string {
+  const day = date.toLocaleDateString('es-ES', { day: 'numeric', timeZone: 'UTC' })
+  const month = date.toLocaleDateString('es-ES', { month: 'long', timeZone: 'UTC' })
+  const capitalizedMonth = month.charAt(0).toUpperCase() + month.slice(1)
+  return `${day} de ${capitalizedMonth}`
 }
 
 export default function TalksList({
@@ -20,12 +28,15 @@ export default function TalksList({
   userVotes = [],
   maxVotesPerUser = 3,
   isVotingEnabled = true,
+  votingStartDate,
 }: TalksListProps) {
   const remainingVotes = maxVotesPerUser - userVotes.length
 
   const getVotingMessage = () => {
     if (!isVotingEnabled) {
-      return 'La votación estára habilitada el 7 de Noviembre'
+      return votingStartDate
+        ? `La votación estará habilitada el ${formatVotingStartDate(votingStartDate)}`
+        : 'La votación aún no está habilitada'
     }
 
     if (isLoggedIn) {

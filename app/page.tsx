@@ -27,6 +27,7 @@ export default function Home() {
   const [canCreateNewTalks, setCanCreateNewTalks] = useState(true)
   const [isVotingEnabled, setIsVotingEnabled] = useState(false)
   const [maxVotesPerUser, setMaxVotesPerUser] = useState(3)
+  const [votingStartDate, setVotingStartDate] = useState<Date | undefined>(undefined)
   const supabase = createBrowserClient()
 
   const voteDebounceTimerRef = useRef<NodeJS.Timeout | null>(null)
@@ -79,6 +80,7 @@ export default function Home() {
 
       setIsVotingEnabled(isEnabled)
       setMaxVotesPerUser(config.maxVotesPerUser)
+      setVotingStartDate(config.votingStartDate)
     }
 
     getUser()
@@ -249,6 +251,7 @@ export default function Home() {
             userVotes={userVotes}
             maxVotesPerUser={maxVotesPerUser}
             isVotingEnabled={isVotingEnabled}
+            votingStartDate={votingStartDate}
           />
         </div>
       </div>
