@@ -22,8 +22,9 @@ describe('VotingConfigRepositoryFactory', () => {
       VotingConfigRepositoryFactory.create()
 
       expect(InMemoryVotingConfigRepository).toHaveBeenCalledWith({
-        votingStartDate: new Date('2025-10-07T00:00:00.000Z'),
-        maxVotesPerUser: 3
+        votingStartDate: new Date('2026-09-04T00:00:00.000Z'),
+        maxVotesPerUser: 3,
+        proposingStartDate: new Date('2026-06-29T00:00:00.000Z')
       })
     })
 
@@ -63,14 +64,16 @@ describe('VotingConfigRepositoryFactory', () => {
 
       expect(InMemoryVotingConfigRepository).toHaveBeenCalledWith({
         votingStartDate: new Date('2025-10-07T00:00:00.000Z'),
-        maxVotesPerUser: 3
+        maxVotesPerUser: 3,
+        proposingStartDate: new Date('2026-06-29T00:00:00.000Z')
       })
     })
 
     it('debería crear InMemoryVotingConfigRepository con configuración personalizada', () => {
       const customConfig = {
         votingStartDate: new Date('2025-12-01T00:00:00.000Z'),
-        maxVotesPerUser: 5
+        maxVotesPerUser: 5,
+        proposingStartDate: new Date('2025-11-01T00:00:00.000Z')
       }
 
       VotingConfigRepositoryFactory.createForTesting(customConfig)
