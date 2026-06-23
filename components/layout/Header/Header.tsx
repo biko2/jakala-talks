@@ -50,7 +50,7 @@ export default function Header({ user, onNewTalkClick, canCreateNewTalks = true 
 
         <SecondLine>
           <InfoPargraph>¿Qué puedes proponer? Lo que quieras: una charla técnica, un debate, ¡COMO SI QUIERES PROPONER UN TALLER DE COCINA! Los asistentes decidirán si sale o no.</InfoPargraph>
-          <InfoPargraph>La idea es que estas charlas se lleven a cabo por la mañana en 2 huecos, de 9:30 a 10: 15 (45 minutos) y de 10:30 a 11:00 (30 minutos)</InfoPargraph>
+          {/* <InfoPargraph>La idea es que estas charlas se lleven a cabo por la mañana en 2 huecos, de 9:30 a 10: 15 (45 minutos) y de 10:30 a 11:00 (30 minutos)</InfoPargraph> */}
         </SecondLine>
 
         <ThirdLine>
