@@ -54,7 +54,7 @@ export default function Header({ user, onNewTalkClick, canCreateNewTalks = true 
           </InfoPargraph>
 
           <InfoPargraph>
-            Este es tu espacio. <span style={{ fontWeight: 800 }}>Al Open Space no vienes solo a consumir contenido, también vienes a construirilo</span>
+            Este es tu espacio. <span style={{ fontWeight: 800 }}>Al Open Space no vienes solo a consumir contenido, también vienes a construirlo</span>
           </InfoPargraph>
 
           <InfoPargraph>
