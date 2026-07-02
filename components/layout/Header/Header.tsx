@@ -49,8 +49,17 @@ export default function Header({ user, onNewTalkClick, canCreateNewTalks = true 
         </LogoRow>
 
         <SecondLine>
-          <InfoPargraph>¿Qué puedes proponer? Lo que quieras: una charla técnica, un debate, ¡COMO SI QUIERES PROPONER UN TALLER DE COCINA! Los asistentes decidirán si sale o no.</InfoPargraph>
-          {/* <InfoPargraph>La idea es que estas charlas se lleven a cabo por la mañana en 2 huecos, de 9:30 a 10: 15 (45 minutos) y de 10:30 a 11:00 (30 minutos)</InfoPargraph> */}
+          <InfoPargraph>
+            ¿Tienes una idea? ¿Quieres abrir un debate? ¿Te gustaría enseñarnos algo que hayas aprendido o de lo que eres experto o experta?
+          </InfoPargraph>
+
+          <InfoPargraph>
+            Este es tu espacio. <span style={{ fontWeight: 800 }}>Al Open Space no vienes solo a consumir contenido, también vienes a construirilo</span>
+          </InfoPargraph>
+
+          <InfoPargraph>
+            <span style={{ fontWeight: 800 }}>Aquí caben más cosas de las que imaginas.</span> IA, agentes, diseño, productividad, cómo hablar en público, fotografía analógica, café de especialidad, finanzas personales, Lego vs Playmobil, primeros auxilios o ese hobby del que podrías hablar durante horas. Si aporta, interesa.
+          </InfoPargraph>
         </SecondLine>
 
         <ThirdLine>
