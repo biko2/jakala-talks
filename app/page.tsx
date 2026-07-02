@@ -213,7 +213,7 @@ export default function Home() {
       <div style={{
         height: '100vh',
         width: '100%',
-        backgroundImage: 'url(/OpenBiko2.jpg)',
+        backgroundImage: 'url(/OpenSpace2025-0251.jpg)',
         backgroundSize: 'cover',
         backgroundPosition: 'center',
         backgroundRepeat: 'no-repeat',

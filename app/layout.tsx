@@ -38,7 +38,7 @@ export const metadata: Metadata = {
     description: "Site para proponer y votar charlas para el Open de Jakala",
     images: [
       {
-        url: "/OpenBiko2.jpg",
+        url: "/OpenSpace2025-0251.jpg",
         width: 1200,
         height: 630,
         alt: "Jakala Open",
@@ -49,7 +49,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "Jakala Open",
     description: "Site para proponer y votar charlas para el Open de Jakala",
-    images: ["/OpenBiko2.jpg"],
+    images: ["/OpenSpace2025-0251.jpg"],
   },
 };
 
