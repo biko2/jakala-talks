@@ -240,7 +240,7 @@ export default function Home() {
         minHeight: '100vh',
         marginBottom: '20px'
       }}>
-        <Header user={user} onNewTalkClick={() => setIsModalOpen(true)} canCreateNewTalks={canCreateNewTalks} />
+        <Header user={user} onNewTalkClick={() => setIsModalOpen(true)} canCreateNewTalks={canCreateNewTalks} votingStatus={votingStatus} />
 
         <div style={{
           maxWidth: '1300px',

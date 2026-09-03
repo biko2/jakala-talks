@@ -15,9 +15,10 @@ interface HeaderProps {
   user: User | null
   onNewTalkClick?: () => void
   canCreateNewTalks?: boolean
+  votingStatus?:  "voting" | "proposing" | "waiting" | undefined
 }
 
-export default function Header({ user, onNewTalkClick, canCreateNewTalks = true }: HeaderProps) {
+export default function Header({ user, onNewTalkClick, canCreateNewTalks = true, votingStatus }: HeaderProps) {
   const [loading, setLoading] = useState(false)
 
   const handleGoogleLogin = async () => {
@@ -38,6 +39,8 @@ export default function Header({ user, onNewTalkClick, canCreateNewTalks = true 
     }
   }
 
+  console.log('Voting stauts', votingStatus)
+
   return (
     <Container>
       <InfoSection>
@@ -49,17 +52,39 @@ export default function Header({ user, onNewTalkClick, canCreateNewTalks = true 
         </LogoRow>
 
         <SecondLine>
-          <InfoPargraph>
-            ¿Tienes una idea? ¿Quieres abrir un debate? ¿Te gustaría enseñarnos algo que hayas aprendido o de lo que eres experto o experta?
-          </InfoPargraph>
+          { votingStatus === 'voting' ? 
+            <>
+              <InfoPargraph>
+                Buenas noticias, el Open Space ha entrado en la siguiente fase: ya ha comenzado el <span style={{fontWeight: 800}}>proceso de votación</span> de charlas. 
+              </InfoPargraph>
 
-          <InfoPargraph>
-            Este es tu espacio. <span style={{ fontWeight: 800 }}>Al Open Space no vienes solo a consumir contenido, también vienes a construirlo</span>
-          </InfoPargraph>
+              <InfoPargraph>
+                1. Antes que nada, para poder votar, tendrás que <span style={{fontWeight: 800}}>registrarte utilizando tu cuenta de google</span> clicando en el link que tienes un poco más abajo. 
+              </InfoPargraph>
 
-          <InfoPargraph>
-            <span style={{ fontWeight: 800 }}>Aquí caben más cosas de las que imaginas.</span> IA, agentes, diseño, productividad, cómo hablar en público, fotografía analógica, café de especialidad, finanzas personales, Lego vs Playmobil, primeros auxilios o ese hobby del que podrías hablar durante horas. Si aporta, interesa.
-          </InfoPargraph>
+              <InfoPargraph>
+                2. Entre todas las charlas que hay, <span style={{fontWeight: 800}}>busca</span> cuáles te llaman más la atención. Recuerda que no hay opciones buenas ni malas: lo importante es que te motive.
+              </InfoPargraph>
+
+              <InfoPargraph>
+                3. <span style={{fontWeight: 800}}>Selecciona tres, vótalas y voilá.</span> Ya habrás contribuido a hacer el evento que quieres.Nos vemos el 
+              </InfoPargraph>
+            </>
+          :
+            <>
+              <InfoPargraph>
+                ¿Tienes una idea? ¿Quieres abrir un debate? ¿Te gustaría enseñarnos algo que hayas aprendido o de lo que eres experto o experta?
+              </InfoPargraph>
+
+              <InfoPargraph>
+                Este es tu espacio. <span style={{ fontWeight: 800 }}>Al Open Space no vienes solo a consumir contenido, también vienes a construirlo</span>
+              </InfoPargraph>
+
+              <InfoPargraph>
+                <span style={{ fontWeight: 800 }}>Aquí caben más cosas de las que imaginas.</span> IA, agentes, diseño, productividad, cómo hablar en público, fotografía analógica, café de especialidad, finanzas personales, Lego vs Playmobil, primeros auxilios o ese hobby del que podrías hablar durante horas. Si aporta, interesa.
+              </InfoPargraph>
+            </>
+          }
         </SecondLine>
 
         <ThirdLine>
@@ -82,7 +107,16 @@ export default function Header({ user, onNewTalkClick, canCreateNewTalks = true 
 
         {!user && (
           <FourthLine>
-            <span>¡IMPORTANTE! Debes <strong>iniciar sesión con Google</strong> para poder proponer charlas y luego votar.</span>
+            {votingStatus === 'voting' ? (
+              <span>
+                <strong>¡El periodo de votación ha comenzado!</strong> Debes <strong>iniciar sesión con Google</strong> para poder votar en las charlas.
+              </span>
+            ) : (
+              <span>
+                ¡IMPORTANTE! Debes <strong>iniciar sesión con Google</strong> para poder proponer charlas y luego votar.
+              </span>
+            )}
+       
             <GoogleSignInButtonOfficial disabled={loading} onClick={handleGoogleLogin} />
           </FourthLine>
         )}

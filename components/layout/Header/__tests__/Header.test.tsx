@@ -86,4 +86,29 @@ describe('Header', () => {
     expect(openSpaceLink).toHaveAttribute('target', '_blank')
     expect(openSpaceLink).toHaveAttribute('rel', 'noopener noreferrer')
   })
+
+  it('debería mostrar mensaje de votación iniciada cuando votingStartDate ya pasó', () => {
+    const pastDate = new Date(Date.now() - 1000)
+
+    render(<Header user={null} votingStatus={'voting'} />)
+
+    expect(screen.getByText(/El periodo de votación ha comenzado/)).toBeInTheDocument()
+    expect(screen.queryByText(/para poder proponer charlas y luego votar/)).not.toBeInTheDocument()
+  })
+
+  it('debería mostrar mensaje de proponer charlas cuando votingStartDate aún no llegó', () => {
+    const futureDate = new Date(Date.now() + 24 * 60 * 60 * 1000)
+
+    render(<Header user={null} votingStatus={'proposing'} />)
+
+    expect(screen.getByText(/para poder proponer charlas y luego votar/)).toBeInTheDocument()
+    expect(screen.queryByText(/El periodo de votación ha comenzado/)).not.toBeInTheDocument()
+  })
+
+  it('debería mostrar mensaje de proponer charlas cuando votingStartDate no está definido', () => {
+    render(<Header user={null} />)
+
+    expect(screen.getByText(/para poder proponer charlas y luego votar/)).toBeInTheDocument()
+    expect(screen.queryByText(/El periodo de votación ha comenzado/)).not.toBeInTheDocument()
+  })
 })
