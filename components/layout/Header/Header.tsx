@@ -109,7 +109,7 @@ export default function Header({ user, onNewTalkClick, canCreateNewTalks = true,
           <FourthLine>
             {votingStatus === 'voting' ? (
               <span>
-                <strong>¡El periodo de votación ha comenzado!</strong> Debes <strong>iniciar sesión con Google</strong> para poder votar en las charlas. Tienes hasta el 7 de Septiembre.
+                <strong>¡El periodo de votación ha comenzado!</strong> Iniciar sesión con Google para poder votar en las charlas. Tienes hasta el 7 de Septiembre.
               </span>
             ) : (
               <span>
