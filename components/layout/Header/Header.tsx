@@ -67,7 +67,7 @@ export default function Header({ user, onNewTalkClick, canCreateNewTalks = true,
               </InfoPargraph>
 
               <InfoPargraph>
-                3. <span style={{fontWeight: 800}}>SELECCIONA TRES VÓTALAS Y VOILÁ.</span> Tienes hasta el 7 de septiembre.
+                3. <span style={{fontWeight: 800}}>SELECCIONA TRES VÓTALAS Y VOILÁ.</span> Ya habrás contribuido a hacer el evento que quieres.
               </InfoPargraph>
             </>
           :
@@ -109,7 +109,7 @@ export default function Header({ user, onNewTalkClick, canCreateNewTalks = true,
           <FourthLine>
             {votingStatus === 'voting' ? (
               <span>
-                <strong>¡El periodo de votación ha comenzado!</strong> Debes <strong>iniciar sesión con Google</strong> para poder votar en las charlas.
+                <strong>¡El periodo de votación ha comenzado!</strong> Debes <strong>iniciar sesión con Google</strong> para poder votar en las charlas. Tienes hasta el 7 de Septiembre.
               </span>
             ) : (
               <span>
