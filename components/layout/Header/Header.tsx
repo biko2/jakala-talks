@@ -59,15 +59,15 @@ export default function Header({ user, onNewTalkClick, canCreateNewTalks = true,
               </InfoPargraph>
 
               <InfoPargraph>
-                1. Antes que nada, para poder votar, tendrás que <span style={{fontWeight: 800}}>registrarte utilizando tu cuenta de google</span> clicando en el link que tienes un poco más abajo. 
+                1. Antes que nada, para poder votar, tendrás que <span style={{fontWeight: 800}}>REGISTRATE UTILIZANDO TU CUENTA DE GOOGLE</span> clicando en el link que tienes un poco más abajo. 
               </InfoPargraph>
 
               <InfoPargraph>
-                2. Entre todas las charlas que hay, <span style={{fontWeight: 800}}>busca</span> cuáles te llaman más la atención. Recuerda que no hay opciones buenas ni malas: lo importante es que te motive.
+                2. Entre todas las charlas que hay, <span style={{fontWeight: 800}}>BUSCA</span> cuáles te llaman más la atención. Recuerda que no hay opciones buenas ni malas: lo importante es que te motive.
               </InfoPargraph>
 
               <InfoPargraph>
-                3. <span style={{fontWeight: 800}}>Selecciona tres, vótalas y voilá.</span> Ya habrás contribuido a hacer el evento que quieres.Nos vemos el 
+                3. <span style={{fontWeight: 800}}>SELECCIONA TRES VÓTALAS Y VOILÁ.</span> Tienes hasta el 7 de septiembre.
               </InfoPargraph>
             </>
           :
