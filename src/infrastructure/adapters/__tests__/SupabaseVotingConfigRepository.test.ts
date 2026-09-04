@@ -26,7 +26,8 @@ describe('SupabaseVotingConfigRepository', () => {
       const mockData = {
         voting_start_date: '2025-11-07',
         max_votes_per_user: 3,
-        proposing_talks_start_date: '2025-06-24'
+        proposing_talks_start_date: '2025-06-24',
+        closing_date: '2026-09-08'
       }
 
       mockQuery.single.mockResolvedValue({
@@ -37,7 +38,9 @@ describe('SupabaseVotingConfigRepository', () => {
       const result = await repository.getVotingConfig()
 
       expect(mockSupabase.from).toHaveBeenCalledWith('voting_config')
-      expect(mockQuery.select).toHaveBeenCalledWith('voting_start_date, max_votes_per_user, proposing_talks_start_date')
+      expect(mockQuery.select).toHaveBeenCalledWith(
+        'voting_start_date, max_votes_per_user, proposing_talks_start_date, closing_date'
+      )
       expect(mockQuery.order).toHaveBeenCalledWith('created_at', { ascending: false })
       expect(mockQuery.limit).toHaveBeenCalledWith(1)
       expect(mockQuery.single).toHaveBeenCalled()
@@ -46,8 +49,26 @@ describe('SupabaseVotingConfigRepository', () => {
         votingStartDate: new Date('2025-11-07'),
         maxVotesPerUser: 3,
         proposingStartDate: new Date('2025-06-24'),
-        closingDate: null
+        closingDate: new Date('2026-09-08')
       })
+    })
+
+    it('debería mapear closing_date null a closingDate null', async () => {
+      const mockData = {
+        voting_start_date: '2025-11-07',
+        max_votes_per_user: 3,
+        proposing_talks_start_date: '2025-06-24',
+        closing_date: null
+      }
+
+      mockQuery.single.mockResolvedValue({
+        data: mockData,
+        error: null
+      })
+
+      const result = await repository.getVotingConfig()
+
+      expect(result.closingDate).toBeNull()
     })
 
     it('debería lanzar error si hay un error en la consulta', async () => {
