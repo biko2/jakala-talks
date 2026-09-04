@@ -125,6 +125,20 @@ describe('TalksList', () => {
     expect(screen.getByText('La votación aún no está habilitada')).toBeInTheDocument()
   })
 
+  it('debería mostrar mensaje de votación finalizada cuando el estado es closed', () => {
+    render(
+      <TalksList
+        talks={mockTalks}
+        isLoggedIn={true}
+        userVotes={['1']}
+        votingStatus="closed"
+      />
+    )
+
+    expect(screen.getByText('La votación ha finalizado')).toBeInTheDocument()
+    expect(screen.queryByText(/Has votado/)).not.toBeInTheDocument()
+  })
+
   it('debería pasar userVotes correctamente a los componentes TalkCard', () => {
     const userVotes = ['1']
     const mockOnVote = jest.fn()

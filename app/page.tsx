@@ -14,7 +14,7 @@ import { GetUserVotes } from '@/src/application/services/GetUserVotes'
 import { MOCK_USER, isMockMode } from '@/lib/mock/user'
 import { TalkRepositoryFactory } from '@/lib/repositories/TalkRepositoryFactory'
 import { VotingConfigRepositoryFactory } from '@/lib/repositories/VotingConfigRepositoryFactory'
-import { VotingRules } from '@/src/domain/valueObjects/VotingRules'
+import { VotingRules, VotingStatus } from '@/src/domain/valueObjects/VotingRules'
 
 const VOTE_DEBOUNCE_MS = 3000
 
@@ -25,10 +25,11 @@ export default function Home() {
   const [loading, setLoading] = useState(true)
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [canCreateNewTalks, setCanCreateNewTalks] = useState(true)
-  const [votingStatus, setVotingStatus] = useState<'voting' | 'proposing' | 'waiting'>()
+  const [votingStatus, setVotingStatus] = useState<VotingStatus>()
   const [maxVotesPerUser, setMaxVotesPerUser] = useState(3)
   const [votingStartDate, setVotingStartDate] = useState<Date | undefined>(undefined)
   const [proposingStartDate, setProposingStartDate] = useState<Date | undefined>(undefined)
+  const [closingDate, setClosingDate] = useState<Date | null>(null)
 
   const supabase = createBrowserClient()
 
@@ -84,6 +85,7 @@ export default function Home() {
       setMaxVotesPerUser(config.maxVotesPerUser)
       setVotingStartDate(config.votingStartDate)
       setProposingStartDate(config.proposingStartDate)
+      setClosingDate(config.closingDate)
     }
 
     getUser()
@@ -240,7 +242,13 @@ export default function Home() {
         minHeight: '100vh',
         marginBottom: '20px'
       }}>
-        <Header user={user} onNewTalkClick={() => setIsModalOpen(true)} canCreateNewTalks={canCreateNewTalks} votingStatus={votingStatus} />
+        <Header
+          user={user}
+          onNewTalkClick={() => setIsModalOpen(true)}
+          canCreateNewTalks={canCreateNewTalks}
+          votingStatus={votingStatus}
+          closingDate={closingDate}
+        />
 
         <div style={{
           maxWidth: '1300px',

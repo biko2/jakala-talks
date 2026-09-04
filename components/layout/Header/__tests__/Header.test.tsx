@@ -87,28 +87,50 @@ describe('Header', () => {
     expect(openSpaceLink).toHaveAttribute('rel', 'noopener noreferrer')
   })
 
-  it('debería mostrar mensaje de votación iniciada cuando votingStartDate ya pasó', () => {
-    const pastDate = new Date(Date.now() - 1000)
-
-    render(<Header user={null} votingStatus={'voting'} />)
+  it('debería mostrar mensaje de votación iniciada cuando votingStatus es voting', () => {
+    render(
+      <Header
+        user={null}
+        votingStatus="voting"
+        closingDate={new Date('2026-09-08T00:00:00.000Z')}
+      />
+    )
 
     expect(screen.getByText(/El periodo de votación ha comenzado/)).toBeInTheDocument()
+    expect(screen.getByText(/Tienes hasta el 8 de Septiembre/)).toBeInTheDocument()
+    expect(screen.queryByText(/7 de Septiembre/)).not.toBeInTheDocument()
     expect(screen.queryByText(/para poder proponer charlas y luego votar/)).not.toBeInTheDocument()
   })
 
-  it('debería mostrar mensaje de proponer charlas cuando votingStartDate aún no llegó', () => {
-    const futureDate = new Date(Date.now() + 24 * 60 * 60 * 1000)
-
-    render(<Header user={null} votingStatus={'proposing'} />)
+  it('debería mostrar mensaje de proponer charlas cuando votingStatus es proposing', () => {
+    render(<Header user={null} votingStatus="proposing" />)
 
     expect(screen.getByText(/para poder proponer charlas y luego votar/)).toBeInTheDocument()
     expect(screen.queryByText(/El periodo de votación ha comenzado/)).not.toBeInTheDocument()
   })
 
-  it('debería mostrar mensaje de proponer charlas cuando votingStartDate no está definido', () => {
+  it('debería mostrar mensaje de proponer charlas cuando votingStatus no está definido', () => {
     render(<Header user={null} />)
 
     expect(screen.getByText(/para poder proponer charlas y luego votar/)).toBeInTheDocument()
     expect(screen.queryByText(/El periodo de votación ha comenzado/)).not.toBeInTheDocument()
+  })
+
+  it('debería mostrar copy de votación cerrada cuando votingStatus es closed', () => {
+    render(<Header user={null} votingStatus="closed" />)
+
+    expect(screen.getByText(/La votación ha finalizado/)).toBeInTheDocument()
+    expect(screen.getByText(/Continuar con Google/)).toBeInTheDocument()
+    expect(screen.queryByText(/El periodo de votación ha comenzado/)).not.toBeInTheDocument()
+    expect(screen.queryByText(/para poder proponer charlas y luego votar/)).not.toBeInTheDocument()
+    expect(screen.queryByText(/7 de Septiembre/)).not.toBeInTheDocument()
+  })
+
+  it('no debería mostrar instrucciones de voto cuando votingStatus es closed y hay usuario', () => {
+    render(<Header user={mockUser} votingStatus="closed" />)
+
+    expect(screen.getByText(/votación ha finalizado/i)).toBeInTheDocument()
+    expect(screen.queryByText(/proceso de votación/)).not.toBeInTheDocument()
+    expect(screen.queryByText(/REGISTRATE UTILIZANDO TU CUENTA DE GOOGLE/)).not.toBeInTheDocument()
   })
 })

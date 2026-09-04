@@ -10,15 +10,24 @@ import Icon from '@/components/ui/Icon'
 import { createClient } from '@/lib/supabase/client/browser'
 import { getAppUrl } from '@/lib/supabase/config/env'
 import NewTalk from '@/components/NewTalk'
+import { VotingStatus } from '@/src/domain/valueObjects/VotingRules'
 
 interface HeaderProps {
   user: User | null
   onNewTalkClick?: () => void
   canCreateNewTalks?: boolean
-  votingStatus?:  "voting" | "proposing" | "waiting" | undefined
+  votingStatus?: VotingStatus
+  closingDate?: Date | null
 }
 
-export default function Header({ user, onNewTalkClick, canCreateNewTalks = true, votingStatus }: HeaderProps) {
+function formatDate(date: Date): string {
+  const day = date.toLocaleDateString('es-ES', { day: 'numeric', timeZone: 'UTC' })
+  const month = date.toLocaleDateString('es-ES', { month: 'long', timeZone: 'UTC' })
+  const capitalizedMonth = month.charAt(0).toUpperCase() + month.slice(1)
+  return `${day} de ${capitalizedMonth}`
+}
+
+export default function Header({ user, onNewTalkClick, canCreateNewTalks = true, votingStatus, closingDate }: HeaderProps) {
   const [loading, setLoading] = useState(false)
 
   const handleGoogleLogin = async () => {
@@ -39,7 +48,9 @@ export default function Header({ user, onNewTalkClick, canCreateNewTalks = true,
     }
   }
 
-  console.log('Voting stauts', votingStatus)
+  const deadlineCopy = closingDate
+    ? ` Tienes hasta el ${formatDate(closingDate)}.`
+    : ''
 
   return (
     <Container>
@@ -52,7 +63,17 @@ export default function Header({ user, onNewTalkClick, canCreateNewTalks = true,
         </LogoRow>
 
         <SecondLine>
-          { votingStatus === 'voting' ? 
+          {votingStatus === 'closed' ? (
+            <>
+              <InfoPargraph>
+                La <span style={{ fontWeight: 800 }}>votación ha finalizado</span>. Gracias por participar en el Rincón de Charlas.
+              </InfoPargraph>
+
+              <InfoPargraph>
+                Las charlas siguen visibles abajo. Pronto compartiremos los resultados del Open Space.
+              </InfoPargraph>
+            </>
+          ) : votingStatus === 'voting' ? (
             <>
               <InfoPargraph>
                 Buenas noticias, el Open Space ha entrado en la siguiente fase: ya ha comenzado el <span style={{fontWeight: 800}}>proceso de votación</span> de charlas. 
@@ -70,7 +91,7 @@ export default function Header({ user, onNewTalkClick, canCreateNewTalks = true,
                 3. <span style={{fontWeight: 800}}>SELECCIONA TRES VÓTALAS Y VOILÁ.</span> Ya habrás contribuido a hacer el evento que quieres.
               </InfoPargraph>
             </>
-          :
+          ) : (
             <>
               <InfoPargraph>
                 ¿Tienes una idea? ¿Quieres abrir un debate? ¿Te gustaría enseñarnos algo que hayas aprendido o de lo que eres experto o experta?
@@ -84,7 +105,7 @@ export default function Header({ user, onNewTalkClick, canCreateNewTalks = true,
                 <span style={{ fontWeight: 800 }}>Aquí caben más cosas de las que imaginas.</span> IA, agentes, diseño, productividad, cómo hablar en público, fotografía analógica, café de especialidad, finanzas personales, Lego vs Playmobil, primeros auxilios o ese hobby del que podrías hablar durante horas. Si aporta, interesa.
               </InfoPargraph>
             </>
-          }
+          )}
         </SecondLine>
 
         <ThirdLine>
@@ -107,9 +128,13 @@ export default function Header({ user, onNewTalkClick, canCreateNewTalks = true,
 
         {!user && (
           <FourthLine>
-            {votingStatus === 'voting' ? (
+            {votingStatus === 'closed' ? (
               <span>
-                <strong>¡El periodo de votación ha comenzado!</strong> Iniciar sesión con Google para poder votar en las charlas. Tienes hasta el 7 de Septiembre.
+                <strong>La votación ha finalizado.</strong> Puedes iniciar sesión con Google si lo necesitas.
+              </span>
+            ) : votingStatus === 'voting' ? (
+              <span>
+                <strong>¡El periodo de votación ha comenzado!</strong> Iniciar sesión con Google para poder votar en las charlas.{deadlineCopy}
               </span>
             ) : (
               <span>
