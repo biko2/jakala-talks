@@ -13,20 +13,16 @@ interface TalkRow {
   updated_at: string
 }
 
-interface UserVoteRow {
-  id: string
-  user_id: string
+interface TalkVoteCountRow {
   talk_id: string
-  created_at: string
+  votes: number
 }
 
 export class TalkRepository implements ITalkRepository {
   constructor(private supabase: SupabaseClient) { }
 
   private async getVoteCounts(): Promise<Map<string, number>> {
-    const { data, error } = await this.supabase
-      .from('user_votes')
-      .select('talk_id')
+    const { data, error } = await this.supabase.rpc('get_talk_vote_counts')
 
     if (error) {
       throw new Error(`Error al obtener votos: ${error.message}`)
@@ -35,9 +31,8 @@ export class TalkRepository implements ITalkRepository {
     const voteCounts = new Map<string, number>()
 
     if (data) {
-      data.forEach((vote: { talk_id: string }) => {
-        const currentCount = voteCounts.get(vote.talk_id) || 0
-        voteCounts.set(vote.talk_id, currentCount + 1)
+      data.forEach((row: TalkVoteCountRow) => {
+        voteCounts.set(row.talk_id, Number(row.votes))
       })
     }
 
