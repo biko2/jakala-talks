@@ -132,5 +132,22 @@ describe('VoteTalk - Integración: votar, desvotar y volver a votar', () => {
     expect(talk1?.votes).toBe(0)
     expect(talk2?.votes).toBe(0)
   })
+
+  it('debería rechazar el voto después del cierre y no modificar el repositorio', async () => {
+    const userId = 'user-closed'
+    const talks = await talkRepository.findAll()
+    const talkId = talks[0].id
+
+    jest.setSystemTime(new Date('2026-09-08T00:00:00.000Z'))
+
+    await expect(voteTalk.execute(userId, talkId))
+      .rejects.toThrow('La votación ha finalizado')
+
+    const userVotes = await getUserVotes.execute(userId)
+    expect(userVotes).toEqual([])
+
+    const talk = await talkRepository.findById(talkId)
+    expect(talk?.votes).toBe(0)
+  })
 })
 
