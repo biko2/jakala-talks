@@ -13,7 +13,8 @@ export class VotingConfigRepositoryFactory {
         return new InMemoryVotingConfigRepository({
           votingStartDate: new Date('2026-09-04T00:00:00.000Z'),
           maxVotesPerUser: 3,
-          proposingStartDate: new Date('2026-06-29T00:00:00.000Z')
+          proposingStartDate: new Date('2026-06-29T00:00:00.000Z'),
+          closingDate: new Date('2026-09-08T00:00:00.000Z')
         })
 
       case 'local-supabase':
@@ -26,12 +27,13 @@ export class VotingConfigRepositoryFactory {
     }
   }
 
-  static createForTesting(config?: { votingStartDate: Date; maxVotesPerUser: number, proposingStartDate: Date}): VotingConfigRepository {
+  static createForTesting(config?: { votingStartDate: Date; maxVotesPerUser: number; proposingStartDate: Date; closingDate: Date | null }): VotingConfigRepository {
     return new InMemoryVotingConfigRepository(
       config || {
         votingStartDate: new Date('2025-10-07T00:00:00.000Z'),
         maxVotesPerUser: 3,
-        proposingStartDate: new Date('2026-06-29T00:00:00.000Z')
+        proposingStartDate: new Date('2026-06-29T00:00:00.000Z'),
+        closingDate: new Date('2026-09-08T00:00:00.000Z')
       }
     )
   }

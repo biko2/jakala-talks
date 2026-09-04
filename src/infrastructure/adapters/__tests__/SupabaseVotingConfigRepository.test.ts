@@ -45,7 +45,8 @@ describe('SupabaseVotingConfigRepository', () => {
       expect(result).toEqual({
         votingStartDate: new Date('2025-11-07'),
         maxVotesPerUser: 3,
-        proposingStartDate: new Date('2025-06-24')
+        proposingStartDate: new Date('2025-06-24'),
+        closingDate: null
       })
     })
 

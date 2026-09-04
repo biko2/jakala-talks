@@ -20,7 +20,8 @@ const mockCreateTalkExecute = jest.fn()
 const mockGetVotingConfig = jest.fn().mockResolvedValue({
   maxVotesPerUser: 3,
   votingStartDate: new Date('2025-01-01T00:00:00.000Z'),
-  proposingStartDate: new Date('2025-01-01T00:00:00.000Z')
+  proposingStartDate: new Date('2025-01-01T00:00:00.000Z'),
+  closingDate: new Date('2026-09-08T00:00:00.000Z')
 })
 
 const mockCanCreateNewTalks = jest.fn().mockResolvedValue(true)

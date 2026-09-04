@@ -1,18 +1,26 @@
 import { VotingRules } from '../VotingRules'
 import { InMemoryVotingConfigRepository } from '@/src/infrastructure/adapters/InMemoryVotingConfigRepository'
+import { VotingConfig } from '@/src/domain/ports/VotingConfigRepository'
 
 describe('VotingRules', () => {
   let votingRules: VotingRules
   let mockConfigRepo: InMemoryVotingConfigRepository
 
+  const defaultConfig: VotingConfig = {
+    votingStartDate: new Date('2025-11-07T00:00:00.000Z'),
+    maxVotesPerUser: 3,
+    proposingStartDate: new Date('2025-09-07T00:00:00.000Z'),
+    closingDate: new Date('2026-09-08T00:00:00.000Z')
+  }
+
+  const createVotingRules = (config: VotingConfig = defaultConfig) => {
+    mockConfigRepo = new InMemoryVotingConfigRepository(config)
+    votingRules = new VotingRules(mockConfigRepo)
+  }
+
   beforeEach(() => {
     jest.useFakeTimers()
-    mockConfigRepo = new InMemoryVotingConfigRepository({
-      votingStartDate: new Date('2025-11-07T00:00:00.000Z'),
-      maxVotesPerUser: 3,
-      proposingStartDate: new Date('2025-09-07T00:00:00.000Z')
-    })
-    votingRules = new VotingRules(mockConfigRepo)
+    createVotingRules()
   })
 
   afterEach(() => {
@@ -39,6 +47,22 @@ describe('VotingRules', () => {
       jest.setSystemTime(new Date('2025-11-07T00:00:00.000Z'))
       expect(await votingRules.getVotingStatus()).toBe('voting')
     })
+
+    it('debería devolver "voting" justo antes de la fecha de cierre', async () => {
+      jest.setSystemTime(new Date('2026-09-07T23:59:59.999Z'))
+      expect(await votingRules.getVotingStatus()).toBe('voting')
+    })
+
+    it('debería devolver "closed" en la fecha de cierre o después', async () => {
+      jest.setSystemTime(new Date('2026-09-08T00:00:00.000Z'))
+      expect(await votingRules.getVotingStatus()).toBe('closed')
+    })
+
+    it('no debería cerrar si closingDate es null', async () => {
+      createVotingRules({ ...defaultConfig, closingDate: null })
+      jest.setSystemTime(new Date('2099-01-01T00:00:00.000Z'))
+      expect(await votingRules.getVotingStatus()).toBe('voting')
+    })
   })
 
   describe('isVotingEnabled', () => {
@@ -58,6 +82,12 @@ describe('VotingRules', () => {
       jest.setSystemTime(new Date('2025-11-08T00:00:00.000Z'))
       await votingRules.getVotingStatus()
       expect(votingRules.isVotingEnabled()).toBe(true)
+    })
+
+    it('debería devolver false cuando la votación está cerrada', async () => {
+      jest.setSystemTime(new Date('2026-09-08T00:00:00.000Z'))
+      await votingRules.getVotingStatus()
+      expect(votingRules.isVotingEnabled()).toBe(false)
     })
   })
 
@@ -84,6 +114,11 @@ describe('VotingRules', () => {
   })
 
   describe('canCreateNewTalks', () => {
+    it('debería permitir crear charlas en waiting', async () => {
+      jest.setSystemTime(new Date('2025-09-06T23:59:59.999Z'))
+      expect(await votingRules.canCreateNewTalks()).toBe(true)
+    })
+
     it('debería permitir crear charlas antes del 7 de noviembre de 2025', async () => {
       jest.setSystemTime(new Date('2025-11-06T23:59:59.999Z'))
       expect(await votingRules.canCreateNewTalks()).toBe(true)
@@ -91,6 +126,11 @@ describe('VotingRules', () => {
 
     it('no debería permitir crear charlas el 7 de noviembre de 2025 o después', async () => {
       jest.setSystemTime(new Date('2025-11-07T00:00:00.000Z'))
+      expect(await votingRules.canCreateNewTalks()).toBe(false)
+    })
+
+    it('no debería permitir crear charlas cuando la votación está cerrada', async () => {
+      jest.setSystemTime(new Date('2026-09-08T00:00:00.000Z'))
       expect(await votingRules.canCreateNewTalks()).toBe(false)
     })
   })
@@ -121,6 +161,13 @@ describe('VotingRules', () => {
         .rejects.toThrow('La votación estará disponible a partir del 07/11/2025')
     })
 
+    it('debería lanzar error si la votación está cerrada', async () => {
+      jest.setSystemTime(new Date('2026-09-08T00:00:00.000Z'))
+      const userVotes = ['talk1']
+      await expect(votingRules.validateVoteAction(userVotes, 'talk2', true))
+        .rejects.toThrow('La votación ha finalizado')
+    })
+
     it('debería permitir votar si está habilitada, no se votó antes y hay votos disponibles', async () => {
       jest.setSystemTime(new Date('2025-11-07T00:00:00.000Z'))
       const userVotes = ['talk1']
@@ -147,6 +194,24 @@ describe('VotingRules', () => {
     })
   })
 
+  describe('getVotingStatusMessage', () => {
+    it('debería devolver mensaje de votación activa', async () => {
+      jest.setSystemTime(new Date('2025-11-07T00:00:00.000Z'))
+      expect(await votingRules.getVotingStatusMessage()).toBe('Votación activa')
+    })
+
+    it('debería devolver mensaje de fecha de inicio antes de votar', async () => {
+      jest.setSystemTime(new Date('2025-11-06T23:59:59.999Z'))
+      expect(await votingRules.getVotingStatusMessage())
+        .toBe('La votación estará disponible a partir del 07/11/2025')
+    })
+
+    it('debería devolver mensaje de votación finalizada cuando está cerrada', async () => {
+      jest.setSystemTime(new Date('2026-09-08T00:00:00.000Z'))
+      expect(await votingRules.getVotingStatusMessage()).toBe('La votación ha finalizado')
+    })
+  })
+
   describe('determineVoteAction', () => {
     it('debería devolver true si el usuario no ha votado por la charla', () => {
       const userVotes = ['talk1', 'talk2']
@@ -164,4 +229,3 @@ describe('VotingRules', () => {
     })
   })
 })
-

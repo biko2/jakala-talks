@@ -23,7 +23,8 @@ export class SupabaseVotingConfigRepository implements VotingConfigRepository {
     return {
       votingStartDate: new Date(data.voting_start_date),
       maxVotesPerUser: data.max_votes_per_user,
-      proposingStartDate: new Date(data.proposing_talks_start_date)
+      proposingStartDate: new Date(data.proposing_talks_start_date),
+      closingDate: null
     }
   }
 }

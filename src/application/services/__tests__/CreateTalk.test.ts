@@ -16,7 +16,9 @@ const mockTalkRepository: ITalkRepository = {
 const mockVotingConfigRepository: VotingConfigRepository = {
   getVotingConfig: jest.fn().mockResolvedValue({
     votingStartDate: new Date('2025-11-07T00:00:00.000Z'),
-    maxVotesPerUser: 3
+    maxVotesPerUser: 3,
+    proposingStartDate: new Date('2025-09-07T00:00:00.000Z'),
+    closingDate: new Date('2026-09-08T00:00:00.000Z')
   })
 }
 

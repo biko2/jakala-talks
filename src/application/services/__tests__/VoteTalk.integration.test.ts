@@ -19,7 +19,9 @@ describe('VoteTalk - Integración: votar, desvotar y volver a votar', () => {
     talkRepository = new InMemoryTalkRepository()
     votingConfigRepository = new InMemoryVotingConfigRepository({
       votingStartDate: new Date('2025-11-07T00:00:00.000Z'),
-      maxVotesPerUser: 3
+      maxVotesPerUser: 3,
+      proposingStartDate: new Date('2025-09-07T00:00:00.000Z'),
+      closingDate: new Date('2026-09-08T00:00:00.000Z')
     })
     voteTalk = new VoteTalk(talkRepository, votingConfigRepository)
     getUserVotes = new GetUserVotes(talkRepository)
