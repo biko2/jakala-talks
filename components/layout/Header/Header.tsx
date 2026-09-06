@@ -49,7 +49,7 @@ export default function Header({ user, onNewTalkClick, canCreateNewTalks = true,
   }
 
   const deadlineCopy = closingDate
-    ? ` Tienes hasta el ${formatDate(closingDate)}.`
+    ? ` El último dia para votar es el ${formatDate(new Date(closingDate.getTime() - 24 * 60 * 60 * 1000))}.`
     : ''
 
   return (

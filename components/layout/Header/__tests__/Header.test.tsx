@@ -97,8 +97,8 @@ describe('Header', () => {
     )
 
     expect(screen.getByText(/El periodo de votación ha comenzado/)).toBeInTheDocument()
-    expect(screen.getByText(/Tienes hasta el 8 de Septiembre/)).toBeInTheDocument()
-    expect(screen.queryByText(/7 de Septiembre/)).not.toBeInTheDocument()
+    expect(screen.getByText(/El último dia para votar es el 7 de Septiembre./)).toBeInTheDocument()
+    expect(screen.queryByText(/8 de Septiembre/)).not.toBeInTheDocument()
     expect(screen.queryByText(/para poder proponer charlas y luego votar/)).not.toBeInTheDocument()
   })
 
