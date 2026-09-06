@@ -1,8 +1,9 @@
 'use client'
 
 import { Talk } from '@/src/domain/entities/Talk'
+import { VotingStatus } from '@/src/domain/valueObjects/VotingRules'
 import TalkCard from '../TalkCard'
-import { Container, EmptyTalksListHeader, Header, List, VotingStatus } from './TalksList.styles'
+import { Container, EmptyTalksListHeader, Header, List, VotingStatus as VotingStatusBanner } from './TalksList.styles'
 
 interface TalksListProps {
   talks: Talk[]
@@ -10,7 +11,7 @@ interface TalksListProps {
   isLoggedIn?: boolean
   userVotes?: string[]
   maxVotesPerUser?: number
-  votingStatus?: 'voting' | 'proposing' | 'waiting'
+  votingStatus?: VotingStatus
   votingStartDate?: Date
   proposingStartDate?: Date
 }
@@ -40,6 +41,10 @@ export default function TalksList({
   const isVotingEnabled = votingStatus === 'voting'
 
   const getVotingMessage = () => {
+    if (votingStatus === 'closed') {
+      return 'La votación ha finalizado'
+    }
+
     if (votingStatus === 'waiting') {
       return `La propuesta de charlas estará habilitada el ${formatDate(proposingStartDate)}`
     }
@@ -60,9 +65,9 @@ export default function TalksList({
   return (
     <Container>
       {statusMessage && (
-        <VotingStatus>
+        <VotingStatusBanner>
           {statusMessage}
-        </VotingStatus>
+        </VotingStatusBanner>
       )}
       {talks.length === 0
         ? <EmptyTalksListHeader>No hay charlas... todavía</EmptyTalksListHeader>

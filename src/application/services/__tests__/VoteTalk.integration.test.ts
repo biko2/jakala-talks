@@ -19,7 +19,9 @@ describe('VoteTalk - Integración: votar, desvotar y volver a votar', () => {
     talkRepository = new InMemoryTalkRepository()
     votingConfigRepository = new InMemoryVotingConfigRepository({
       votingStartDate: new Date('2025-11-07T00:00:00.000Z'),
-      maxVotesPerUser: 3
+      maxVotesPerUser: 3,
+      proposingStartDate: new Date('2025-09-07T00:00:00.000Z'),
+      closingDate: new Date('2026-09-08T00:00:00.000Z')
     })
     voteTalk = new VoteTalk(talkRepository, votingConfigRepository)
     getUserVotes = new GetUserVotes(talkRepository)
@@ -129,6 +131,23 @@ describe('VoteTalk - Integración: votar, desvotar y volver a votar', () => {
     const talk2 = await talkRepository.findById(talkId2)
     expect(talk1?.votes).toBe(0)
     expect(talk2?.votes).toBe(0)
+  })
+
+  it('debería rechazar el voto después del cierre y no modificar el repositorio', async () => {
+    const userId = 'user-closed'
+    const talks = await talkRepository.findAll()
+    const talkId = talks[0].id
+
+    jest.setSystemTime(new Date('2026-09-08T00:00:00.000Z'))
+
+    await expect(voteTalk.execute(userId, talkId))
+      .rejects.toThrow('La votación ha finalizado')
+
+    const userVotes = await getUserVotes.execute(userId)
+    expect(userVotes).toEqual([])
+
+    const talk = await talkRepository.findById(talkId)
+    expect(talk?.votes).toBe(0)
   })
 })
 

@@ -16,7 +16,9 @@ const mockTalkRepository: ITalkRepository = {
 const mockVotingConfigRepository: VotingConfigRepository = {
   getVotingConfig: jest.fn().mockResolvedValue({
     votingStartDate: new Date('2025-11-07T00:00:00.000Z'),
-    maxVotesPerUser: 3
+    maxVotesPerUser: 3,
+    proposingStartDate: new Date('2025-09-07T00:00:00.000Z'),
+    closingDate: new Date('2026-09-08T00:00:00.000Z')
   })
 }
 
@@ -133,7 +135,7 @@ describe('CreateTalk', () => {
     expect(mockTalkRepository.create).not.toHaveBeenCalled()
   })
 
-  it.only('debería limpiar espacios en blanco del título y descripción', async () => {
+  it('debería limpiar espacios en blanco del título y descripción', async () => {
     jest.setSystemTime(new Date('2025-11-06T23:59:59.999Z'))
 
     const result = await createTalk.execute(
@@ -148,4 +150,13 @@ describe('CreateTalk', () => {
     expect(result.author).toBe('Author with spaces')
   })
 
+  it('debería rechazar crear charlas cuando la votación está cerrada', async () => {
+    jest.setSystemTime(new Date('2026-09-08T00:00:00.000Z'))
+
+    await expect(
+      createTalk.execute('Title', 'Description', 'Author', 30)
+    ).rejects.toThrow('No se pueden crear nuevas charlas cuando la votación está activa')
+
+    expect(mockTalkRepository.create).not.toHaveBeenCalled()
+  })
 })

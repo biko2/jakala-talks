@@ -1,7 +1,6 @@
 import { VoteTalk } from '../VoteTalk'
 import { ITalkRepository } from '@/src/domain/ports/TalkRepository'
 import { VotingConfigRepository } from '@/src/domain/ports/VotingConfigRepository'
-import { InMemoryVotingConfigRepository } from '@/src/infrastructure/adapters/InMemoryVotingConfigRepository'
 
 const mockTalkRepository = (): ITalkRepository => ({
   findAll: jest.fn(),
@@ -25,7 +24,9 @@ describe('VoteTalk', () => {
     mockConfigRepo = mockVotingConfigRepository() as jest.Mocked<VotingConfigRepository>
     mockConfigRepo.getVotingConfig.mockResolvedValue({
       votingStartDate: new Date('2025-11-07T00:00:00.000Z'),
-      maxVotesPerUser: 3
+      maxVotesPerUser: 3,
+      proposingStartDate: new Date('2025-09-07T00:00:00.000Z'),
+      closingDate: new Date('2026-09-08T00:00:00.000Z')
     })
   })
 
@@ -88,6 +89,33 @@ describe('VoteTalk', () => {
       await useCase.execute('user1', 'talk1')
 
       expect(repository.addUserVote).toHaveBeenCalled()
+    })
+  })
+
+  describe('cuando la votación está cerrada', () => {
+    it('debería rechazar el voto después del cierre', async () => {
+      jest.setSystemTime(new Date('2026-09-08T00:00:00.000Z'))
+      const repository = mockTalkRepository()
+        ; (repository.getUserVotes as jest.Mock).mockResolvedValue([])
+
+      const useCase = new VoteTalk(repository, mockConfigRepo)
+
+      await expect(useCase.execute('user1', 'talk1'))
+        .rejects.toThrow('La votación ha finalizado')
+      expect(repository.addUserVote).not.toHaveBeenCalled()
+      expect(repository.removeUserVote).not.toHaveBeenCalled()
+    })
+
+    it('debería rechazar quitar el voto después del cierre', async () => {
+      jest.setSystemTime(new Date('2026-09-08T00:00:00.000Z'))
+      const repository = mockTalkRepository()
+        ; (repository.getUserVotes as jest.Mock).mockResolvedValue(['talk1'])
+
+      const useCase = new VoteTalk(repository, mockConfigRepo)
+
+      await expect(useCase.execute('user1', 'talk1'))
+        .rejects.toThrow('La votación ha finalizado')
+      expect(repository.removeUserVote).not.toHaveBeenCalled()
     })
   })
 })

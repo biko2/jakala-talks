@@ -1,17 +1,23 @@
 import { VotingConfigRepository } from '../ports/VotingConfigRepository'
 
+export type VotingStatus = 'waiting' | 'proposing' | 'voting' | 'closed'
+
 export class VotingRules {
-  public votingStatus: 'voting' | 'proposing' | 'waiting'
+  public votingStatus: VotingStatus
   
   constructor(private readonly votingConfigRepo: VotingConfigRepository) { 
     this.votingStatus = 'waiting';
   }
 
-  public async getVotingStatus(): Promise<'voting' | 'proposing' | 'waiting'> {
+  public async getVotingStatus(): Promise<VotingStatus> {
     const config = await this.votingConfigRepo.getVotingConfig();
-    if (new Date() < config.proposingStartDate) {
+    const now = new Date()
+
+    if (config.closingDate && now >= config.closingDate) {
+      this.votingStatus = 'closed';
+    } else if (now < config.proposingStartDate) {
       this.votingStatus = 'waiting';
-    } else if (new Date() < config.votingStartDate) {
+    } else if (now < config.votingStartDate) {
       this.votingStatus = 'proposing';
     } else {
       this.votingStatus = 'voting';
@@ -32,7 +38,7 @@ export class VotingRules {
 
   async canCreateNewTalks(): Promise<boolean> {
     await this.getVotingStatus()
-    return !this.isVotingEnabled()
+    return this.votingStatus === 'waiting' || this.votingStatus === 'proposing'
   }
 
   static hasUserVotedForTalk(userVotes: string[], talkId: string): boolean {
@@ -45,12 +51,7 @@ export class VotingRules {
     const isEnabled = this.isVotingEnabled()
 
     if (!isEnabled) {
-      const formattedDate = config.votingStartDate.toLocaleDateString('es-ES', {
-        day: '2-digit',
-        month: '2-digit',
-        year: 'numeric'
-      })
-      throw new Error(`La votación estará disponible a partir del ${formattedDate}`)
+      throw new Error(this.getDisabledVoteMessage(config.votingStartDate))
     }
 
     if (isVoting && !VotingRules.hasUserVotedForTalk(userVotes, talkId)) {
@@ -73,7 +74,15 @@ export class VotingRules {
       return 'Votación activa'
     }
 
-    const formattedDate = config.votingStartDate.toLocaleDateString('es-ES', {
+    return this.getDisabledVoteMessage(config.votingStartDate)
+  }
+
+  private getDisabledVoteMessage(votingStartDate: Date): string {
+    if (this.votingStatus === 'closed') {
+      return 'La votación ha finalizado'
+    }
+
+    const formattedDate = votingStartDate.toLocaleDateString('es-ES', {
       day: '2-digit',
       month: '2-digit',
       year: 'numeric'
@@ -81,4 +90,3 @@ export class VotingRules {
     return `La votación estará disponible a partir del ${formattedDate}`
   }
 }
-
