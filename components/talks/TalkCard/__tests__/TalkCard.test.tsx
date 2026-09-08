@@ -96,4 +96,43 @@ describe('TalkCard', () => {
 
     expect(screen.queryByText('Votar')).not.toBeInTheDocument()
   })
+
+  it('no debería mostrar el recuento de votos cuando la votación no está activa', () => {
+    render(<TalkCard talk={mockTalk} isLoggedIn={true} isVotingEnabled={false} />)
+
+    expect(screen.queryByText('5')).not.toBeInTheDocument()
+  })
+
+  it('debería mostrar el recuento de votos cuando la votación ha cerrado', () => {
+    render(
+      <TalkCard
+        talk={mockTalk}
+        isLoggedIn={true}
+        isVotingEnabled={false}
+        showVoteCount={true}
+      />
+    )
+
+    expect(screen.getByText('5')).toBeInTheDocument()
+    expect(screen.queryByText('Votar')).not.toBeInTheDocument()
+  })
+
+  it('no debería llamar onVote cuando la votación ha cerrado', () => {
+    const mockOnVote = jest.fn()
+    render(
+      <TalkCard
+        talk={mockTalk}
+        isLoggedIn={true}
+        onVote={mockOnVote}
+        isVotingEnabled={false}
+        showVoteCount={true}
+      />
+    )
+
+    const talkTitle = screen.getByText('Arquitectura Hexagonal')
+    const talkContainer = talkTitle.closest('div')
+    fireEvent.click(talkContainer!)
+
+    expect(mockOnVote).not.toHaveBeenCalled()
+  })
 })

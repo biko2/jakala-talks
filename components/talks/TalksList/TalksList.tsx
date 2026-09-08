@@ -39,6 +39,7 @@ export default function TalksList({
 }: TalksListProps) {
   const remainingVotes = maxVotesPerUser - userVotes.length
   const isVotingEnabled = votingStatus === 'voting'
+  const showVoteCount = votingStatus === 'voting' || votingStatus === 'closed'
 
   const getVotingMessage = () => {
     if (votingStatus === 'closed') {
@@ -82,6 +83,7 @@ export default function TalksList({
                 isLoggedIn={isLoggedIn}
                 isVoted={userVotes.includes(talk.id)}
                 isVotingEnabled={isVotingEnabled}
+                showVoteCount={showVoteCount}
               />
             ))}
           </List>

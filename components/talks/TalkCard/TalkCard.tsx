@@ -12,9 +12,11 @@ interface TalkCardProps {
   isLoggedIn?: boolean
   isVoted?: boolean
   isVotingEnabled?: boolean
+  showVoteCount?: boolean
 }
 
-export default function TalkCard({ talk, onVote, isLoggedIn = false, isVoted = false, isVotingEnabled = true }: TalkCardProps) {
+export default function TalkCard({ talk, onVote, isLoggedIn = false, isVoted = false, isVotingEnabled = true, showVoteCount }: TalkCardProps) {
+  const shouldShowVotes = showVoteCount ?? isVotingEnabled
 
   const handleVoteClick = () => {
     if (isLoggedIn && onVote && isVotingEnabled) {
@@ -24,7 +26,7 @@ export default function TalkCard({ talk, onVote, isLoggedIn = false, isVoted = f
 
   return (
     <Container onClick={handleVoteClick} $isClickable={isLoggedIn && isVotingEnabled}>
-      {isVotingEnabled && (
+      {shouldShowVotes && (
         <DecorativeCircles
           count={talk.votes}
         />
@@ -61,7 +63,7 @@ export default function TalkCard({ talk, onVote, isLoggedIn = false, isVoted = f
         </Duration>
       </Footer>
 
-      {isVotingEnabled && (
+      {shouldShowVotes && (
         <VotesCount>
           {talk.votes}
         </VotesCount>

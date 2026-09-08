@@ -4,7 +4,7 @@ import { Talk } from '@/src/domain/entities/Talk'
 
 jest.mock('@/components/talks/TalkCard', () => ({
   __esModule: true,
-  default: function MockTalkCard({ talk, isLoggedIn }: any) {
+  default: function MockTalkCard({ talk, isLoggedIn, showVoteCount }: any) {
     return (
       <div>
         <h2>{talk.title}</h2>
@@ -12,6 +12,7 @@ jest.mock('@/components/talks/TalkCard', () => ({
         <span>{talk.author}</span>
         <span>{talk.duration} min</span>
         {isLoggedIn && <span>❤️</span>}
+        {showVoteCount && <span data-testid={`vote-count-${talk.id}`}>{talk.votes}</span>}
       </div>
     )
   }
@@ -137,6 +138,39 @@ describe('TalksList', () => {
 
     expect(screen.getByText('La votación ha finalizado')).toBeInTheDocument()
     expect(screen.queryByText(/Has votado/)).not.toBeInTheDocument()
+  })
+
+  it('debería mostrar el recuento de votos de las charlas cuando la votación ha cerrado', () => {
+    const talksWithVotes = [
+      new Talk('1', 'Charla 1', 'Descripción 1', 'Autor 1', 30, 7),
+      new Talk('2', 'Charla 2', 'Descripción 2', 'Autor 2', 45, 4)
+    ]
+
+    render(
+      <TalksList
+        talks={talksWithVotes}
+        isLoggedIn={true}
+        votingStatus="closed"
+      />
+    )
+
+    expect(screen.getByTestId('vote-count-1')).toHaveTextContent('7')
+    expect(screen.getByTestId('vote-count-2')).toHaveTextContent('4')
+  })
+
+  it('no debería mostrar el recuento de votos cuando la votación aún no ha empezado', () => {
+    const talksWithVotes = [
+      new Talk('1', 'Charla 1', 'Descripción 1', 'Autor 1', 30, 7)
+    ]
+
+    render(
+      <TalksList
+        talks={talksWithVotes}
+        votingStatus="proposing"
+      />
+    )
+
+    expect(screen.queryByTestId('vote-count-1')).not.toBeInTheDocument()
   })
 
   it('debería pasar userVotes correctamente a los componentes TalkCard', () => {
