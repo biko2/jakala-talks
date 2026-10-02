@@ -42,7 +42,8 @@ Profundidad (scripts, MSW aplazado, fuera de alcance) → `.cursor/docs/HARNESS.
 | `app/` | App Router. No `pages/` |
 | `components/` | UI React |
 | `supabase/migrations/` | Schema real |
-| `.cursor/docs/` | Onboarding, env, harness (no existe `docs/` en raíz) |
+| `.cursor/docs/` | Onboarding, env, harness |
+| `docs/agents/` | Tracker (`issue-tracker.md`) y how-to de `/deliver` (`deliver.md`) |
 
 Alias: `@/*` → raíz del repo.
 
@@ -67,6 +68,8 @@ Alias: `@/*` → raíz del repo.
 - Onboarding, `yarn dev` / `yarn dev:mock`, Google OAuth, Site URL, Redirect URLs, login roto en prod, deploy → `.cursor/docs/ONBOARDING.md`
 - Qué significa cada variable de `.env.example` → `.cursor/docs/VARIABLES_ENTORNO.md`
 - Harness (gates, MSW, fuera de alcance) → `.cursor/docs/HARNESS.md`
+- Tracker de issues (spec/tickets, label `ready-for-agent`) → `docs/agents/issue-tracker.md`
+- Lanzar `/deliver` y qué produce → `docs/agents/deliver.md`
 - Hexágono, puertos, DI, nada de SDK en domain/application → `.cursor/rules/arquitectura/`
 - Estrategia de tests → `.cursor/rules/testing/`
 - Schema y RLS → `supabase/migrations/`

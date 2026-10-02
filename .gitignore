@@ -42,3 +42,6 @@ next-env.d.ts
 
 # cursor
 .cursor/mcp.json
+
+# deliver workflow (run records + hook preference; contract lives in .agents/skills/deliver/run-record.md)
+.deliver/
