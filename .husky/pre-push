@@ -5,7 +5,7 @@ echo "🏗️ Ejecutando lint:arch..."
 yarn lint:arch || { echo "❌ Lint de arquitectura ha fallado. Push cancelado."; exit 1; }
 
 echo "🧪 Ejecutando tests..."
-yarn test --passWithNoTests || { echo "❌ Los tests han fallado. Push cancelado."; exit 1; }
+yarn test || { echo "❌ Los tests han fallado. Push cancelado."; exit 1; }
 
 echo "🔨 Ejecutando build..."
 yarn build || { echo "❌ El build ha fallado. Push cancelado."; exit 1; }
