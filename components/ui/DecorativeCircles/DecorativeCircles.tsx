@@ -21,12 +21,9 @@ export default function DecorativeCircles({
       }
 
       const size = 25
-      let right: number, bottom: number
-
-      right = Math.random() * 40
-      bottom = Math.random() * 20
-
-      const color = Math.random() > 0.5 ? primaryColor : secondaryColor
+      const right = (index * 17) % 40
+      const bottom = (index * 13) % 20
+      const color = index % 2 === 0 ? primaryColor : secondaryColor
       const opacity = 1
 
       return {

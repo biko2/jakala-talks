@@ -2,6 +2,35 @@
 
 Jakala Talks: proponer y votar charlas. Next.js 16 App Router + React 19 + TypeScript + Supabase (Postgres + Google OAuth). Hexágono en `src/`. Node commands: `yarn`.
 
+## Filtro queso suizo
+
+Confianza en agentes = varias capas. Cada una caza un tipo de error. Ninguna sola basta. Specs + agentes (hexágono, rules always-on) entran por la izquierda.
+
+```mermaid
+flowchart LR
+  specs[Specs_y_agentes]
+  plan[Plan]
+  static[Lint_tipos_arch]
+  tests[Tests]
+  perms[Permisos]
+  review[Review_adversarial]
+  specs --> plan --> static --> tests --> perms --> review
+```
+
+![Filtro queso suizo](.cursor/docs/queso-suizo.jpg)
+
+| Capa | Disparador |
+|---|---|
+| **Plan** | Feature/arquitectura → Plan mode. Stress-test → skill `grilling` |
+| **Lint / tipos / arch** | `yarn lint`, `yarn typecheck`, `yarn lint:arch` (pre-push + CI) |
+| **Tests** | Skill `tdd` + `yarn test`. Feature nueva = unit + integración |
+| **Permisos** | No secretos. No URL/keys de **prod** en `.env.local`. Migraciones solo si el schema está pedido. No crear `middleware.ts` |
+| **Review adversarial** | Tras feature/PR local → skill `code-review` |
+
+Local sin contaminar prod: UI = `yarn dev:mock`. Backend = Supabase local o proyecto de **dev**, nunca prod en `.env.local`.
+
+Profundidad (scripts, MSW aplazado, fuera de alcance) → `.cursor/docs/HARNESS.md`.
+
 ## Mapa
 
 | Path | Qué hay |
@@ -13,7 +42,7 @@ Jakala Talks: proponer y votar charlas. Next.js 16 App Router + React 19 + TypeS
 | `app/` | App Router. No `pages/` |
 | `components/` | UI React |
 | `supabase/migrations/` | Schema real |
-| `.cursor/docs/` | Onboarding y env (no existe `docs/` en raíz) |
+| `.cursor/docs/` | Onboarding, env, harness (no existe `docs/` en raíz) |
 
 Alias: `@/*` → raíz del repo.
 
@@ -37,6 +66,7 @@ Alias: `@/*` → raíz del repo.
 
 - Onboarding, `yarn dev` / `yarn dev:mock`, Google OAuth, Site URL, Redirect URLs, login roto en prod, deploy → `.cursor/docs/ONBOARDING.md`
 - Qué significa cada variable de `.env.example` → `.cursor/docs/VARIABLES_ENTORNO.md`
+- Harness (gates, MSW, fuera de alcance) → `.cursor/docs/HARNESS.md`
 - Hexágono, puertos, DI, nada de SDK en domain/application → `.cursor/rules/arquitectura/`
 - Estrategia de tests → `.cursor/rules/testing/`
 - Schema y RLS → `supabase/migrations/`
@@ -46,8 +76,11 @@ Alias: `@/*` → raíz del repo.
 
 ```bash
 yarn install
-yarn dev:mock    # UI sin Supabase
-yarn test        # Jest + Testing Library
+yarn dev:mock      # UI sin Supabase
+yarn lint          # ESLint + jsx-a11y
+yarn typecheck     # tsc --noEmit
+yarn lint:arch     # dependency-cruiser (hexágono)
+yarn test          # Jest + Testing Library
 ```
 
-`yarn dev` pide `.env.local` (copia de `.env.example`). Pre-push Husky: `yarn test` + `yarn build`.
+`yarn dev` pide `.env.local` (copia de `.env.example`) apuntando a **dev**, no a prod. Pre-push Husky: `yarn lint` + `yarn lint:arch` + `yarn test` + `yarn build`. CI: mismos gates + `typecheck`.

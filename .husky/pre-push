@@ -1,17 +1,13 @@
-echo "🧪 Ejecutando tests..."
-yarn test --passWithNoTests
+echo "🔍 Ejecutando lint..."
+yarn lint || { echo "❌ Lint ha fallado. Push cancelado."; exit 1; }
 
-if [ $? -ne 0 ]; then
-  echo "❌ Los tests han fallado. Push cancelado."
-  exit 1
-fi
+echo "🏗️ Ejecutando lint:arch..."
+yarn lint:arch || { echo "❌ Lint de arquitectura ha fallado. Push cancelado."; exit 1; }
+
+echo "🧪 Ejecutando tests..."
+yarn test --passWithNoTests || { echo "❌ Los tests han fallado. Push cancelado."; exit 1; }
 
 echo "🔨 Ejecutando build..."
-yarn build
+yarn build || { echo "❌ El build ha fallado. Push cancelado."; exit 1; }
 
-if [ $? -ne 0 ]; then
-  echo "❌ El build ha fallado. Push cancelado."
-  exit 1
-fi
-
-echo "✅ Tests y build completados con éxito. Continuando con el push..."
+echo "✅ Lint, arch, tests y build OK. Continuando con el push..."

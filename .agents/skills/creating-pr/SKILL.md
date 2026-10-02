@@ -74,9 +74,9 @@ Closes #123
 Before requesting review:
 - Read every line of the diff yourself
 - Remove debug code (`console.log`, `TODO`, commented-out code)
-- Verify tests pass: `npm test`
-- Verify types: `npx tsc --noEmit`
-- Verify lint: `npm run lint`
+- Verify tests pass: `yarn test`
+- Verify types: `yarn typecheck`
+- Verify lint: `yarn lint`
 - Check for files that shouldn't be committed (`.env`, lockfile conflicts)
 
 ### 5. Create the PR

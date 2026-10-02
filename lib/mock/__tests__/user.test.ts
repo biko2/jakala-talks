@@ -34,28 +34,28 @@ describe('Mock User', () => {
     })
 
     it('debería retornar true cuando NODE_ENV es development y USE_MOCK_USER es true', () => {
-      process.env.NODE_ENV = 'development'
+      (process.env as Record<string, string | undefined>).NODE_ENV = 'development'
       process.env.NEXT_PUBLIC_USE_MOCK_USER = 'true'
 
       expect(isMockMode()).toBe(true)
     })
 
     it('debería retornar false cuando NODE_ENV no es development', () => {
-      process.env.NODE_ENV = 'production'
+      (process.env as Record<string, string | undefined>).NODE_ENV = 'production'
       process.env.NEXT_PUBLIC_USE_MOCK_USER = 'true'
 
       expect(isMockMode()).toBe(false)
     })
 
     it('debería retornar false cuando USE_MOCK_USER no es true', () => {
-      process.env.NODE_ENV = 'development'
+      (process.env as Record<string, string | undefined>).NODE_ENV = 'development'
       process.env.NEXT_PUBLIC_USE_MOCK_USER = 'false'
 
       expect(isMockMode()).toBe(false)
     })
 
     it('debería retornar false cuando USE_MOCK_USER no está definido', () => {
-      process.env.NODE_ENV = 'development'
+      (process.env as Record<string, string | undefined>).NODE_ENV = 'development'
       delete process.env.NEXT_PUBLIC_USE_MOCK_USER
 
       expect(isMockMode()).toBe(false)

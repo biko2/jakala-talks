@@ -1,0 +1,13 @@
+# Paths sensibles del harness y del dominio.
+# Sustituye @USER por el handle o team de GitHub del proyecto.
+# Ver .cursor/docs/HARNESS.md
+
+* @USER
+
+/src/domain/ @USER
+/supabase/migrations/ @USER
+/AGENTS.md @USER
+/.cursor/rules/ @USER
+/.agents/skills/ @USER
+/.dependency-cruiser.cjs @USER
+/.github/workflows/ @USER

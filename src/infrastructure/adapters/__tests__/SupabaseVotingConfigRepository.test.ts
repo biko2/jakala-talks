@@ -3,8 +3,13 @@ import type { SupabaseClient } from '@supabase/supabase-js'
 
 describe('SupabaseVotingConfigRepository', () => {
   let repository: SupabaseVotingConfigRepository
-  let mockQuery: any
-  let mockSupabase: any
+  let mockQuery: {
+    select: jest.Mock
+    order: jest.Mock
+    limit: jest.Mock
+    single: jest.Mock
+  }
+  let mockSupabase: SupabaseClient
 
   beforeEach(() => {
     mockQuery = {

@@ -19,6 +19,8 @@ jest.mock('@/lib/supabase/client', () => ({
 
 const mockUser = {
   id: '123',
+  aud: 'authenticated',
+  created_at: '2024-01-01T00:00:00.000Z',
   email: 'test@example.com',
   user_metadata: {
     full_name: 'Test User',
