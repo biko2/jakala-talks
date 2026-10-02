@@ -85,4 +85,4 @@ Si el usuario acepta registrar la medición, la ficha lleva en `trace_metadata`:
 
 ## Sala de control
 
-Fuera de alcance de `/deliver`. Lee `.deliver/runs/` en cada máquina. Entre desarrolladores, la comparación sale de las fichas de AI Hub cuando existan.
+Local: `yarn deliver:ui` → http://127.0.0.1:4177 lee `.deliver/runs/` (ver [`docs/agents/deliver.md`](../../../docs/agents/deliver.md)). Entre desarrolladores, la comparación sale de las fichas de AI Hub cuando existan. Sin nota de eficiencia en el JSON.

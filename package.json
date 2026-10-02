@@ -11,8 +11,9 @@
     "lint:fix": "eslint . --fix",
     "typecheck": "tsc --noEmit",
     "lint:arch": "depcruise src app components lib --config .dependency-cruiser.cjs",
-    "test": "jest",
+    "test": "jest && node --test tools/deliver-ui/*.test.mjs",
     "test:watch": "jest --watch",
+    "deliver:ui": "node tools/deliver-ui/server.mjs",
     "prepare": "husky"
   },
   "lint-staged": {

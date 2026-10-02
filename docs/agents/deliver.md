@@ -27,6 +27,18 @@ Necesitas: `gh`, Yarn, y (si aceptas el hook) Bun.
 
 Entrega = PR abierta, CI accionable verde, feedback high/medium resuelto. Tú merges.
 
+## Sala local (observabilidad)
+
+Consulta las corridas guardadas en `.deliver/runs/` (solo esta máquina):
+
+```bash
+yarn deliver:ui
+```
+
+Abre http://127.0.0.1:4177 — lista (modelo, modo, CI, criterios, tokens) y detalle (paradas, enlaces GitHub, huecos de spec, tools/skills). Sin auth. No escribe runs. Comparar modelos = ojo en la lista; no hay nota de eficiencia.
+
+Código: `tools/deliver-ui/`.
+
 ## Qué no saca
 
-Sala de control (comparar modelos). Docs nuevos si nada existente quedó mentiroso. Issues cerrados antes del merge.
+Fórmula de eficiencia / ranking de modelos. Docs nuevos si nada existente quedó mentiroso. Issues cerrados antes del merge.

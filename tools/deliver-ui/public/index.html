@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Deliver — ejecuciones</title>
+    <link rel="stylesheet" href="/assets/styles.css" />
+  </head>
+  <body>
+    <div class="app">
+      <header class="top">
+        <div>
+          <p class="eyebrow">Sala local</p>
+          <h1>Ejecuciones <code>/deliver</code></h1>
+        </div>
+        <button type="button" id="refresh" class="btn">Actualizar</button>
+      </header>
+
+      <section class="filters" aria-label="Filtros">
+        <label>
+          Modelo
+          <select id="filter-model">
+            <option value="">Todos</option>
+          </select>
+        </label>
+        <label>
+          CI
+          <select id="filter-ci">
+            <option value="">Todos</option>
+            <option value="passed">passed</option>
+            <option value="failed">failed</option>
+            <option value="unknown">unknown</option>
+          </select>
+        </label>
+      </section>
+
+      <div class="layout">
+        <aside class="list-panel" aria-label="Lista de ejecuciones">
+          <div id="empty" class="empty hidden">
+            Aún no hay corridas. Lanza <code>/deliver</code> y vuelve a actualizar.
+          </div>
+          <ul id="run-list" class="run-list"></ul>
+        </aside>
+
+        <main class="detail-panel" id="detail" aria-live="polite">
+          <p class="placeholder">Elige una ejecución de la lista.</p>
+        </main>
+      </div>
+    </div>
+    <script src="/assets/app.js" type="module"></script>
+  </body>
+</html>
