@@ -101,7 +101,7 @@ Antes del push, en local: `yarn lint`, `yarn typecheck`, `yarn lint:arch`, `yarn
 
 PR lista (no draft). Título `type: description`. Cuerpo con `Closes` del padre y de cada hijo. No pedir reviewer `@USER` de CODEOWNERS.
 
-**Done when:** la PR está abierta y su URL anotada.
+**Done when:** la PR está abierta y su URL anotada en la tarjeta del padre y en el registro.
 
 ## 11. CI y feedback (`iterate-pr`)
 
