@@ -71,6 +71,8 @@ export function toListItem(parsed) {
       branch: null,
       failuresOpen: 0,
       feedbackOpen: 0,
+      children: [],
+      orphans: [],
     };
   }
 
@@ -86,6 +88,7 @@ export function toListItem(parsed) {
 
   const cost = resolveRunCost(data);
   const timing = resolveRunTiming(data);
+  const graph = resolveAgentGraph(data);
 
   return {
     id,
@@ -119,7 +122,55 @@ export function toListItem(parsed) {
     branch: typeof data.branch === "string" ? data.branch : null,
     failuresOpen: observabilityCounts(data).failuresOpen,
     feedbackOpen: observabilityCounts(data).feedbackOpen,
+    children: listAgentRefs(graph.children, parentAgentId(graph.parent)),
+    orphans: listAgentRefs(graph.orphans, null),
   };
+}
+
+function parentAgentId(parent) {
+  return parent && typeof parent.id === "string" ? parent.id : "parent";
+}
+
+function listAgentRefs(agents, fallbackParentId) {
+  return agents.map((agent) => ({
+    agentId: typeof agent.id === "string" ? agent.id : "",
+    parentAgentId:
+      typeof agent.parentId === "string" && agent.parentId
+        ? agent.parentId
+        : fallbackParentId,
+    role: typeof agent.role === "string" ? agent.role : null,
+    status: typeof agent.status === "string" ? agent.status : null,
+  }));
+}
+
+/**
+ * Tree from explicit refs only. `parent.childIds` that exist in `agents[]` are children.
+ * Agents with `parentId` not listed on the parent are orphans. No inferred edges.
+ *
+ * @param {object} data
+ */
+export function resolveAgentGraph(data) {
+  const agents = asRecordList(data && typeof data === "object" ? data.agents : []);
+  const byId = new Map();
+  for (const agent of agents) {
+    if (typeof agent.id === "string" && agent.id) byId.set(agent.id, agent);
+  }
+
+  const parent =
+    agents.find((agent) => agent.kind === "parent" || agent.id === "parent") || null;
+  const childIds = Array.isArray(parent?.childIds)
+    ? parent.childIds.filter((id) => typeof id === "string" && id)
+    : [];
+  const listed = new Set(childIds);
+  const children = childIds.map((id) => byId.get(id)).filter(Boolean);
+  const orphans = agents.filter((agent) => {
+    if (agent === parent) return false;
+    if (agent.kind === "parent" || agent.id === "parent") return false;
+    if (listed.has(agent.id)) return false;
+    return typeof agent.parentId === "string" && Boolean(agent.parentId);
+  });
+
+  return { parent, children, orphans };
 }
 
 /**
@@ -594,6 +645,7 @@ export function getRun(runsDir, id, usageHome, transcriptsDir) {
     events: mergeUnifiedTimeline(data),
     cost: resolveRunCost(data),
     timing: resolveRunTiming(data),
+    agentGraph: resolveAgentGraph(data),
     modelTitle: formatModelTitle(data.model),
   };
 }
