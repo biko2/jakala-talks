@@ -14,8 +14,8 @@ How-to humano (lanzar y artefactos) → [`docs/agents/deliver.md`](../../../docs
 
 El JSON local es la fuente de observabilidad. Tras **cada** paso (y en cada fallo), actualízalo. No esperes al final.
 
-- `timeline.push({ at, step, status, label, detail? })` — sin coste por paso.
-- `cost` y `timing` son del **plan completo**. Tras cada paso del padre: `yarn deliver:tokens` (sesión + tokens + `cost.subtotalUsd`). `timing.startedAt` al crear, `endedAt` al cerrar. Nunca inventar `0`.
+- `timeline.push({ at, step, status, label, detail? })` — sin coste por paso. Al parar por humano (modo, grill, spec, tickets, wizard, medición): `step: "human-wait"`, `status: "started"`; al volver, `status: "done"`. O cierra el intervalo en `humanWaits[]`.
+- `cost` y `timing` son del **plan completo**. Tras cada paso del padre: `yarn deliver:tokens` (sesión + tokens + `cost.subtotalUsd`). `timing.startedAt` al crear, `endedAt` al cerrar. `durationMs` = activo (sin esperas humanas) o `null` para que la sala reste las paradas. Nunca inventar `0`.
 - No rellenes `costUsd`/`tokensDelta` en cada evento ni en cada subagente.
 - `phases`: upsert por `id` del paso. `started` al entrar, `done`/`failed`/`skipped` al salir. Cada criterio de done del paso = un `checks[]` (`pass`/`fail`/`skip`/`pending`)
 - `agents`: el padre al crear el run. Cada subagente (tdd, code-review, research): alta al despachar, `endedAt`+`status` al volver. Anota `model` si se conoce, `ticketIssue` si aplica

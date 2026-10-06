@@ -73,4 +73,56 @@ describe("resolveRunTiming", () => {
     assert.equal(timing.durationMs, 20 * 60 * 1000);
     assert.equal(timing.coverage, "complete");
   });
+
+  it("subtracts recorded human waits from derived wall clock", () => {
+    const timing = resolveRunTiming({
+      timing: {
+        startedAt: "2026-10-02T12:50:00.000Z",
+        endedAt: "2026-10-02T13:00:00.000Z",
+      },
+      humanWaits: [
+        {
+          gate: "grill",
+          startedAt: "2026-10-02T12:52:00.000Z",
+          endedAt: "2026-10-02T12:55:00.000Z",
+        },
+      ],
+    });
+    assert.equal(timing.durationMs, 7 * 60 * 1000);
+    assert.equal(timing.humanWaitMs, 3 * 60 * 1000);
+  });
+
+  it("pairs timeline human-wait started/done and merges overlap", () => {
+    const timing = resolveRunTiming({
+      timeline: [
+        { at: "2026-10-02T12:50:00.000Z", step: "mode", status: "done" },
+        { at: "2026-10-02T12:51:00.000Z", step: "human-wait", status: "started" },
+        { at: "2026-10-02T12:54:00.000Z", step: "human-wait", status: "done" },
+        { at: "2026-10-02T12:53:00.000Z", step: "human-wait", status: "started" },
+        { at: "2026-10-02T12:56:00.000Z", step: "human-wait", status: "done" },
+        { at: "2026-10-02T12:59:00.000Z", step: "measure", status: "done" },
+      ],
+    });
+    assert.equal(timing.durationMs, 4 * 60 * 1000);
+    assert.equal(timing.humanWaitMs, 5 * 60 * 1000);
+  });
+
+  it("keeps explicit durationMs as active time and still reports waits", () => {
+    const timing = resolveRunTiming({
+      timing: {
+        startedAt: "2026-10-02T12:50:00.000Z",
+        endedAt: "2026-10-02T13:00:00.000Z",
+        durationMs: 420000,
+      },
+      humanWaits: [
+        {
+          gate: "spec",
+          startedAt: "2026-10-02T12:55:00.000Z",
+          endedAt: "2026-10-02T12:58:00.000Z",
+        },
+      ],
+    });
+    assert.equal(timing.durationMs, 420000);
+    assert.equal(timing.humanWaitMs, 3 * 60 * 1000);
+  });
 });

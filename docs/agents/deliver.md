@@ -51,7 +51,7 @@ Tarifas: [Models & Pricing](https://cursor.com/docs/models-and-pricing) (snapsho
 
 ## Tiempo (reloj de pared)
 
-Cuánto tarda la tarea, no minutos de GPU. `/deliver` pone `timing.startedAt` al crear el run y `timing.endedAt` al cerrar. Si faltan, la sala usa min/max de timeline, fases y agentes. Un solo instante → `durationMs: null` (no se inventa `0`). Incluye esperas humanas.
+Cuánto tarda la tarea **activa**, no minutos de GPU ni esperas humanas (paradas, confirmaciones, wizard, medición). `/deliver` pone `timing.startedAt` al crear el run y `timing.endedAt` al cerrar. Si faltan, la sala usa min/max de timeline, fases y agentes. Un solo instante → `durationMs: null` (no se inventa `0`). Resta `humanWaits[]` y eventos `timeline` con `step: "human-wait"`. Sin intervalos de espera → queda reloj de pared.
 
 ## Qué no saca
 
