@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Deliver — ejecuciones</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Raleway:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="/assets/styles.css" />
+  </head>
+  <body>
+    <div class="app">
+      <header class="top">
+        <div class="brand">
+          <div class="logo-row">
+            <img class="logo" src="/assets/logo.svg" alt="Jakala" />
+            <span class="lab-name">Harness lab</span>
+          </div>
+          <h1>Ejecuciones <code>/deliver</code></h1>
+        </div>
+        <button type="button" id="refresh" class="btn">Actualizar</button>
+      </header>
+
+      <section class="filters" aria-label="Filtros">
+        <label>
+          Modelo
+          <select id="filter-model">
+            <option value="">Todos</option>
+          </select>
+        </label>
+        <label>
+          CI
+          <select id="filter-ci">
+            <option value="">Todos</option>
+            <option value="passed">passed</option>
+            <option value="failed">failed</option>
+            <option value="unknown">unknown</option>
+          </select>
+        </label>
+      </section>
+
+      <div class="layout" id="layout">
+        <aside class="list-panel" id="list-panel" aria-label="Lista de ejecuciones">
+          <button type="button" id="toggle-list" class="list-toggle" aria-expanded="true" aria-controls="list-body">
+            <span class="list-toggle-label">Lista</span>
+            <span class="section-toggle-chevron" aria-hidden="true"></span>
+          </button>
+          <div id="list-body" class="list-body">
+            <div id="empty" class="empty hidden">
+              Aún no hay corridas. Lanza <code>/deliver</code> y vuelve a actualizar.
+            </div>
+            <ul id="run-list" class="run-list"></ul>
+          </div>
+        </aside>
+
+        <main class="detail-panel" id="detail" aria-live="polite">
+          <p class="placeholder">Elige una ejecución de la lista.</p>
+        </main>
+      </div>
+    </div>
+    <div id="float-tip" hidden role="tooltip"></div>
+    <script src="/assets/app.js" type="module"></script>
+  </body>
+</html>

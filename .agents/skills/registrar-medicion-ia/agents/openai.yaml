@@ -1,0 +1,11 @@
+interface:
+  display_name: "Registrar medición de IA"
+  short_description: "Registra trazas automáticamente o revisa la medición"
+  default_prompt: "Usa $registrar-medicion-ia para registrar automáticamente esta tarea con sus trazas en AI Hub."
+dependencies:
+  tools:
+    - type: "mcp"
+      value: "jakala-ai-hub"
+      description: "MCP de AI Hub para crear o actualizar la ficha"
+policy:
+  allow_implicit_invocation: true

@@ -1,6 +1,5 @@
 import { VoteTalk } from '../VoteTalk'
 import { GetUserVotes } from '../GetUserVotes'
-import { CreateTalk } from '../CreateTalk'
 import { InMemoryTalkRepository } from '@/src/infrastructure/adapters/InMemoryTalkRepository'
 import { InMemoryVotingConfigRepository } from '@/src/infrastructure/adapters/InMemoryVotingConfigRepository'
 import { Talk } from '@/src/domain/entities/Talk'
@@ -10,7 +9,6 @@ describe('VoteTalk - Integración: votar, desvotar y volver a votar', () => {
   let votingConfigRepository: InMemoryVotingConfigRepository
   let voteTalk: VoteTalk
   let getUserVotes: GetUserVotes
-  let createTalk: CreateTalk
 
   beforeEach(async () => {
     jest.useFakeTimers()
@@ -25,7 +23,6 @@ describe('VoteTalk - Integración: votar, desvotar y volver a votar', () => {
     })
     voteTalk = new VoteTalk(talkRepository, votingConfigRepository)
     getUserVotes = new GetUserVotes(talkRepository)
-    createTalk = new CreateTalk(talkRepository, votingConfigRepository)
 
     const talk1 = new Talk('talk-1', 'Charla 1', 'Descripción 1', 'Autor 1', 30, 0)
     const talk2 = new Talk('talk-2', 'Charla 2', 'Descripción 2', 'Autor 2', 45, 0)

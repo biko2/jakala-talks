@@ -40,7 +40,9 @@ describe('TalkRepositoryFactory', () => {
     })
 
     it('debería lanzar error para entorno no soportado', () => {
-      mockEnvironmentDetector.getEnvironmentType.mockReturnValue('unknown' as any)
+      mockEnvironmentDetector.getEnvironmentType.mockReturnValue(
+        'unknown' as ReturnType<typeof EnvironmentDetector.getEnvironmentType>
+      )
 
       expect(() => TalkRepositoryFactory.create())
         .toThrow('Entorno no soportado: unknown')

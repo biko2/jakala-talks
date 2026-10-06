@@ -7,9 +7,20 @@
     "dev:mock": "./scripts/dev-with-mock.sh",
     "build": "next build --turbopack",
     "start": "next start",
-    "test": "jest",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "typecheck": "tsc --noEmit",
+    "lint:arch": "depcruise src app components lib --config .dependency-cruiser.cjs",
+    "test": "jest --passWithNoTests && node --test tools/deliver-ui/*.test.mjs",
     "test:watch": "jest --watch",
+    "deliver:ui": "node tools/deliver-ui/server.mjs",
+    "deliver:tokens": "node tools/deliver-ui/sync-tokens.mjs",
     "prepare": "husky"
+  },
+  "lint-staged": {
+    "*.{js,jsx,ts,tsx,mjs}": [
+      "eslint --fix"
+    ]
   },
   "dependencies": {
     "@supabase/ssr": "^0.7.0",
@@ -32,9 +43,13 @@
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "@types/testing-library__jest-dom": "^5.14.9",
+    "dependency-cruiser": "^16",
+    "eslint": "^9",
+    "eslint-config-next": "^16.3.8",
     "husky": "^9.1.7",
     "jest": "^30.1.3",
     "jest-environment-jsdom": "^30.1.2",
+    "lint-staged": "^16.4.0",
     "tailwindcss": "^4",
     "typescript": "^5"
   }

@@ -6,8 +6,23 @@ alwaysApply: true
 
 ### Descripción
 
-    - Tests unitarios → validan piezas aisladas (entidades, value objects, servicios).
-    - Tests de integración → validan interacciones entre capas y adaptadores.
-    - Tests end-to-end (opcional) → validan el sistema como caja negra.
-    - Cada PR que modifique componentes debe añadir o actualizar los tests correspondientes.
-    - No se acepta código nuevo sin la batería de tests adecuada.
+- Tests unitarios → validan piezas aisladas (entidades, value objects, servicios).
+- Tests de integración → validan interacciones entre capas (caso de uso + InMemory).
+- Tests end-to-end (opcional, no en harness actual) → validan el sistema como caja negra.
+- Cada PR que modifique componentes debe añadir o actualizar los tests correspondientes.
+- No se acepta código nuevo sin la batería de tests adecuada.
+
+### Buenas prácticas
+
+- **Comportamiento, no implementación.** Refactor sin cambio de comportamiento no rompe tests.
+- **Expects independientes del código.** Literales, spec o ejemplos conocidos. Copiar la lógica del impl = tautología.
+- **Resultados reproducibles.** Controlar datos, reloj y dependencias externas. Sin orden ni “ahora”.
+- **Mocks con criterio.** Aislar el escenario; no sustituir tanto que dejes de probar el sistema.
+- **Errores semánticos.** El fallo dice qué se esperaba y qué ocurrió.
+- **Tests que detectan bugs.** Cobertura ≠ calidad: un test debe fallar si se rompe una regla de negocio.
+
+### Con IA
+
+- Test first (skill `tdd`): rojo → verde.
+- El agente ejecuta los tests: implementar → correr → leer fallo → corregir.
+- CI fuera del agente: no confiar solo en que el agente “dijo que pasó”.

@@ -1,4 +1,6 @@
 import { VotingConfigRepositoryFactory } from '../VotingConfigRepositoryFactory'
+import { EnvironmentDetector } from '@/lib/environment/EnvironmentDetector'
+import { createBrowserClient } from '@/lib/supabase/client'
 import { SupabaseVotingConfigRepository } from '@/src/infrastructure/adapters/SupabaseVotingConfigRepository'
 import { InMemoryVotingConfigRepository } from '@/src/infrastructure/adapters/InMemoryVotingConfigRepository'
 
@@ -7,17 +9,17 @@ jest.mock('@/lib/supabase/client')
 jest.mock('@/src/infrastructure/adapters/SupabaseVotingConfigRepository')
 jest.mock('@/src/infrastructure/adapters/InMemoryVotingConfigRepository')
 
-describe('VotingConfigRepositoryFactory', () => {
-  const { EnvironmentDetector } = require('@/lib/environment/EnvironmentDetector')
-  const { createBrowserClient } = require('@/lib/supabase/client')
+const mockEnvironmentDetector = EnvironmentDetector as jest.Mocked<typeof EnvironmentDetector>
+const mockCreateBrowserClient = createBrowserClient as jest.MockedFunction<typeof createBrowserClient>
 
+describe('VotingConfigRepositoryFactory', () => {
   beforeEach(() => {
     jest.clearAllMocks()
   })
 
   describe('create', () => {
     it('debería crear InMemoryVotingConfigRepository en modo mock', () => {
-      EnvironmentDetector.getEnvironmentType.mockReturnValue('mock')
+      mockEnvironmentDetector.getEnvironmentType.mockReturnValue('mock')
 
       VotingConfigRepositoryFactory.create()
 
@@ -30,29 +32,31 @@ describe('VotingConfigRepositoryFactory', () => {
     })
 
     it('debería crear SupabaseVotingConfigRepository en modo local-supabase', () => {
-      EnvironmentDetector.getEnvironmentType.mockReturnValue('local-supabase')
+      mockEnvironmentDetector.getEnvironmentType.mockReturnValue('local-supabase')
       const mockSupabaseClient = { from: jest.fn() }
-      createBrowserClient.mockReturnValue(mockSupabaseClient)
+      mockCreateBrowserClient.mockReturnValue(mockSupabaseClient as unknown as ReturnType<typeof createBrowserClient>)
 
       VotingConfigRepositoryFactory.create()
 
-      expect(createBrowserClient).toHaveBeenCalled()
+      expect(mockCreateBrowserClient).toHaveBeenCalled()
       expect(SupabaseVotingConfigRepository).toHaveBeenCalledWith(mockSupabaseClient)
     })
 
     it('debería crear SupabaseVotingConfigRepository en modo production', () => {
-      EnvironmentDetector.getEnvironmentType.mockReturnValue('production')
+      mockEnvironmentDetector.getEnvironmentType.mockReturnValue('production')
       const mockSupabaseClient = { from: jest.fn() }
-      createBrowserClient.mockReturnValue(mockSupabaseClient)
+      mockCreateBrowserClient.mockReturnValue(mockSupabaseClient as unknown as ReturnType<typeof createBrowserClient>)
 
       VotingConfigRepositoryFactory.create()
 
-      expect(createBrowserClient).toHaveBeenCalled()
+      expect(mockCreateBrowserClient).toHaveBeenCalled()
       expect(SupabaseVotingConfigRepository).toHaveBeenCalledWith(mockSupabaseClient)
     })
 
     it('debería lanzar error para entorno no soportado', () => {
-      EnvironmentDetector.getEnvironmentType.mockReturnValue('unknown')
+      mockEnvironmentDetector.getEnvironmentType.mockReturnValue(
+        'unknown' as ReturnType<typeof EnvironmentDetector.getEnvironmentType>
+      )
 
       expect(() => VotingConfigRepositoryFactory.create())
         .toThrow('Entorno no soportado: unknown')

@@ -1,0 +1,5 @@
+interface:
+  display_name: "Deliver"
+  short_description: "Grill to green PR workflow"
+policy:
+  allow_implicit_invocation: false

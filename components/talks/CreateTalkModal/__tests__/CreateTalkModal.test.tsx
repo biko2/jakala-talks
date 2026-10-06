@@ -52,8 +52,10 @@ describe('CreateTalkModal', () => {
   it('debería llamar onClose cuando se hace click en el overlay', () => {
     render(<CreateTalkModal {...defaultProps} />)
 
-    const overlay = screen.getByText('Nueva Charla').closest('div')?.parentElement?.parentElement!
-    fireEvent.click(overlay)
+    const title = screen.getByText('Nueva Charla')
+    const overlay = title.closest('div')?.parentElement?.parentElement
+    expect(overlay).toBeTruthy()
+    fireEvent.click(overlay as HTMLElement)
 
     expect(mockOnClose).toHaveBeenCalledTimes(1)
   })

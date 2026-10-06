@@ -1,0 +1,12 @@
+# Paths sensibles del harness y del dominio.
+# Ver .cursor/docs/HARNESS.md
+
+* @drzkn
+
+/src/domain/ @drzkn
+/supabase/migrations/ @drzkn
+/AGENTS.md @drzkn
+/.cursor/rules/ @drzkn
+/.agents/skills/ @drzkn
+/.dependency-cruiser.cjs @drzkn
+/.github/workflows/ @drzkn

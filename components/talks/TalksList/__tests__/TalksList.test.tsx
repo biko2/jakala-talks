@@ -4,7 +4,15 @@ import { Talk } from '@/src/domain/entities/Talk'
 
 jest.mock('@/components/talks/TalkCard', () => ({
   __esModule: true,
-  default: function MockTalkCard({ talk, isLoggedIn, showVoteCount }: any) {
+  default: function MockTalkCard({
+    talk,
+    isLoggedIn,
+    showVoteCount,
+  }: {
+    talk: Talk
+    isLoggedIn?: boolean
+    showVoteCount?: boolean
+  }) {
     return (
       <div>
         <h2>{talk.title}</h2>

@@ -25,7 +25,8 @@ Internamente activa `NEXT_PUBLIC_USE_MOCK_USER=true`. Ideal para tocar UI sin ba
 ## Desarrollo local con Supabase real
 
 1. Copia `.env.example` a `.env.local` y rellena las variables (ver [VARIABLES_ENTORNO.md](./VARIABLES_ENTORNO.md)).
-2. `yarn dev`
+2. Usa URL y keys de un proyecto **de desarrollo** (o Supabase local). **No** pegues `NEXT_PUBLIC_SUPABASE_URL` / keys de **producción** en `.env.local` para pruebas: contaminas datos reales.
+3. `yarn dev`
 
 ## Tests
 

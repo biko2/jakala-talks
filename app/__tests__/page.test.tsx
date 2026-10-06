@@ -127,8 +127,6 @@ describe('Home - Validación de votos en frontend', () => {
     mockGetAllTalksExecute.mockResolvedValue(mockTalks)
     mockGetUserVotesExecute.mockResolvedValue(['talk-1', 'talk-2', 'talk-3'])
 
-    const alertSpy = jest.spyOn(window, 'alert')
-
     render(<Home />)
 
     await waitFor(() => {

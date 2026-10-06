@@ -6,19 +6,25 @@ alwaysApply: true
 
 ### Descripción
 
-- Todo cambio en el código debe respetar las reglas definidas en el **linter del proyecto** (ej. ESLint, Biome, etc.).
+- Todo cambio en el código debe respetar el linter del proyecto (ESLint vía `eslint-config-next`, incluye jsx-a11y).
 - Ningún commit ni PR será aceptado si viola las reglas de estilo o calidad configuradas.
-- El linter forma parte del **flujo de desarrollo obligatorio**.
+- El linter forma parte del flujo de desarrollo obligatorio.
 
-### Recomendaciones
+### Comandos
 
-- Configurar el linter para ejecutarse en:
-  - **Pre-commit** (ej. usando `lint-staged` o `husky`)
-  - **CI/CD** (pipeline que falle si hay errores de lint)
-- El equipo debe usar extensiones de editor (ej. VSCode ESLint plugin) para feedback inmediato.
+- `yarn lint` — reporta problemas
+- `yarn lint:fix` — intenta corregir automáticamente
+- `yarn typecheck` — `tsc --noEmit`
+- `yarn lint:arch` — dependency-cruiser (capas hexagonales)
+
+### Hooks y CI
+
+- Pre-commit: lint-staged sobre archivos staged
+- Pre-push: `yarn lint`, `yarn lint:arch`, `yarn test`, `yarn build`
+- CI: mismos gates en GitHub Actions
 
 Reglas
 • ❌ No se aceptan merges si el linter falla.
 • ❌ No se debe desactivar el linter salvo casos justificados y documentados.
-• ✔ Todo el equipo debe aplicar npm run lint:fix antes de subir código.
+• ✔ Todo el equipo debe aplicar `yarn lint:fix` antes de subir código.
 • ✔ El código que pase las pruebas debe estar libre de errores y advertencias de lint.

@@ -1,5 +1,6 @@
 import { MockTalkRepository } from '../TalkRepository'
 import { Talk } from '@/src/domain/entities/Talk'
+import { UserVote } from '@/src/domain/entities/UserVote'
 
 describe('MockTalkRepository', () => {
   let repository: MockTalkRepository
@@ -82,9 +83,9 @@ describe('MockTalkRepository', () => {
 
   describe('addUserVote', () => {
     it('debería agregar un voto de usuario', async () => {
-      const userVote = { userId: 'user-1', talkId: 'mock-talk-2' }
+      const userVote = new UserVote('user-1', 'mock-talk-2')
 
-      await repository.addUserVote(userVote as any)
+      await repository.addUserVote(userVote)
       const votes = await repository.getUserVotes('user-1')
 
       expect(votes).toContain('mock-talk-2')
