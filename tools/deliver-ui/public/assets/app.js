@@ -478,7 +478,7 @@ function renderDetail(id, payload) {
 
     ${collapsibleSection(
       "tokens",
-      `Tokens <span class="muted">(${escapeHtml(tokens.scope || "parent-only")} · cobertura ${escapeHtml(tokens.coverage || "unknown")})</span>`,
+      `Gasto de tokens estimado`,
       `<div class="grid">
         <div class="stat"><span class="label">input</span><span class="value">${escapeHtml(tokensLabel(values.input ?? null))}</span></div>
         <div class="stat"><span class="label">output</span><span class="value">${escapeHtml(tokensLabel(values.output ?? null))}</span></div>
