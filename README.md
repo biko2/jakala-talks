@@ -149,24 +149,15 @@ pnpm dev
 bun dev
 ```
 
-#### Opción B: Desarrollo con modo mock (sin autenticación)
+#### Opción B: Desarrollo con MSW (por defecto)
 
 ```bash
-npm run dev:mock
-# o
+yarn dev
+# o alias
 yarn dev:mock
-# o
-pnpm dev:mock
-# o
-bun dev:mock
 ```
 
-El modo mock incluye:
-
-- Usuario ficticio preconfigurado
-- Charlas de ejemplo precargadas
-- Votaciones simuladas localmente
-- No requiere configuración de Supabase
+MSW intercepta REST, RPC y sesión con el fixture del repo. `NEXT_PUBLIC_USE_SUPABASE=true` deja pasar el HTTP real.
 
 La aplicación estará disponible en [http://localhost:3000](http://localhost:3000).
 
@@ -222,8 +213,8 @@ app/                    # App Router de Next.js
 
 ## Scripts Disponibles
 
-- `npm run dev` - Ejecuta el servidor de desarrollo con Turbopack (requiere Supabase)
-- `npm run dev:mock` - Ejecuta el servidor de desarrollo con modo mock habilitado
+- `yarn dev` - Servidor de desarrollo (MSW por defecto)
+- `yarn dev:mock` - Alias de `yarn dev`
 - `npm run build` - Compila la aplicación para producción
 - `npm start` - Ejecuta la aplicación compilada
 - `npm test` - Ejecuta todos los tests
@@ -233,12 +224,11 @@ app/                    # App Router de Next.js
 
 La aplicación soporta diferentes modos de funcionamiento:
 
-### 🎭 Modo Mock (Recomendado para desarrollo)
+### MSW (recomendado para desarrollo)
 
-- Usuario ficticio preconfigurado
-- Charlas de ejemplo precargadas
-- No requiere configuración de Supabase
-- Ideal para desarrollo y testing
+- `yarn dev` intercepta Supabase (sesión + talks + votos)
+- Fixture commiteado; refresh restaura el snapshot
+- `NEXT_PUBLIC_USE_SUPABASE=true` usa el backend real
 
 ### 🏠 Modo Local con Supabase
 

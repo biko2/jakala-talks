@@ -14,17 +14,12 @@ El filtro multicapa (queso suizo) vive en [`AGENTS.md`](../../AGENTS.md). Aquí:
 
 Arquitectura forzada en código de producción (`__tests__` exentos): dominio no importa afuera; application solo dominio; infrastructure no importa UI.
 
-## Replicabilidad (sin MSW)
+## Replicabilidad (MSW)
 
-- UI local: `yarn dev:mock` → `Mock*` / `MOCK_USER`. Cero HTTP a Supabase.
-- Tests: `InMemory*` inyectado. Cero red.
-- **No** poner `NEXT_PUBLIC_SUPABASE_URL` / keys de **prod** en `.env.local` para pruebas.
-
-### Por qué no MSW ahora
-
-MSW interceptaría fetch del adapter Supabase. Sería una cuarta impl (Supabase, Mock, InMemory, Supabase+MSW) y duplicaría el puerto. El hexágono ya corta red vía factories.
-
-MSW tiene sentido en un lote futuro si quieres ejercitar `Supabase*Repository` (401/500/timeout) o E2E Playwright sin backend remoto.
+- UI local: `yarn dev` (o alias `yarn dev:mock`) → worker MSW intercepta REST/RPC/sesión. Factories siguen entregando adapters Supabase. Refresh = store fresco desde el fixture.
+- Supabase real: `NEXT_PUBLIC_USE_SUPABASE=true`. En `production` MSW no arranca.
+- Tests de hexágono: `InMemory*` inyectado. Cero red. Jest no levanta el worker.
+- **No** poner `NEXT_PUBLIC_SUPABASE_URL` / keys de **prod** en `.env.local`.
 
 ## Permisos
 
@@ -34,7 +29,7 @@ MSW tiene sentido en un lote futuro si quieres ejercitar `Supabase*Repository` (
 
 ## Fuera de alcance (lote 2+)
 
-Playwright/E2E, axe-core runtime, Stryker, OpenTelemetry, SonarQube, MSW, Prisma/OpenAPI (este repo usa `supabase/migrations/`).
+Playwright/E2E, axe-core runtime, Stryker, OpenTelemetry, SonarQube, Prisma/OpenAPI (este repo usa `supabase/migrations/`).
 
 ## Skills relacionadas
 

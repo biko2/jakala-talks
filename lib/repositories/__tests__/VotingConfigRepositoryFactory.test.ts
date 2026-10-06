@@ -25,8 +25,8 @@ describe('VotingConfigRepositoryFactory', () => {
       expect(mockCreateBrowserClient).toHaveBeenCalled()
     })
 
-    it('debería devolver SupabaseVotingConfigRepository aunque USE_MOCK_USER esté activo', () => {
-      process.env.NEXT_PUBLIC_USE_MOCK_USER = 'true'
+    it('debería devolver SupabaseVotingConfigRepository aunque MSW esté activo', () => {
+      delete process.env.NEXT_PUBLIC_USE_SUPABASE
       const mockSupabaseClient = { from: jest.fn() }
       mockCreateBrowserClient.mockReturnValue(
         mockSupabaseClient as unknown as ReturnType<typeof createBrowserClient>

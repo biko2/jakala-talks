@@ -14,8 +14,8 @@ describe('TalkRepositoryFactory', () => {
       expect(repository).toBeInstanceOf(TalkRepository)
     })
 
-    it('debería devolver TalkRepository aunque USE_MOCK_USER esté activo', () => {
-      process.env.NEXT_PUBLIC_USE_MOCK_USER = 'true'
+    it('debería devolver TalkRepository aunque MSW esté activo', () => {
+      delete process.env.NEXT_PUBLIC_USE_SUPABASE
 
       const repository = TalkRepositoryFactory.create()
 
