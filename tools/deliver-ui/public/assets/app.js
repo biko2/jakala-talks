@@ -1,3 +1,5 @@
+import { resolveAgentTiming } from "/assets/timing.mjs";
+
 const listEl = document.getElementById("run-list");
 const emptyEl = document.getElementById("empty");
 const detailEl = document.getElementById("detail");
@@ -11,6 +13,10 @@ const LIST_COLLAPSE_KEY = "deliver-ui-list-collapsed";
 /** @type {any[]} */
 let runs = [];
 let selectedId = null;
+/** @type {string | null} */
+let selectedAgentId = null;
+/** @type {ReturnType<typeof setInterval> | null} */
+let agentClockTimer = null;
 /** @type {any | null} */
 let selectedPayload = null;
 /** @type {EventSource | null} */
@@ -27,6 +33,7 @@ const sectionCollapsed = {
   tools: true,
   categories: true,
   skills: true,
+  children: false,
 };
 
 const EVENT_KINDS = [
@@ -60,7 +67,7 @@ const STATUS_HINTS = {
 };
 
 /** @type {Set<string>} */
-const timelineKindsOn = new Set(EVENT_KINDS.map(([id]) => id));
+const timelineKindsOn = new Set();
 
 function formatWhen(iso) {
   if (!iso) return "sin fecha";
@@ -168,34 +175,66 @@ function fillModelFilter() {
   }
 }
 
+function isSelected(runId, agentId) {
+  if (runId !== selectedId) return false;
+  if (!agentId) return !selectedAgentId;
+  return selectedAgentId === agentId;
+}
+
+function appendListButton(run, { agentId, title, sub, extraClass }) {
+  const li = document.createElement("li");
+  const btn = document.createElement("button");
+  btn.type = "button";
+  btn.className = `run-item${extraClass ? ` ${extraClass}` : ""}${isSelected(run.id, agentId) ? " active" : ""}${run.valid ? "" : " invalid"}`;
+  btn.dataset.id = run.id;
+  if (agentId) btn.dataset.agentId = agentId;
+  btn.innerHTML = `
+    <div class="run-title">${escapeHtml(title)}</div>
+    <div class="when">${escapeHtml(sub)}</div>
+  `;
+  btn.addEventListener("click", () => selectRun(run.id, { agentId: agentId || null }));
+  li.appendChild(btn);
+  listEl.appendChild(li);
+}
+
 function renderList() {
   const items = filteredRuns();
   emptyEl.classList.toggle("hidden", runs.length > 0);
   listEl.innerHTML = "";
 
   for (const run of items) {
-    const li = document.createElement("li");
-    const btn = document.createElement("button");
-    btn.type = "button";
-    btn.className = `run-item${run.id === selectedId ? " active" : ""}${run.valid ? "" : " invalid"}`;
-    btn.dataset.id = run.id;
-
     if (!run.valid) {
-      btn.innerHTML = `
-        <div class="run-title">${escapeHtml(run.error || run.id || "Ejecución inválida")}</div>
-        <div class="when">${escapeHtml(formatWhen(run.recordedAt))}</div>
-      `;
-    } else {
-      const issueTitle = run.parentIssue?.title;
-      btn.innerHTML = `
-        <div class="run-title">${escapeHtml(issueTitle || "Sin título de tarea")}</div>
-        <div class="when">${escapeHtml(formatWhen(run.recordedAt))}</div>
-      `;
+      appendListButton(run, {
+        agentId: null,
+        title: run.error || run.id || "Ejecución inválida",
+        sub: formatWhen(run.recordedAt),
+      });
+      continue;
     }
 
-    btn.addEventListener("click", () => selectRun(run.id));
-    li.appendChild(btn);
-    listEl.appendChild(li);
+    appendListButton(run, {
+      agentId: null,
+      title: run.parentIssue?.title || "Sin título de tarea",
+      sub: formatWhen(run.recordedAt),
+    });
+
+    for (const child of run.children || []) {
+      appendListButton(run, {
+        agentId: child.agentId,
+        title: child.agentId,
+        sub: child.parentAgentId || "parent",
+        extraClass: "is-child",
+      });
+    }
+
+    for (const orphan of run.orphans || []) {
+      appendListButton(run, {
+        agentId: orphan.agentId,
+        title: orphan.agentId,
+        sub: orphan.parentAgentId || "parent",
+        extraClass: "is-orphan",
+      });
+    }
   }
 
   if (runs.length > 0 && items.length === 0) {
@@ -310,18 +349,30 @@ function renderKindFilters(events) {
   for (const event of events) {
     if (counts[event.kind] != null) counts[event.kind] += 1;
   }
+  const filtering = timelineKindsOn.size > 0;
+  const clearHint = filtering
+    ? "Quita todos los filtros y vuelve a mostrar toda la timeline."
+    : "Ningún filtro activo: se muestran todos los tipos.";
   return `<div class="kind-filters" role="group" aria-label="Filtrar timeline">
     ${EVENT_KINDS.map(([id, label]) => {
       const on = timelineKindsOn.has(id);
       const hue = hashHue(id);
-      const hint = `${kindHint(id)} Clic para ${on ? "ocultar" : "mostrar"} (${counts[id] || 0} en esta corrida).`;
+      const hint = `${kindHint(id)} ${
+        on
+          ? "Clic para quitar este filtro."
+          : filtering
+            ? "Clic para sumar este tipo al filtro."
+            : "Clic para ver solo este tipo."
+      } (${counts[id] || 0} en este run).`;
       return `<button type="button" class="kind-chip${on ? " is-on" : ""}" data-kind-filter="${id}" style="--pill-h:${hue}" aria-pressed="${on ? "true" : "false"}" ${tipAttrs(hint)}>${escapeHtml(label)} <span class="kind-count">${counts[id] || 0}</span></button>`;
     }).join("")}
+    <button type="button" class="kind-clear" data-kind-filter-clear ${filtering ? "" : "disabled "} ${tipAttrs(clearHint)}>Desmarcar todas</button>
   </div>`;
 }
 
 function renderTimeline(events) {
-  const filtered = events.filter((e) => timelineKindsOn.has(e.kind));
+  const filtered =
+    timelineKindsOn.size === 0 ? events : events.filter((e) => timelineKindsOn.has(e.kind));
   if (events.length === 0) {
     return `<p class="muted">Sin eventos todavía. El agente irá escribiendo la timeline en el JSON.</p>`;
   }
@@ -374,6 +425,57 @@ function collapsibleSection(key, titleHtml, bodyHtml) {
     </section>`;
 }
 
+function findAgent(run, agentId) {
+  if (!agentId || !run) return null;
+  return (Array.isArray(run.agents) ? run.agents : []).find((agent) => agent && agent.id === agentId) || null;
+}
+
+function agentGraphFrom(payload, run) {
+  if (payload?.agentGraph) return payload.agentGraph;
+  const agents = Array.isArray(run?.agents) ? run.agents : [];
+  const parent = agents.find((agent) => agent && (agent.kind === "parent" || agent.id === "parent")) || null;
+  const childIds = Array.isArray(parent?.childIds) ? parent.childIds : [];
+  const listed = new Set(childIds);
+  return {
+    parent,
+    children: childIds.map((id) => agents.find((agent) => agent.id === id)).filter(Boolean),
+    orphans: agents.filter(
+      (agent) =>
+        agent &&
+        agent !== parent &&
+        typeof agent.parentId === "string" &&
+        agent.parentId &&
+        !listed.has(agent.id)
+    ),
+  };
+}
+
+function agentTimeLabel(run, agent, nowMs = Date.now()) {
+  const timing = resolveAgentTiming(run, agent, nowMs);
+  const text = timing.label || "—";
+  return timing.running ? `${text} · en curso` : text;
+}
+
+function renderChildrenBlock(run, children) {
+  if (!children.length) {
+    return `<section class="block"><h3>Hijos</h3><p class="muted">Ninguno</p></section>`;
+  }
+  const rows = children
+    .map((agent) => {
+      const role = typeof agent.role === "string" ? agent.role : "";
+      return `<li>
+        <button type="button" class="child-link" data-select-agent="${escapeHtml(agent.id)}">${escapeHtml(agent.id)}</button>
+        <span class="muted">${escapeHtml(role)}</span>
+        <span data-agent-clock="${escapeHtml(agent.id)}">${escapeHtml(agentTimeLabel(run, agent))}</span>
+      </li>`;
+    })
+    .join("");
+  return `<section class="block">
+    <h3>Hijos</h3>
+    <ul class="child-times">${rows}</ul>
+  </section>`;
+}
+
 function taskHeading(run, runId) {
   const number = run.parentIssue?.number;
   const title =
@@ -398,11 +500,13 @@ function taskHeading(run, runId) {
 function renderDetail(id, payload) {
   selectedPayload = payload;
   if (!payload) {
+    stopAgentClock();
     detailEl.innerHTML = `<p class="placeholder">Elige una ejecución de la lista.</p>`;
     return;
   }
 
   if (payload.error) {
+    stopAgentClock();
     detailEl.innerHTML = `
       <h2>${escapeHtml(id)}</h2>
       <div class="error-box">${escapeHtml(payload.error)}</div>
@@ -419,6 +523,10 @@ function renderDetail(id, payload) {
   const events = unifiedEventsFromPayload(payload);
   const cost = payload.cost || {};
   const timing = payload.timing || {};
+  const graph = agentGraphFrom(payload, run);
+  const selectedAgent = findAgent(run, selectedAgentId);
+  const childView = Boolean(selectedAgent && selectedAgentId && selectedAgentId !== graph.parent?.id);
+  const linkedChild = childView && graph.children.some((agent) => agent.id === selectedAgentId);
 
   const links = [];
   if (run.parentIssue?.url) {
@@ -437,8 +545,24 @@ function renderDetail(id, payload) {
     links.push(`<a href="${escapeHtml(run.pr.url)}" target="_blank" rel="noreferrer">PR #${run.pr.number}</a>`);
   }
 
+  const heading = childView
+    ? `<div class="task-heading">
+        <p class="task-id-row"><span class="task-id">${escapeHtml(selectedAgent.id)}</span></p>
+        <h2>${escapeHtml(selectedAgent.id)}</h2>
+        ${
+          linkedChild
+            ? `<p class="sub"><button type="button" class="child-link" data-select-parent>padre ${escapeHtml(graph.parent?.id || "parent")}</button></p>`
+            : ""
+        }
+      </div>`
+    : taskHeading(run, id);
+
+  const timeLabel = childView
+    ? `<span data-agent-clock="${escapeHtml(selectedAgent.id)}">${escapeHtml(agentTimeLabel(run, selectedAgent))}</span>`
+    : `${escapeHtml(timing.label || durationLabel(timing.durationMs ?? null))}${timing.running ? " · en curso" : ""}`;
+
   detailEl.innerHTML = `
-    ${taskHeading(run, id)}
+    ${heading}
     <p class="sub">${escapeHtml(formatWhen(run.recordedAt))} · <code>${escapeHtml(id)}</code> · <span class="live-dot" title="escuchando cambios del fichero">live</span></p>
 
     <div class="links">${links.length ? links.join("") : `<span class="muted">Sin enlaces</span>`}</div>
@@ -448,7 +572,6 @@ function renderDetail(id, payload) {
       <div class="stat"><span class="label">Harness</span><span class="value">${escapeHtml(run.harness || "—")}</span></div>
       <div class="stat"><span class="label">Rama</span><span class="value"><code>${escapeHtml(run.branch || "—")}</code></span></div>
       <div class="stat"><span class="label">CI</span><span class="value">${escapeHtml(ci.status || "unknown")}</span></div>
-      <div class="stat"><span class="label">Criterios</span><span class="value">${escapeHtml(acceptanceLabel(acceptance.met ?? null, acceptance.total ?? null))}</span></div>
     </div>
 
     <section class="metrics-block" aria-label="Métricas del modelo">
@@ -456,9 +579,11 @@ function renderDetail(id, payload) {
       <div class="grid">
         <div class="stat"><span class="label">Tokens</span><span class="value">${escapeHtml(tokensLabel(values.total ?? null))}</span></div>
         <div class="stat"><span class="label">Subtotal padre</span><span class="value">${escapeHtml(costLabel(cost.totalUsd, cost.subtotalUsd))}</span></div>
-        <div class="stat"><span class="label">Tiempo</span><span class="value">${escapeHtml(timing.label || durationLabel(timing.durationMs ?? null))}${timing.running ? " · en curso" : ""}</span></div>
+        <div class="stat"><span class="label">Tiempo</span><span class="value">${timeLabel}</span></div>
       </div>
     </section>
+
+    ${childView ? "" : renderChildrenBlock(run, graph.children)}
 
     ${collapsibleSection(
       "timeline",
@@ -496,6 +621,8 @@ function renderDetail(id, payload) {
 
     ${collapsibleSection("skills", "Skills", countPills(run.skills))}
   `;
+
+  syncAgentClock(run, childView ? [selectedAgent] : graph.children);
 }
 
 async function fetchRunDetail(id) {
@@ -507,8 +634,32 @@ async function fetchRunDetail(id) {
   return body;
 }
 
-async function selectRun(id, { quiet } = {}) {
+function stopAgentClock() {
+  if (agentClockTimer) {
+    clearInterval(agentClockTimer);
+    agentClockTimer = null;
+  }
+}
+
+function syncAgentClock(run, agents) {
+  stopAgentClock();
+  const live = (agents || []).filter((agent) => agent && !agent.endedAt && agent.startedAt);
+  if (live.length === 0) return;
+  const tick = () => {
+    const nowMs = Date.now();
+    for (const node of detailEl.querySelectorAll("[data-agent-clock]")) {
+      const agent = findAgent(run, node.getAttribute("data-agent-clock"));
+      if (!agent) continue;
+      node.textContent = agentTimeLabel(run, agent, nowMs);
+    }
+  };
+  tick();
+  agentClockTimer = setInterval(tick, 1000);
+}
+
+async function selectRun(id, { quiet, agentId } = {}) {
   selectedId = id;
+  if (agentId !== undefined) selectedAgentId = agentId;
   renderList();
   if (!quiet) {
     detailEl.innerHTML = `<p class="placeholder">Cargando…</p>`;
@@ -541,7 +692,9 @@ async function loadRuns({ keepSelection = true } = {}) {
     await selectRun(firstValid.id);
   } else {
     selectedId = null;
+    selectedAgentId = null;
     selectedPayload = null;
+    stopAgentClock();
     renderDetail(null, null);
   }
 }
@@ -602,20 +755,43 @@ refreshBtn.addEventListener("click", () => {
 filterModel.addEventListener("change", renderList);
 filterCi.addEventListener("change", renderList);
 
+function refreshTimelineFilters() {
+  const payload = selectedPayload;
+  if (!payload || payload.error) return;
+  const events = unifiedEventsFromPayload(payload);
+  const filters = detailEl.querySelector(".kind-filters");
+  const body = detailEl.querySelector("#timeline-body");
+  if (filters) filters.outerHTML = renderKindFilters(events);
+  if (body) body.innerHTML = renderTimeline(events);
+}
+
 detailEl.addEventListener("click", (ev) => {
+  const parentBtn = ev.target.closest("[data-select-parent]");
+  if (parentBtn && detailEl.contains(parentBtn) && selectedId) {
+    selectRun(selectedId, { agentId: null, quiet: true });
+    return;
+  }
+
+  const agentBtn = ev.target.closest("[data-select-agent]");
+  if (agentBtn && detailEl.contains(agentBtn) && selectedId) {
+    selectRun(selectedId, { agentId: agentBtn.getAttribute("data-select-agent"), quiet: true });
+    return;
+  }
+
+  const clearBtn = ev.target.closest("[data-kind-filter-clear]");
+  if (clearBtn && detailEl.contains(clearBtn)) {
+    timelineKindsOn.clear();
+    refreshTimelineFilters();
+    return;
+  }
+
   const kindBtn = ev.target.closest("[data-kind-filter]");
   if (kindBtn && detailEl.contains(kindBtn)) {
     const kind = kindBtn.getAttribute("data-kind-filter");
     if (!kind) return;
     if (timelineKindsOn.has(kind)) timelineKindsOn.delete(kind);
     else timelineKindsOn.add(kind);
-    const payload = selectedPayload;
-    if (!payload || payload.error) return;
-    const events = unifiedEventsFromPayload(payload);
-    const filters = detailEl.querySelector(".kind-filters");
-    const body = detailEl.querySelector("#timeline-body");
-    if (filters) filters.outerHTML = renderKindFilters(events);
-    if (body) body.innerHTML = renderTimeline(events);
+    refreshTimelineFilters();
     return;
   }
 

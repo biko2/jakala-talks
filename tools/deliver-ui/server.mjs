@@ -19,6 +19,7 @@ const MIME = {
   ".html": "text/html; charset=utf-8",
   ".css": "text/css; charset=utf-8",
   ".js": "text/javascript; charset=utf-8",
+  ".mjs": "text/javascript; charset=utf-8",
   ".svg": "image/svg+xml",
   ".json": "application/json; charset=utf-8",
 };
@@ -106,6 +107,7 @@ function handleApi(req, res, url) {
       events: result.events,
       cost: result.cost,
       timing: result.timing,
+      agentGraph: result.agentGraph,
       modelTitle: result.modelTitle,
     });
     return true;
@@ -121,6 +123,11 @@ const server = createServer((req, res) => {
 
   if (url.pathname === "/" || url.pathname === "/index.html") {
     sendFile(res, join(PUBLIC_DIR, "index.html"));
+    return;
+  }
+
+  if (url.pathname === "/assets/timing.mjs") {
+    sendFile(res, join(__dirname, "timing.mjs"));
     return;
   }
 

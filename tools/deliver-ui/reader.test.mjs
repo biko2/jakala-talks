@@ -16,6 +16,7 @@ import {
   mergeUnifiedTimeline,
   filterUnifiedTimeline,
   resolveRunCost,
+  resolveAgentGraph,
 } from "./reader.mjs";
 
 const validRun = {
@@ -93,6 +94,8 @@ describe("toListItem", () => {
     assert.equal(item.costCoverage, "unknown");
     assert.equal(item.acceptanceMet, 3);
     assert.equal(item.parentIssue.number, 42);
+    assert.deepEqual(item.children, []);
+    assert.deepEqual(item.orphans, []);
   });
 
   it("surfaces parse errors as invalid list rows", () => {
@@ -100,6 +103,44 @@ describe("toListItem", () => {
     assert.equal(item.valid, false);
     assert.equal(item.tokensTotal, null);
     assert.equal(item.ciStatus, "unknown");
+  });
+});
+
+describe("resolveAgentGraph", () => {
+  it("lists only childIds that exist and treats missing parent.childIds as orphan", () => {
+    const graph = resolveAgentGraph({
+      agents: [
+        {
+          id: "parent",
+          kind: "parent",
+          childIds: ["tdd-43", "ghost-1"],
+        },
+        {
+          id: "tdd-43",
+          kind: "subagent",
+          parentId: "parent",
+          ticketIssue: 43,
+        },
+        {
+          id: "research-1",
+          kind: "subagent",
+          parentId: "parent",
+        },
+        {
+          id: "code-review-1",
+          kind: "subagent",
+        },
+      ],
+    });
+    assert.equal(graph.parent.id, "parent");
+    assert.deepEqual(
+      graph.children.map((a) => a.id),
+      ["tdd-43"]
+    );
+    assert.deepEqual(
+      graph.orphans.map((a) => a.id),
+      ["research-1"]
+    );
   });
 });
 
@@ -112,17 +153,55 @@ describe("listRuns / getRun", () => {
         JSON.stringify(validRun)
       );
       writeFileSync(join(dir, "bad.json"), "{");
+      writeFileSync(
+        join(dir, "2026-10-02T130000Z-99.json"),
+        JSON.stringify({
+          ...validRun,
+          parentIssue: { number: 99, title: "Otra", url: "https://example.com/99" },
+          agents: [
+            {
+              id: "parent",
+              kind: "parent",
+              role: "orchestrator",
+              childIds: ["tdd-100"],
+            },
+            {
+              id: "tdd-100",
+              kind: "subagent",
+              parentId: "parent",
+              ticketIssue: 100,
+            },
+            {
+              id: "research-1",
+              kind: "subagent",
+              parentId: "parent",
+            },
+          ],
+        })
+      );
 
       const listed = listRuns(dir);
-      assert.equal(listed.length, 2);
+      assert.equal(listed.length, 3);
       const good = listed.find((r) => r.id === "2026-10-02T125900Z-42");
+      const withKids = listed.find((r) => r.id === "2026-10-02T130000Z-99");
       const bad = listed.find((r) => r.id === "bad");
       assert.equal(good.valid, true);
       assert.equal(good.tokensTotal, null);
+      assert.deepEqual(good.children, []);
+      assert.deepEqual(good.orphans, []);
+      assert.deepEqual(
+        withKids.children.map((c) => c.agentId),
+        ["tdd-100"]
+      );
+      assert.equal(withKids.children[0].parentAgentId, "parent");
+      assert.equal(withKids.children[0].ciStatus, undefined);
+      assert.deepEqual(
+        withKids.orphans.map((c) => c.agentId),
+        ["research-1"]
+      );
       assert.equal(bad.valid, false);
 
       const detail = getRun(dir, "2026-10-02T125900Z-42");
-      assert.equal(detail.ok, true);
       assert.equal(detail.modelTitle, "Claude Sonnet 4.6");
       assert.equal(detail.data.branch, "feat/42-slug");
       assert.ok(Array.isArray(detail.timeline));

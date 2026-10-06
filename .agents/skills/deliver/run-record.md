@@ -1,6 +1,6 @@
 # Contrato del registro de ejecución
 
-Cada corrida de `/deliver` escribe un JSON en `.deliver/runs/`. Esa carpeta está en `.gitignore`. Este fichero (commiteado) es el contrato que una sala de control futura leerá.
+Cada run de `/deliver` escribe un JSON en `.deliver/runs/`. Esa carpeta está en `.gitignore`. Este fichero (commiteado) es el contrato que una sala de control futura leerá.
 
 ## Ruta
 
@@ -95,6 +95,8 @@ Hechos crudos. Sin nota de eficiencia. `null` = dato desconocido; nunca inventar
       "kind": "parent",
       "model": "string | null",
       "ticketIssue": null,
+      "parentId": null,
+      "childIds": [],
       "startedAt": "2026-10-02T12:50:00.000Z",
       "endedAt": null,
       "status": "running"
@@ -165,13 +167,13 @@ Hechos crudos. Sin nota de eficiencia. `null` = dato desconocido; nunca inventar
 | `acceptance` | Criterios de aceptación de todos los tickets: cumplidos / total |
 | `specGaps` | Hallazgos del eje Spec de `code-review` (texto libre; solo en local) |
 | `tokens.scope` | Siempre `parent-only`: los tickets van en subagentes y el hook de Cursor no los cuenta |
-| `tokens.coverage` | `hook` si hay datos del hook; `unknown` si no hay hook; `partial` si el hook se instaló a mitad de corrida |
+| `tokens.coverage` | `hook` si hay datos del hook; `unknown` si no hay hook; `partial` si el hook se instaló a mitad del run |
 | `tools` / `toolCategories` / `skills` | Contadores del intervalo, misma forma que `trace_metadata` de `registrar-medicion-ia` cuando existan; `{}` si no |
 | `timeline` | Eventos del proceso en orden. Cada uno: `at` (ISO), `step`, `status`, `label`, `detail` opcional. Sin coste por fila |
 | `timing` | `startedAt`/`endedAt` = reloj de pared. `durationMs` = tiempo activo (sin esperas humanas). Si `durationMs` es `null`, la sala deriva min/max y resta `humanWaits` / `timeline` `human-wait`. Un instante → `null`. No inventar `0`. No es GPU |
 | `cost` | Equivalente API en USD del **padre**. `totalUsd` solo si la cobertura es completa; si no, `null` y `subtotalUsd` con el hook. `scope: parent-only`. Nunca inventar `0`. No es cargo de suscripción. `/deliver` corre `yarn deliver:tokens` (descubre sesión). La sala overlay en vivo. Si hay `traceMetadata.apiCost`, cópialo aquí |
 | `phases` | Fases del workflow. Cada una: `id`, `label`, `status`, `startedAt`/`endedAt`, `checks[]` (`id`, `label`, `status` pass/fail/skip/pending, `at`) |
-| `agents` | Agente padre y cada subagente: `id`, `role` (orchestrator/implement/review-standards/review-spec/research/other), `kind` (parent/subagent), `model`, `ticketIssue`, tiempos, `status` |
+| `agents` | Padre y cada subagente que `/deliver` despacha. Campos: `id`, `role` (orchestrator/implement/review-standards/review-spec/research/other), `kind` (parent/subagent), `model`, `ticketIssue`, `startedAt`/`endedAt`, `status`. Refs: padre `childIds[]`; hijo `parentId`. Sin refs entre hermanos. `id` hijo = `{role}-{ticketNumber}` o `{role}-{n}` único en el run. Tokens/`$` no van en el hijo |
 | `traces` | Punteros de traza: `sessionId`, `transcriptHint`, `sessionSlices`. Sin prompts ni contenido de archivos |
 | `feedback` | Review y comentarios: `source`, `severity` (high/medium/low), `status` (open/fixed/skipped/false-positive), `summary`, `url` |
 | `evidence` | Pruebas de trabajo: `kind` (commit/test/lint/typecheck/arch/build/pr/issue/command), `label`, `ref` (sha/url/comando), `result` (pass/fail/unknown). Sin dumps de código |

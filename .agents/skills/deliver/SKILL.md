@@ -18,7 +18,7 @@ El JSON local es la fuente de observabilidad. Tras **cada** paso (y en cada fall
 - `cost` y `timing` son del **plan completo**. Tras cada paso del padre: `yarn deliver:tokens` (sesión + tokens + `cost.subtotalUsd`). `timing.startedAt` al crear, `endedAt` al cerrar. `durationMs` = activo (sin esperas humanas) o `null` para que la sala reste las paradas. Nunca inventar `0`.
 - No rellenes `costUsd`/`tokensDelta` en cada evento ni en cada subagente.
 - `phases`: upsert por `id` del paso. `started` al entrar, `done`/`failed`/`skipped` al salir. Cada criterio de done del paso = un `checks[]` (`pass`/`fail`/`skip`/`pending`)
-- `agents`: el padre al crear el run. Cada subagente (tdd, code-review, research): alta al despachar, `endedAt`+`status` al volver. Anota `model` si se conoce, `ticketIssue` si aplica
+- `agents`: el padre al crear el run (`id: parent`, `childIds: []`). Cada subagente que `/deliver` despacha (tdd, code-review, research, iterate-pr): alta al spawn. `id` = `{role}-{ticketNumber}` o `{role}-{n}` único. `parentId: "parent"`. Empuja ese `id` a `parent.childIds`. No enlaces entre hermanos. Al volver: `endedAt`+`status`. `model` y `ticketIssue` si aplican. No `durationMs`/`costUsd`/`tokensDelta` en el hijo
 - `traces.sessionId`: lo rellena `yarn deliver:tokens` (no lo pidas al usuario). `transcriptHint` / `sessionSlices` si corre el analizador. `traceMetadata` al medir. Nunca prompts ni contenidos
 - `feedback`: cada hallazgo de `code-review` y cada comentario high/medium/low de `iterate-pr` (`source`, `severity`, `status`, `summary`). Al resolver, `status: fixed` (no borrar)
 - `evidence`: commits (sha), issues/PR (url), y cada gate local (`yarn lint` / `typecheck` / `lint:arch` / `test` / `build`) con `result` pass/fail. Sin pegar logs enteros ni código
@@ -79,7 +79,7 @@ Rodajas verticales con edges de bloqueo. No modifiques el issue padre.
 
 Trabaja la frontera: tickets cuyos bloqueadores están hechos.
 
-Por cada ticket, despacha un **subagente de contexto fresco** con: cuerpo del ticket, URL de la spec, seams ya escritos. Alta en `agents` al despachar; al volver: `status` done/failed, `evidence` del commit, `failures` si el slice falla. El subagente sigue `tdd` (rojo → verde, un slice). Al verde: commit en la rama, formato de `commit` (`tipo(ámbito): descripción`), **sin** pedir confirmación (excepción solo dentro de `/deliver`; `/commit` suelto sigue pidiendo sí).
+Por cada ticket, despacha un **subagente de contexto fresco** con: cuerpo del ticket, URL de la spec, seams ya escritos. Alta en `agents` al despachar (`id` único, `parentId`, `parent.childIds`); al volver: `status` done/failed, `evidence` del commit, `failures` si el slice falla. El subagente sigue `tdd` (rojo → verde, un slice). Al verde: commit en la rama, formato de `commit` (`tipo(ámbito): descripción`), **sin** pedir confirmación (excepción solo dentro de `/deliver`; `/commit` suelto sigue pidiendo sí).
 
 **Done when:** cada ticket tiene commit(s) que cubren sus criterios de aceptación.
 
@@ -99,7 +99,7 @@ Si el cambio deja mentiroso un doc existente (`AGENTS.md`, `.cursor/docs/`, onbo
 
 Antes del push, en local: `yarn lint`, `yarn typecheck`, `yarn lint:arch`, `yarn test`, `yarn build`. Cada comando → `evidence` (y `failures` si falla). No saltar hooks.
 
-PR lista (no draft). Título `type: description`. Cuerpo con `Closes` del padre y de cada hijo. No pedir reviewer de CODEOWNERS.
+PR lista (no draft). Título `type: description`. Cuerpo en castellano (`Resumen`, `Cambios`, `Plan de pruebas`) con `Closes` del padre y de cada hijo. No pedir reviewer de CODEOWNERS.
 
 **Done when:** la PR está abierta y su URL anotada en la tarjeta del padre y en el registro.
 

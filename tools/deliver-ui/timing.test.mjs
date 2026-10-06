@@ -1,6 +1,6 @@
 import { describe, it } from "node:test";
 import assert from "node:assert/strict";
-import { formatDuration, resolveRunTiming } from "./timing.mjs";
+import { formatDuration, resolveAgentTiming, resolveRunTiming } from "./timing.mjs";
 
 describe("formatDuration", () => {
   it("keeps unknown as null text for the UI helper", () => {
@@ -124,5 +124,74 @@ describe("resolveRunTiming", () => {
     });
     assert.equal(timing.durationMs, 420000);
     assert.equal(timing.humanWaitMs, 3 * 60 * 1000);
+  });
+});
+
+describe("resolveAgentTiming", () => {
+  const run = {
+    humanWaits: [
+      {
+        gate: "grill",
+        startedAt: "2026-10-02T12:52:00.000Z",
+        endedAt: "2026-10-02T12:55:00.000Z",
+      },
+    ],
+  };
+
+  it("keeps duration null without startedAt", () => {
+    const timing = resolveAgentTiming(run, { id: "tdd-43", endedAt: "2026-10-02T13:00:00.000Z" });
+    assert.equal(timing.durationMs, null);
+    assert.equal(timing.running, false);
+  });
+
+  it("subtracts waits that overlap a closed child", () => {
+    const agent = {
+      id: "tdd-43",
+      startedAt: "2026-10-02T12:50:00.000Z",
+      endedAt: "2026-10-02T13:00:00.000Z",
+      status: "done",
+    };
+    const timing = resolveAgentTiming(run, agent);
+    assert.equal(timing.durationMs, 7 * 60 * 1000);
+    assert.equal(timing.humanWaitMs, 3 * 60 * 1000);
+    assert.equal(timing.running, false);
+    assert.equal(timing.coverage, "complete");
+    assert.equal(agent.durationMs, undefined);
+  });
+
+  it("clips a wait that only overlaps the start of the child", () => {
+    const timing = resolveAgentTiming(
+      {
+        humanWaits: [
+          {
+            startedAt: "2026-10-02T12:40:00.000Z",
+            endedAt: "2026-10-02T12:52:00.000Z",
+          },
+        ],
+      },
+      {
+        id: "tdd-43",
+        startedAt: "2026-10-02T12:50:00.000Z",
+        endedAt: "2026-10-02T13:00:00.000Z",
+      }
+    );
+    assert.equal(timing.humanWaitMs, 2 * 60 * 1000);
+    assert.equal(timing.durationMs, 8 * 60 * 1000);
+  });
+
+  it("uses now as end while running and does not persist duration", () => {
+    const agent = {
+      id: "tdd-43",
+      startedAt: "2026-10-02T12:50:00.000Z",
+      status: "running",
+    };
+    const nowMs = Date.parse("2026-10-02T13:00:00.000Z");
+    const timing = resolveAgentTiming(run, agent, nowMs);
+    assert.equal(timing.durationMs, 7 * 60 * 1000);
+    assert.equal(timing.running, true);
+    assert.equal(timing.coverage, "partial");
+    assert.equal(timing.endedAt, null);
+    assert.equal(agent.durationMs, undefined);
+    assert.equal(agent.endedAt, undefined);
   });
 });

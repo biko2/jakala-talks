@@ -190,6 +190,59 @@ function subtractWaits(baseMs, waitMs) {
   return Math.max(0, baseMs - waitMs);
 }
 
+function overlapWaitMs(intervals, fromMs, toMs) {
+  if (fromMs === null || toMs === null || toMs <= fromMs) return 0;
+  return intervals.reduce((total, interval) => {
+    const start = Math.max(interval.start, fromMs);
+    const end = Math.min(interval.end, toMs);
+    return total + (end > start ? end - start : 0);
+  }, 0);
+}
+
+/**
+ * Wall clock of one agent minus human waits that overlap that window.
+ * Running agents use `nowMs` as the open end. Does not write `durationMs` on the agent.
+ *
+ * @param {object} data
+ * @param {object | null | undefined} agent
+ * @param {number} [nowMs]
+ */
+export function resolveAgentTiming(data, agent, nowMs = Date.now()) {
+  const row = agent && typeof agent === "object" ? agent : {};
+  const startMs = parseIsoMs(row.startedAt);
+  const endedAt = isoOrNull(row.endedAt);
+  const endMs = endedAt ? parseIsoMs(endedAt) : Number.isFinite(nowMs) ? nowMs : null;
+  const waits = collectHumanWaitIntervals(data && typeof data === "object" ? data : {});
+
+  if (startMs === null || endMs === null || endMs <= startMs) {
+    return {
+      startedAt: isoOrNull(row.startedAt),
+      endedAt,
+      durationMs: null,
+      humanWaitMs: 0,
+      label: null,
+      coverage: startMs === null ? "unknown" : "partial",
+      source: "agent",
+      running: startMs !== null && endedAt === null,
+    };
+  }
+
+  const humanWaitMs = overlapWaitMs(waits, startMs, endMs);
+  const durationMs = subtractWaits(endMs - startMs, humanWaitMs);
+  const running = endedAt === null;
+
+  return {
+    startedAt: isoOrNull(row.startedAt),
+    endedAt,
+    durationMs,
+    humanWaitMs,
+    label: formatDuration(durationMs),
+    coverage: running ? "partial" : "complete",
+    source: "agent",
+    running,
+  };
+}
+
 export function resolveRunTiming(data) {
   const run = data && typeof data === "object" ? data : {};
   const explicit = run.timing && typeof run.timing === "object" ? run.timing : {};

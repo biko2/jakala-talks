@@ -47,27 +47,29 @@ Examples:
 
 ### 3. Write the Description
 
-Use this structure:
+Usa esta estructura, en castellano:
 
 ```markdown
-## Summary
+## Resumen
 
-1-3 sentences explaining what this PR does and why.
+1-3 frases sobre qué hace este PR y por qué.
 
 Closes #123
 
-## Changes
+## Cambios
 
-- Added `ThemeToggle` component with system/light/dark options
-- Updated `Layout` to read theme from context
-- Added theme persistence to localStorage
+- Añadido el componente `ThemeToggle` con opciones sistema/claro/oscuro
+- `Layout` lee el tema desde el contexto
+- Persistencia del tema en localStorage
 
-## Test Plan
+## Plan de pruebas
 
-- [ ] Toggle between light/dark/system themes
-- [ ] Refresh page — theme persists
-- [ ] Check no flash of unstyled content on load
+- [ ] Cambiar entre temas claro/oscuro/sistema
+- [ ] Recargar la página — el tema se mantiene
+- [ ] No hay flash de contenido sin estilo al cargar
 ```
+
+`Closes` se queda en inglés: GitHub solo cierra issues con esa keyword.
 
 ### 4. Self-Review
 
@@ -84,13 +86,13 @@ Before requesting review:
 ```bash
 git push -u origin HEAD
 gh pr create --title "<title>" --body "$(cat <<'EOF'
-## Summary
+## Resumen
 ...
 
-## Changes
+## Cambios
 ...
 
-## Test Plan
+## Plan de pruebas
 ...
 EOF
 )"

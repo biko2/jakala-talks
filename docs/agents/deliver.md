@@ -22,20 +22,20 @@ Necesitas: `gh`, Yarn, y (si aceptas el hook) Bun.
 | Rama | `feat/<numero-padre>-<slug>` desde `main` | Una rama por tarea |
 | Commits | Esa rama | Un ticket verde → commit(s). Formato `tipo(ámbito): descripción` |
 | PR lista | GitHub, no draft | `Closes` del padre y de cada hijo. Sin merge. Sin pedir approve |
-| Registro de la corrida | `.deliver/runs/*.json` (gitignored) | Fases/checks, agentes, trazas, feedback, evidencias, fallos, timeline, tokens, coste USD. Sin nota de eficiencia |
+| Registro del run | `.deliver/runs/*.json` (gitignored) | Fases/checks, agentes, trazas, feedback, evidencias, fallos, timeline, tokens, coste USD. Sin nota de eficiencia |
 | Ficha AI Hub | Solo si dices sí al final | Traza + hechos sin citas de código. Huecos de spec se quedan en local |
 
 Entrega = PR abierta, CI accionable verde, feedback high/medium resuelto. Tú merges.
 
 ## Sala local (observabilidad)
 
-Consulta las corridas guardadas en `.deliver/runs/` (solo esta máquina):
+Consulta los runs guardados en `.deliver/runs/` (solo esta máquina):
 
 ```bash
 yarn deliver:ui
 ```
 
-Abre http://127.0.0.1:4177 — lista (título de issue + id) y detalle (timeline, coste y tiempo del plan completo). Live via SSE. El USD no va por fila.
+Abre http://127.0.0.1:4177 — lista en árbol: run padre + hijos indentados (`id` del subagente; sub = `parentId`). Huérfano (`parentId` sin estar en `childIds`) al mismo nivel que el padre del fichero. Detalle del padre: tiempo del plan + sección **Hijos** (reloj por hijo; Σ no tiene que cuadrar: paralelo OK). Click hijo: mismo detalle, tiempo de ese agente, link al padre si el grafo lo admite; timeline del run se queda. Tokens/`$` siguen padre-only. Live via SSE; hijo `running` actualiza reloj en sala, no escribe `durationMs` en el JSON. El USD no va por fila.
 
 Código: `tools/deliver-ui/`.
 
@@ -51,7 +51,7 @@ Tarifas: [Models & Pricing](https://cursor.com/docs/models-and-pricing) (snapsho
 
 ## Tiempo (reloj de pared)
 
-Cuánto tarda la tarea **activa**, no minutos de GPU ni esperas humanas (paradas, confirmaciones, wizard, medición). `/deliver` pone `timing.startedAt` al crear el run y `timing.endedAt` al cerrar. Si faltan, la sala usa min/max de timeline, fases y agentes. Un solo instante → `durationMs: null` (no se inventa `0`). Resta `humanWaits[]` y eventos `timeline` con `step: "human-wait"`. Sin intervalos de espera → queda reloj de pared.
+Cuánto tarda la tarea **activa**, no minutos de GPU ni esperas humanas (paradas, confirmaciones, wizard, medición). `/deliver` pone `timing.startedAt` al crear el run y `timing.endedAt` al cerrar. Si faltan, la sala usa min/max de timeline, fases y agentes. Un solo instante → `durationMs: null` (no se inventa `0`). Resta `humanWaits[]` y eventos `timeline` con `step: "human-wait"`. Sin intervalos de espera → queda reloj de pared. Cada hijo: `endedAt - startedAt` menos waits que **solapan** su ventana. Cerrado = fijo; abierto = `now` en la sala.
 
 ## Qué no saca
 
