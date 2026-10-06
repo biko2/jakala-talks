@@ -22,14 +22,14 @@ Necesitas: `gh`, Yarn, y (si aceptas el hook) Bun.
 | Rama | `feat/<numero-padre>-<slug>` desde `main` | Una rama por tarea |
 | Commits | Esa rama | Un ticket verde → commit(s). Formato `tipo(ámbito): descripción` |
 | PR lista | GitHub, no draft | `Closes` del padre y de cada hijo. Sin merge. Sin pedir approve |
-| Registro de la corrida | `.deliver/runs/*.json` (gitignored) | Fases/checks, agentes, trazas, feedback, evidencias, fallos, timeline, tokens, coste USD. Sin nota de eficiencia |
+| Registro del run | `.deliver/runs/*.json` (gitignored) | Fases/checks, agentes, trazas, feedback, evidencias, fallos, timeline, tokens, coste USD. Sin nota de eficiencia |
 | Ficha AI Hub | Solo si dices sí al final | Traza + hechos sin citas de código. Huecos de spec se quedan en local |
 
 Entrega = PR abierta, CI accionable verde, feedback high/medium resuelto. Tú merges.
 
 ## Sala local (observabilidad)
 
-Consulta las corridas guardadas en `.deliver/runs/` (solo esta máquina):
+Consulta los runs guardados en `.deliver/runs/` (solo esta máquina):
 
 ```bash
 yarn deliver:ui

@@ -99,7 +99,7 @@ Si el cambio deja mentiroso un doc existente (`AGENTS.md`, `.cursor/docs/`, onbo
 
 Antes del push, en local: `yarn lint`, `yarn typecheck`, `yarn lint:arch`, `yarn test`, `yarn build`. Cada comando → `evidence` (y `failures` si falla). No saltar hooks.
 
-PR lista (no draft). Título `type: description`. Cuerpo con `Closes` del padre y de cada hijo. No pedir reviewer de CODEOWNERS.
+PR lista (no draft). Título `type: description`. Cuerpo en castellano (`Resumen`, `Cambios`, `Plan de pruebas`) con `Closes` del padre y de cada hijo. No pedir reviewer de CODEOWNERS.
 
 **Done when:** la PR está abierta y su URL anotada en la tarjeta del padre y en el registro.
 

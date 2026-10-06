@@ -60,7 +60,7 @@ const STATUS_HINTS = {
 };
 
 /** @type {Set<string>} */
-const timelineKindsOn = new Set(EVENT_KINDS.map(([id]) => id));
+const timelineKindsOn = new Set();
 
 function formatWhen(iso) {
   if (!iso) return "sin fecha";
@@ -310,18 +310,30 @@ function renderKindFilters(events) {
   for (const event of events) {
     if (counts[event.kind] != null) counts[event.kind] += 1;
   }
+  const filtering = timelineKindsOn.size > 0;
+  const clearHint = filtering
+    ? "Quita todos los filtros y vuelve a mostrar toda la timeline."
+    : "Ningún filtro activo: se muestran todos los tipos.";
   return `<div class="kind-filters" role="group" aria-label="Filtrar timeline">
     ${EVENT_KINDS.map(([id, label]) => {
       const on = timelineKindsOn.has(id);
       const hue = hashHue(id);
-      const hint = `${kindHint(id)} Clic para ${on ? "ocultar" : "mostrar"} (${counts[id] || 0} en esta corrida).`;
+      const hint = `${kindHint(id)} ${
+        on
+          ? "Clic para quitar este filtro."
+          : filtering
+            ? "Clic para sumar este tipo al filtro."
+            : "Clic para ver solo este tipo."
+      } (${counts[id] || 0} en este run).`;
       return `<button type="button" class="kind-chip${on ? " is-on" : ""}" data-kind-filter="${id}" style="--pill-h:${hue}" aria-pressed="${on ? "true" : "false"}" ${tipAttrs(hint)}>${escapeHtml(label)} <span class="kind-count">${counts[id] || 0}</span></button>`;
     }).join("")}
+    <button type="button" class="kind-clear" data-kind-filter-clear ${filtering ? "" : "disabled "} ${tipAttrs(clearHint)}>Desmarcar todas</button>
   </div>`;
 }
 
 function renderTimeline(events) {
-  const filtered = events.filter((e) => timelineKindsOn.has(e.kind));
+  const filtered =
+    timelineKindsOn.size === 0 ? events : events.filter((e) => timelineKindsOn.has(e.kind));
   if (events.length === 0) {
     return `<p class="muted">Sin eventos todavía. El agente irá escribiendo la timeline en el JSON.</p>`;
   }
@@ -448,7 +460,6 @@ function renderDetail(id, payload) {
       <div class="stat"><span class="label">Harness</span><span class="value">${escapeHtml(run.harness || "—")}</span></div>
       <div class="stat"><span class="label">Rama</span><span class="value"><code>${escapeHtml(run.branch || "—")}</code></span></div>
       <div class="stat"><span class="label">CI</span><span class="value">${escapeHtml(ci.status || "unknown")}</span></div>
-      <div class="stat"><span class="label">Criterios</span><span class="value">${escapeHtml(acceptanceLabel(acceptance.met ?? null, acceptance.total ?? null))}</span></div>
     </div>
 
     <section class="metrics-block" aria-label="Métricas del modelo">
@@ -602,20 +613,31 @@ refreshBtn.addEventListener("click", () => {
 filterModel.addEventListener("change", renderList);
 filterCi.addEventListener("change", renderList);
 
+function refreshTimelineFilters() {
+  const payload = selectedPayload;
+  if (!payload || payload.error) return;
+  const events = unifiedEventsFromPayload(payload);
+  const filters = detailEl.querySelector(".kind-filters");
+  const body = detailEl.querySelector("#timeline-body");
+  if (filters) filters.outerHTML = renderKindFilters(events);
+  if (body) body.innerHTML = renderTimeline(events);
+}
+
 detailEl.addEventListener("click", (ev) => {
+  const clearBtn = ev.target.closest("[data-kind-filter-clear]");
+  if (clearBtn && detailEl.contains(clearBtn)) {
+    timelineKindsOn.clear();
+    refreshTimelineFilters();
+    return;
+  }
+
   const kindBtn = ev.target.closest("[data-kind-filter]");
   if (kindBtn && detailEl.contains(kindBtn)) {
     const kind = kindBtn.getAttribute("data-kind-filter");
     if (!kind) return;
     if (timelineKindsOn.has(kind)) timelineKindsOn.delete(kind);
     else timelineKindsOn.add(kind);
-    const payload = selectedPayload;
-    if (!payload || payload.error) return;
-    const events = unifiedEventsFromPayload(payload);
-    const filters = detailEl.querySelector(".kind-filters");
-    const body = detailEl.querySelector("#timeline-body");
-    if (filters) filters.outerHTML = renderKindFilters(events);
-    if (body) body.innerHTML = renderTimeline(events);
+    refreshTimelineFilters();
     return;
   }
 

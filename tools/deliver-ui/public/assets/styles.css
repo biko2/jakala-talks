@@ -595,10 +595,10 @@ a.task-id:hover {
     1.1rem
     5rem
     max-content
-    minmax(6.5rem, 0.8fr)
+    minmax(16rem, 2.4fr)
     5.2rem
     max-content
-    minmax(12rem, 2.8fr);
+    minmax(10rem, 1.4fr);
   column-gap: 0.55rem;
   align-items: stretch;
 }
@@ -746,9 +746,10 @@ a.task-id:hover {
 .timeline-label {
   font-weight: 650;
   font-size: 0.9rem;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  overflow: visible;
+  white-space: normal;
+  word-break: break-word;
+  line-height: 1.35;
 }
 
 .timeline-step {
@@ -803,6 +804,22 @@ a.task-id:hover {
   font-variant-numeric: tabular-nums;
   font-weight: 700;
   font-size: 0.75rem;
+}
+
+.kind-clear {
+  border: 1px dashed var(--line, hsl(220 10% 40% / 0.45));
+  background: transparent;
+  color: var(--muted);
+  border-radius: 999px;
+  padding: 0.2rem 0.55rem;
+  font: inherit;
+  font-size: 0.75rem;
+  cursor: pointer;
+}
+
+.kind-clear:disabled {
+  opacity: 0.45;
+  cursor: default;
 }
 
 .phase-card {

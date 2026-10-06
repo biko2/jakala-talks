@@ -1,6 +1,6 @@
 # Contrato del registro de ejecución
 
-Cada corrida de `/deliver` escribe un JSON en `.deliver/runs/`. Esa carpeta está en `.gitignore`. Este fichero (commiteado) es el contrato que una sala de control futura leerá.
+Cada run de `/deliver` escribe un JSON en `.deliver/runs/`. Esa carpeta está en `.gitignore`. Este fichero (commiteado) es el contrato que una sala de control futura leerá.
 
 ## Ruta
 
@@ -165,7 +165,7 @@ Hechos crudos. Sin nota de eficiencia. `null` = dato desconocido; nunca inventar
 | `acceptance` | Criterios de aceptación de todos los tickets: cumplidos / total |
 | `specGaps` | Hallazgos del eje Spec de `code-review` (texto libre; solo en local) |
 | `tokens.scope` | Siempre `parent-only`: los tickets van en subagentes y el hook de Cursor no los cuenta |
-| `tokens.coverage` | `hook` si hay datos del hook; `unknown` si no hay hook; `partial` si el hook se instaló a mitad de corrida |
+| `tokens.coverage` | `hook` si hay datos del hook; `unknown` si no hay hook; `partial` si el hook se instaló a mitad del run |
 | `tools` / `toolCategories` / `skills` | Contadores del intervalo, misma forma que `trace_metadata` de `registrar-medicion-ia` cuando existan; `{}` si no |
 | `timeline` | Eventos del proceso en orden. Cada uno: `at` (ISO), `step`, `status`, `label`, `detail` opcional. Sin coste por fila |
 | `timing` | `startedAt`/`endedAt` = reloj de pared. `durationMs` = tiempo activo (sin esperas humanas). Si `durationMs` es `null`, la sala deriva min/max y resta `humanWaits` / `timeline` `human-wait`. Un instante → `null`. No inventar `0`. No es GPU |
