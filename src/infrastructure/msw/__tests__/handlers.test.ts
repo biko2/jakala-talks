@@ -86,4 +86,106 @@ describe('MSW handlers', () => {
     expect(user.email).toBe('usuario.mock@jakala.com')
     expect(user.user_metadata.full_name).toBe('Usuario Mock')
   })
+
+  it('POST talks persiste la charla y aparece en GET talks', async () => {
+    const created = {
+      id: '22222222-2222-4222-8222-222222222222',
+      title: 'Charla MSW',
+      description: 'Descripción de prueba',
+      author: 'Usuario Mock',
+      duration: 30,
+    }
+
+    const insertResponse = await fetch(`${BASE}/rest/v1/talks`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(created),
+    })
+    expect(insertResponse.ok).toBe(true)
+
+    const listResponse = await fetch(`${BASE}/rest/v1/talks?select=*&order=created_at.desc`)
+    const talks = await listResponse.json() as Array<{ id: string; title: string; author: string; duration: number }>
+
+    expect(listResponse.ok).toBe(true)
+    expect(talks).toHaveLength(17)
+    expect(talks).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          id: '22222222-2222-4222-8222-222222222222',
+          title: 'Charla MSW',
+          description: 'Descripción de prueba',
+          author: 'Usuario Mock',
+          duration: 30,
+        }),
+        expect.objectContaining({
+          id: 'ef9764b5-ca64-4b2c-b0c0-c08f309be4ef',
+          title: 'Urbanismo verde y tecnología',
+        }),
+      ])
+    )
+  })
+
+  it('POST user_votes incrementa el recuento RPC como VoteTalk', async () => {
+    const insertResponse = await fetch(`${BASE}/rest/v1/user_votes`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        user_id: '11111111-1111-4111-8111-111111111111',
+        talk_id: 'd601b443-8f50-4e7d-b396-e0a4a4105e65',
+        created_at: '2026-09-08T10:00:00.000Z',
+      }),
+    })
+    expect(insertResponse.ok).toBe(true)
+
+    const votesResponse = await fetch(
+      `${BASE}/rest/v1/user_votes?select=talk_id&user_id=eq.11111111-1111-4111-8111-111111111111`
+    )
+    const userVotes = await votesResponse.json() as Array<{ talk_id: string; user_id: string }>
+    expect(userVotes).toEqual([
+      expect.objectContaining({
+        user_id: '11111111-1111-4111-8111-111111111111',
+        talk_id: 'd601b443-8f50-4e7d-b396-e0a4a4105e65',
+      }),
+    ])
+
+    const countsResponse = await fetch(`${BASE}/rest/v1/rpc/get_talk_vote_counts`, { method: 'POST' })
+    const counts = await countsResponse.json() as Array<{ talk_id: string; votes: number }>
+    expect(counts).toEqual(
+      expect.arrayContaining([
+        { talk_id: 'd601b443-8f50-4e7d-b396-e0a4a4105e65', votes: 2 },
+      ])
+    )
+  })
+
+  it('DELETE user_votes desvota y restaura el recuento RPC', async () => {
+    await fetch(`${BASE}/rest/v1/user_votes`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        user_id: '11111111-1111-4111-8111-111111111111',
+        talk_id: 'd601b443-8f50-4e7d-b396-e0a4a4105e65',
+        created_at: '2026-09-08T10:00:00.000Z',
+      }),
+    })
+
+    const deleteResponse = await fetch(
+      `${BASE}/rest/v1/user_votes?user_id=eq.11111111-1111-4111-8111-111111111111&talk_id=eq.d601b443-8f50-4e7d-b396-e0a4a4105e65`,
+      { method: 'DELETE' }
+    )
+    expect(deleteResponse.ok).toBe(true)
+
+    const votesResponse = await fetch(
+      `${BASE}/rest/v1/user_votes?select=talk_id&user_id=eq.11111111-1111-4111-8111-111111111111`
+    )
+    const userVotes = await votesResponse.json() as Array<{ talk_id: string }>
+    expect(userVotes).toEqual([])
+
+    const countsResponse = await fetch(`${BASE}/rest/v1/rpc/get_talk_vote_counts`, { method: 'POST' })
+    const counts = await countsResponse.json() as Array<{ talk_id: string; votes: number }>
+    expect(counts).toEqual(
+      expect.arrayContaining([
+        { talk_id: 'd601b443-8f50-4e7d-b396-e0a4a4105e65', votes: 1 },
+      ])
+    )
+  })
 })
