@@ -28,7 +28,7 @@ MSW tiene sentido en un lote futuro si quieres ejercitar `Supabase*Repository` (
 
 ## Permisos
 
-- [`CODEOWNERS`](../../CODEOWNERS): paths sensibles. Sustituir `@USER` por el team/handle real de GitHub.
+- [`CODEOWNERS`](../../CODEOWNERS): paths sensibles. Owner `@drzkn`.
 - [`.cursorignore`](../../.cursorignore): `.env*`, credenciales. No ignora `src/` ni tests.
 - Agente: no commit de secretos; migraciones solo si el cambio de schema está pedido.
 
