@@ -77,6 +77,23 @@ describe('MSW handlers', () => {
     )
   })
 
+  it('GET talks por id inexistente devuelve PGRST116', async () => {
+    const response = await fetch(`${BASE}/rest/v1/talks?id=eq.00000000-0000-4000-8000-000000000000`)
+    const body = await response.json() as { code: string }
+
+    expect(response.status).toBe(406)
+    expect(body.code).toBe('PGRST116')
+  })
+
+  it('GET auth session devuelve la sesión mock fija', async () => {
+    const response = await fetch(`${BASE}/auth/v1/session`)
+    const session = await response.json() as { user: { id: string; email: string } }
+
+    expect(response.ok).toBe(true)
+    expect(session.user.id).toBe('11111111-1111-4111-8111-111111111111')
+    expect(session.user.email).toBe('usuario.mock@jakala.com')
+  })
+
   it('GET auth user devuelve la sesión mock fija', async () => {
     const response = await fetch(`${BASE}/auth/v1/user`)
     const user = await response.json() as { id: string; email: string; user_metadata: { full_name: string } }

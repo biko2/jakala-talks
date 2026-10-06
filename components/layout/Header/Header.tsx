@@ -11,6 +11,7 @@ import { createClient } from '@/lib/supabase/client/browser'
 import { getAppUrl } from '@/lib/supabase/config/env'
 import NewTalk from '@/components/NewTalk'
 import { VotingStatus } from '@/src/domain/valueObjects/VotingRules'
+import { EnvironmentDetector } from '@/lib/environment/EnvironmentDetector'
 
 interface HeaderProps {
   user: User | null
@@ -126,7 +127,7 @@ export default function Header({ user, onNewTalkClick, canCreateNewTalks = true,
           </RightSection>
         </ThirdLine>
 
-        {!user && (
+        {!user && !EnvironmentDetector.isMswEnabled() && (
           <FourthLine>
             {votingStatus === 'closed' ? (
               <span>

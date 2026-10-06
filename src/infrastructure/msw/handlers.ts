@@ -25,7 +25,10 @@ export function createHandlers(store: MswStore = createStore()) {
       if (id) {
         const talk = talks.find((row) => row.id === id)
         if (!talk) {
-          return HttpResponse.json({ message: 'JSON object requested, multiple (or no) rows returned' }, { status: 406 })
+          return HttpResponse.json(
+            { code: 'PGRST116', message: 'JSON object requested, multiple (or no) rows returned' },
+            { status: 406 }
+          )
         }
         return HttpResponse.json(talk)
       }

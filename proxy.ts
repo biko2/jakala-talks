@@ -1,8 +1,13 @@
 import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
 import { getSupabaseUrl, getSupabaseAnonKey } from './lib/supabase/config/env'
+import { EnvironmentDetector } from './lib/environment/EnvironmentDetector'
 
 export async function proxy(request: NextRequest) {
+  if (EnvironmentDetector.isMswEnabled()) {
+    return NextResponse.next({ request })
+  }
+
   let supabaseResponse = NextResponse.next({
     request,
   })

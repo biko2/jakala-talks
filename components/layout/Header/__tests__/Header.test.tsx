@@ -1,6 +1,7 @@
 import { render, screen, fireEvent } from '@testing-library/react'
 import Header from '../Header'
 import { User } from '@supabase/supabase-js'
+import { EnvironmentDetector } from '@/lib/environment/EnvironmentDetector'
 
 jest.mock('@/components/auth/UserProfile', () => {
   return function MockUserProfile({ user }: { user: User }) {
@@ -35,6 +36,16 @@ describe('Header', () => {
     render(<Header user={null} />)
 
     expect(screen.getByText('Continuar con Google')).toBeInTheDocument()
+  })
+
+  it('no debería mostrar Google Sign In cuando MSW está activo', () => {
+    jest.spyOn(EnvironmentDetector, 'isMswEnabled').mockReturnValue(true)
+
+    render(<Header user={null} />)
+
+    expect(screen.queryByText('Continuar con Google')).not.toBeInTheDocument()
+
+    jest.restoreAllMocks()
   })
 
   it('debería mostrar el perfil de usuario cuando está logeado', () => {
