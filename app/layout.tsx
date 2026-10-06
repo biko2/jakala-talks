@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono, Roboto, Raleway, Merriweather } from "next/font/google";
+import { MswProvider } from "@/src/infrastructure/msw/MswProvider";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -63,7 +64,7 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} ${roboto.variable} ${raleway.variable} ${merriweather.variable} antialiased`}
       >
-        {children}
+        <MswProvider>{children}</MswProvider>
       </body>
     </html>
   );

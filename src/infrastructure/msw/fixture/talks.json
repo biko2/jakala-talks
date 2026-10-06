@@ -1,0 +1,146 @@
+[
+  {
+    "id": "9ff59505-b90c-4888-8424-b4b406a8ae47",
+    "title": "Diseño en tiempos de IA",
+    "description": "¿Dónde queda la disciplina de diseño UX/UI cuándo parece que cualquiera puede construir un producto digital solo a base de prompts? ¿Qué valor aportamos l@s diseñador@s en esta nueva era? ¿Y cómo estamos integrando la IA en nuestros procesos de diseño? Compartiremos inquietudes, distintos enfoques y posibles soluciones a estos dilemas, con todas las personas que estéis interesadas en ello.",
+    "author": "Maria Luisa Santos",
+    "duration": 45,
+    "created_at": "2026-07-03T12:51:10.646666+00:00",
+    "updated_at": "2026-07-03T12:51:10.646666+00:00"
+  },
+  {
+    "id": "51cdec2f-6cb8-4988-b0ef-5f81558010f3",
+    "title": "¿Chati, salvamos a 5 sacrificando a 1?",
+    "description": "\"Los coches nos entrenan km a km; la IA, semana a semana. La 1.ª semana lees con atención; la 3.ª, copias y pegas sin mirar.\" ¿Te suena? ¿Quién iba a decir que entender el sector de los coches autónomos nos daría las claves de nuestra actual relación con la IA-LLMs? (Charla adaptada del evento de divulgación científica Naukas Barcelona)",
+    "author": "Ujué Agudo Díaz",
+    "duration": 30,
+    "created_at": "2026-08-07T11:44:46.782298+00:00",
+    "updated_at": "2026-08-07T11:44:46.782298+00:00"
+  },
+  {
+    "id": "7dee1fa8-d51f-4362-a952-36554bee294a",
+    "title": "De los blogs a TikTok: ¿dónde se fue tu atención?",
+    "description": "Hubo un tiempo en el que esperabas 1 minuto para que cargara cualquier web. Hoy, si un vídeo no te engancha en 3 segundos, te lo saltas!\n\nEsta vez no vengo a hablar de 🐱 sino de cómo el diseño de las plataformas ha transformado nuestra forma de consumir información, tomar decisiones y captar nuestra atención.\n\nY si has llegado hasta aquí, enhorabuena! Tu atención está por encima de la media 😉",
+    "author": "Gabriela Bronte Orduna",
+    "duration": 45,
+    "created_at": "2026-08-10T11:21:27.568929+00:00",
+    "updated_at": "2026-08-10T11:21:27.568929+00:00"
+  },
+  {
+    "id": "57f0e193-dd3b-4213-832c-f342c49c5f7e",
+    "title": "Japonés explicado por una UX/UI y un developer",
+    "description": "Empezaremos por los 3 silabarios (Hiragana, Katakana y Kanji), cómo se ven y para qué se usan. Veremos ejemplos reales de publicidad, y otras aplicaciones gráficas.\n\nTambién responderemos preguntas como por ejemplo:\n¿Cómo escriben 鬱 con el teclado?\n¿Son necesarios 3 silabarios? Suena a vicio tener tantos.\n\nPara el final de esta charla, serás capaz de escribir Japonés sin saber nada de Japonés.",
+    "author": "John Bayona Jiménez",
+    "duration": 30,
+    "created_at": "2026-08-12T08:44:48.603624+00:00",
+    "updated_at": "2026-08-12T08:44:48.603624+00:00"
+  },
+  {
+    "id": "fc633765-f4bf-4d7f-b654-f39866540a14",
+    "title": "Sobrevivir profesionalmente en tiempos de IA",
+    "description": "Todos/as llegaremos a un momento en que los años, la experiencia, el coste… jueguen en nuestra contra. Una reflexión necesaria para seguir creciendo profesionalmente cuando las herramientas, los procesos e incluso algunos perfiles laborales están cambiando a gran velocidad.",
+    "author": "Diego Rodríguez (arketipo)",
+    "duration": 30,
+    "created_at": "2026-08-19T08:52:22.976673+00:00",
+    "updated_at": "2026-08-19T08:52:22.976673+00:00"
+  },
+  {
+    "id": "03fd310f-f190-451f-b7ff-b601c735430c",
+    "title": "AIAIAI UYUYUY",
+    "description": "Le dimos a la IA el volante: skills, agentes, código fluyendo a toda velocidad y ese dulce olor a token quemado. \nPero llegaron los bugs, las regresiones y los balones hacia adelante, creando más y más. Mucho ruido, poco valor real.\nEl problema no es el exceso de AI, sino la falta de ingener-IA. Hablaremos sobre el setup mínimo viable, con herramientas gratuitas y extrapolables a cualquier oficio",
+    "author": "Javier Vazquez",
+    "duration": 30,
+    "created_at": "2026-08-20T09:25:34.29062+00:00",
+    "updated_at": "2026-08-20T09:25:34.29062+00:00"
+  },
+  {
+    "id": "c8a2d6be-4b39-409e-8fdb-f3eee320bb8d",
+    "title": "PAN-PLINAS",
+    "description": "¿Por qué la lista de ingredientes de algunos panes parece el prospecto de un medicamento? Para hacer pan basta con harina, agua, levadura y sal. Y si eres celíaco/a, psyllium y una harina sin gluten. Veremos lo fácil que es hacerlo en casa, sin productos raros, sin máquinas y sin invocar al dios de la fermentación. Porque hacer pan es fácil. Lo difícil es entender por qué le ponen tanta mier....",
+    "author": "Urtzi Arostegui",
+    "duration": 45,
+    "created_at": "2026-08-20T11:00:26.241695+00:00",
+    "updated_at": "2026-08-20T11:00:26.241695+00:00"
+  },
+  {
+    "id": "6b73d2ed-48d8-418d-9c7b-6183fa47281f",
+    "title": "Ganar certidumbre con modelos de lenguaje",
+    "description": "Cada semana hay una teoría, una técnica y una herramienta nuevas de IA, y sigue costando decidir qué parte del trabajo pones en manos de un modelo y qué parte no. Investigando, prototipando y explorando en muchos proyectos a la vez he ido definiendo un método. Su pieza central: hay decisiones que no se delegan, y saltárselo se paga en control. Enseñaré cómo trabajo y con qué herramientas.",
+    "author": "karlos g liberal",
+    "duration": 45,
+    "created_at": "2026-08-25T09:21:23.545628+00:00",
+    "updated_at": "2026-08-25T09:21:23.545628+00:00"
+  },
+  {
+    "id": "d7c66db7-99f9-41a7-99e8-b02e65b9baf2",
+    "title": "US-IA, Chin-IA o Soberan-IA",
+    "description": "¿Qué bando eliges?\n\n🇺🇸 Claude, ChatGPT... los reyes. Potentes, pero $$$ y tus datos cruzan el Atlántico.\n🇨🇳 DeepSeek, Qwen, Kimi... una decena de laboratorios de élite (desconocidos) a precio de ganga. ¿Confías?\n🇪🇺 Soberanía: Modelos open en datacenters EU o local. Cumple DORA, GDPR y AI Act.\n\n¿Quieres ir más allá del mainstream? ¿Ahorro o independencia?\nPara todos los públicos. Hablamos.",
+    "author": "Javier Vazquez",
+    "duration": 30,
+    "created_at": "2026-08-27T07:19:42.305747+00:00",
+    "updated_at": "2026-08-27T07:19:42.305747+00:00"
+  },
+  {
+    "id": "41736342-3c66-4cd2-9b73-eb67034642be",
+    "title": "Dejar de entregar pantallas y entregar el sistema",
+    "description": "Llevamos meses en 540 investigando el pipeline de diseño a código y tenemos una conclusión incómoda: el mockup es desechable. Con el sistema bien definido, la pantalla es una consecuencia. Lo que vale es el sistema, y el sistema no se dibuja, se decide. Cuento qué hemos probado y dónde se cae, y abrimos el debate: cuando diseño y código discrepan, ¿de quién es la fuente de verdad?",
+    "author": "Olaia Merino Erviti",
+    "duration": 30,
+    "created_at": "2026-08-27T12:53:10.590437+00:00",
+    "updated_at": "2026-08-27T12:53:10.590437+00:00"
+  },
+  {
+    "id": "4ad0460e-3a2c-4a49-a9ce-e6daa3dca969",
+    "title": "Encontrar el bug 🐛 YA: El mejor ROI del año by QA",
+    "description": "Cada minuto que un bug pasa desapercibido, su costo de reparación se multiplica. En esta charla desglosaremos \"la inflación del error\", demostrando por qué la labor de QA y QC es un motor financiero crítico en el desarrollo de software. Aprende cómo transformar el control de calidad de un \"gasto necesario\" a la inversión más inteligente y rentable de tu presupuesto anual. Pon un QA/QC en tu vida!",
+    "author": "Xabier Jimenez Armendariz",
+    "duration": 30,
+    "created_at": "2026-08-31T09:46:04.6556+00:00",
+    "updated_at": "2026-08-31T09:46:04.6556+00:00"
+  },
+  {
+    "id": "8ae91b7a-696e-4285-ac9e-50de609bbe80",
+    "title": "Construyendo el sistema que construye el sistema",
+    "description": "¿Se puede automatizar por completo el desarrollo de software? Llevo meses intentando responder esta pregunta en un equipo de ~100 personas de ingeniería. En agosto de 2025 se mergearon 87 PRs, este mes fueron 502, el cuello de botella ya no es escribir código, es revisarlo y diseñarlo. Comparto el camino, los errores y aprendizajes que tenemos hasta la fecha.",
+    "author": "Ismael Liberal De La Pisa",
+    "duration": 45,
+    "created_at": "2026-08-31T12:55:25.373812+00:00",
+    "updated_at": "2026-08-31T12:55:25.373812+00:00"
+  },
+  {
+    "id": "185d6b8f-0711-45df-a563-218196751f6a",
+    "title": "Rendering real world maps in Tolkien's style",
+    "description": "A year ago I tried to make a quick anniversary gift: asking AI to make Tolkien-style maps of our travels. It failed miserably. With no good open-source editors in sight, my \"easy gift\" turned into a 2-month quest through spatial data, PostGIS, Mapnik, and post-processing methods involving whisky and fire. \n\nJoin me on my journey from a lazy AI prompt to a full fantasy cartography pipeline!",
+    "author": "Gergo Bohner",
+    "duration": 30,
+    "created_at": "2026-09-02T11:49:36.328151+00:00",
+    "updated_at": "2026-09-02T11:49:36.328151+00:00"
+  },
+  {
+    "id": "d601b443-8f50-4e7d-b396-e0a4a4105e65",
+    "title": "Replacing ERP Consultants with AI (Odoo edition)",
+    "description": "Disappointed by incompetent and slow ERP consultants at my former biopharma startup, I ended up configuring Odoo for our manufacturing traceability and business needs myself.\n\nAfter my exit in 2025, I prototyped a chatbot capable of directly implementing database schema and view changes in Odoo. Let's discuss the architecture, safety challenges, and how AI consultants could help small businesses!",
+    "author": "Gergo Bohner",
+    "duration": 30,
+    "created_at": "2026-09-02T12:34:15.4256+00:00",
+    "updated_at": "2026-09-02T12:34:15.4256+00:00"
+  },
+  {
+    "id": "0b855b41-2f03-4a29-b9f1-f6145ec0036e",
+    "title": "De personas y agua",
+    "description": "¿Cuántas personas somos en el planeta? ¿cuántos dispositivos existen (nº unidades, marcas, modelos)? ¿cuántas \"cosas\" tienen pantalla y pueden conectarse a internet y ver páginas web (IOT, DIY)? Ante tanta incertidumbre solo podemos hacer una cosa **respetar las preferencias de las personas que utilizan nuestro producto digital** y diseñar/desarrollar sin anclarnos a breakpoints.",
+    "author": "leire diez",
+    "duration": 30,
+    "created_at": "2026-09-02T14:50:52.463662+00:00",
+    "updated_at": "2026-09-02T14:50:52.463662+00:00"
+  },
+  {
+    "id": "ef9764b5-ca64-4b2c-b0c0-c08f309be4ef",
+    "title": "Urbanismo verde y tecnología",
+    "description": "En esta charla quiero contar cómo estoy intentando apoyar tecnológicamente a un compendio de asociaciones de Zaragoza, las cuales conformamos la \"Mesa del Árbol\".\n\nDesde el modelo de comunicación interno para organizarnos, a las semillas para mapeos ciudadanos de problemáticas en árboles.\n\nY por supuesto, debatir entre todos sobre un montón de problemáticas a las que nos enfrentamos, para mejorar!",
+    "author": "Javier Rubio",
+    "duration": 30,
+    "created_at": "2026-09-02T18:49:25.377193+00:00",
+    "updated_at": "2026-09-02T18:49:25.377193+00:00"
+  }
+]

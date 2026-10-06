@@ -4,6 +4,7 @@ import "@testing-library/jest-dom";
 process.env.NODE_ENV = "development";
 process.env.NEXT_PUBLIC_SUPABASE_URL = "https://test.supabase.co";
 process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY = "test-key";
+process.env.NEXT_PUBLIC_USE_SUPABASE = "true";
 
 // Mock del cliente de Supabase
 jest.mock("@/lib/supabase/client/base", () => ({

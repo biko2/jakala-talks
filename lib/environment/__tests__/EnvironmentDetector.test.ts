@@ -36,6 +36,26 @@ describe('EnvironmentDetector', () => {
     })
   })
 
+  describe('isMswEnabled', () => {
+    it('debería encender MSW en development por defecto', () => {
+      (process.env as Record<string, string | undefined>).NODE_ENV = 'development'
+      delete process.env.NEXT_PUBLIC_USE_SUPABASE
+      expect(EnvironmentDetector.isMswEnabled()).toBe(true)
+    })
+
+    it('debería apagar MSW cuando NEXT_PUBLIC_USE_SUPABASE es true', () => {
+      (process.env as Record<string, string | undefined>).NODE_ENV = 'development'
+      process.env.NEXT_PUBLIC_USE_SUPABASE = 'true'
+      expect(EnvironmentDetector.isMswEnabled()).toBe(false)
+    })
+
+    it('debería apagar MSW en production', () => {
+      (process.env as Record<string, string | undefined>).NODE_ENV = 'production'
+      delete process.env.NEXT_PUBLIC_USE_SUPABASE
+      expect(EnvironmentDetector.isMswEnabled()).toBe(false)
+    })
+  })
+
   describe('isMockMode', () => {
     it('debería retornar true cuando es development y USE_MOCK_USER es true', () => {
       (process.env as Record<string, string | undefined>).NODE_ENV = 'development'

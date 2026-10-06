@@ -7,6 +7,10 @@ export class EnvironmentDetector {
     return process.env.NODE_ENV === 'production'
   }
 
+  static isMswEnabled(): boolean {
+    return this.isDevelopment() && process.env.NEXT_PUBLIC_USE_SUPABASE !== 'true'
+  }
+
   static isMockMode(): boolean {
     return this.isDevelopment() && process.env.NEXT_PUBLIC_USE_MOCK_USER === 'true'
   }
