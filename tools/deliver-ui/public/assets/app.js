@@ -441,6 +441,8 @@ function renderDetail(id, payload) {
     ${taskHeading(run, id)}
     <p class="sub">${escapeHtml(formatWhen(run.recordedAt))} · <code>${escapeHtml(id)}</code> · <span class="live-dot" title="escuchando cambios del fichero">live</span></p>
 
+    <div class="links">${links.length ? links.join("") : `<span class="muted">Sin enlaces</span>`}</div>
+
     <div class="grid">
       <div class="stat"><span class="label">Modo</span><span class="value">${escapeHtml(modeLabel(run.mode))}</span></div>
       <div class="stat"><span class="label">Harness</span><span class="value">${escapeHtml(run.harness || "—")}</span></div>
@@ -467,29 +469,10 @@ function renderDetail(id, payload) {
     ${collapsibleSection("gates", "Paradas humanas", `<div>${gatePills(run.humanGates)}</div>`)}
 
     ${collapsibleSection(
-      "links",
-      "Enlaces",
-      `<div class="links">${links.length ? links.join("") : `<span class="muted">Sin enlaces</span>`}</div>`
-    )}
-
-    ${collapsibleSection(
       "ciFailed",
       "CI fallidos",
       Array.isArray(ci.checksFailed) && ci.checksFailed.length
         ? `<ul class="gaps">${ci.checksFailed.map((c) => `<li>${escapeHtml(c)}</li>`).join("")}</ul>`
-        : `<p class="muted">Ninguno</p>`
-    )}
-
-    ${collapsibleSection(
-      "specGaps",
-      "Huecos de spec",
-      gaps.length
-        ? `<ul class="gaps">${gaps
-            .map(
-              (g) =>
-                `<li><span class="pill ${g.status === "missing" || g.status === "wrong" ? "bad" : "warn"}">${escapeHtml(g.status || "?")}</span> ${escapeHtml(g.requirement || "")}</li>`
-            )
-            .join("")}</ul>`
         : `<p class="muted">Ninguno</p>`
     )}
 
@@ -511,8 +494,6 @@ function renderDetail(id, payload) {
       ${run.notes ? `<p class="muted">${escapeHtml(run.notes)}</p>` : ""}`
     )}
 
-    ${collapsibleSection("tools", "Tools", countPills(run.tools))}
-    ${collapsibleSection("categories", "Categorías", countPills(run.toolCategories))}
     ${collapsibleSection("skills", "Skills", countPills(run.skills))}
   `;
 }
