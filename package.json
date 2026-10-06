@@ -14,6 +14,7 @@
     "test": "jest --passWithNoTests && node --test tools/deliver-ui/*.test.mjs",
     "test:watch": "jest --watch",
     "deliver:ui": "node tools/deliver-ui/server.mjs",
+    "deliver:tokens": "node tools/deliver-ui/sync-tokens.mjs",
     "prepare": "husky"
   },
   "lint-staged": {
