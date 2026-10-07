@@ -14,7 +14,7 @@ test("captures parent turn counters once, preserves missing fields and excludes 
   const source = join(home, "projects", "project", "agent-transcripts", "conversation");
   await mkdir(source, { recursive: true });
   await writeFile(join(source, "conversation.jsonl"), [0, 1, 2].map(() => JSON.stringify({ role: "user", message: { content: [] } })).join("\n"));
-  const event = { hook_event_name: "stop", conversation_id: "conversation", generation_id: "turn-1", model_id: "gpt-6-sol", input_tokens: 400000, output_tokens: 100, cache_read_tokens: 300000, cache_write_tokens: 10000, text: "PRIVATE", user_email: "PRIVATE" };
+  const event = { hook_event_name: "stop", conversation_id: "conversation", generation_id: "turn-1", model_id: "gpt-6-sol", input_tokens: 400000, output_tokens: 100, cache_read_tokens: 300000, cache_write_tokens: 10000, effort: "high", max_mode: true, fast: false, text: "PRIVATE", user_email: "PRIVATE" };
   await captureCursorUsage(home, event);
   await captureCursorUsage(home, event);
   await captureCursorUsage(home, { ...event, hook_event_name: "afterAgentResponse", generation_id: "ignored" });
@@ -24,10 +24,21 @@ test("captures parent turn counters once, preserves missing fields and excludes 
   expect(session?.cursorUsage?.turns).toHaveLength(2);
   expect(session?.cursorUsage?.turns.find(turn => turn.generationId === "turn-1")?.values.input).toBe(400000);
   expect(session?.tokens.input).toBeNull();
+  expect(session?.sessionSettings).toEqual({
+    effort: "high",
+    maxMode: true,
+    fast: false,
+    contextTokensUsed: null,
+    contextTokenLimit: null,
+    contextUsagePercent: null,
+  });
+  expect(session?.contextUsage).toEqual({ peakInputTokens: 400000, lastInputTokens: 400000 });
   expect(JSON.stringify(session)).not.toContain("PRIVATE");
   const trace = buildTaskTrace({ report, slices: [{ harness: "cursor", sessionId: "conversation", fromMessage: 1, toMessage: 1 }] });
   expect(trace.cursorUsage?.[0]?.scope).toBe("whole-session");
   expect(trace.cursorUsage?.[0]?.transcriptTurns).toBe(3);
+  expect(trace.sessionSettings?.effort).toBe("high");
+  expect(trace.contextUsage).toEqual({ peakInputTokens: 400000, lastInputTokens: 400000 });
   expect(trace.apiCost?.totalUsd).toBeNull();
   expect(trace.apiCost?.totalCalls).toBe(0); // A turn is not a model call.
 });

@@ -1,7 +1,7 @@
 import { createHash, randomUUID } from "node:crypto";
 import { mkdir, rename } from "node:fs/promises";
 import { join } from "node:path";
-import { safeCursorValues, type CursorTurnUsage } from "../domain/cursor-usage.ts";
+import { extractHookSettings, hasSessionSettings, mergeSessionSettings, safeCursorValues, type CursorTurnUsage } from "../domain/cursor-usage.ts";
 import { findFiles } from "../infrastructure/files.ts";
 import { asRecord, asString } from "../shared/unknown.ts";
 
@@ -21,6 +21,7 @@ export async function captureCursorUsage(home: string, payload: unknown): Promis
     model: asString(event.model_id) ?? asString(event.model),
     recordedAt: new Date().toISOString(),
     values: safeCursorValues({ input: event.input_tokens, output: event.output_tokens, cachedInput: event.cache_read_tokens, cacheWriteInput: event.cache_write_tokens }),
+    settings: extractHookSettings(event),
   };
   const folder = directory(home, conversationId);
   await mkdir(folder, { recursive: true, mode: 0o700 });
@@ -32,6 +33,7 @@ export async function captureCursorUsage(home: string, payload: unknown): Promis
     const values = safeCursorValues(old.values);
     row.values = safeCursorValues({ input: row.values.input ?? values.input, output: row.values.output ?? values.output, cachedInput: row.values.cachedInput ?? values.cachedInput, cacheWriteInput: row.values.cacheWriteInput ?? values.cacheWriteInput });
     row.model ??= asString(old.model);
+    row.settings = mergeSessionSettings(row.settings, extractHookSettings(old.settings ?? old));
   }
   const temporary = `${destination}.${randomUUID()}.tmp`;
   await Bun.write(temporary, JSON.stringify(row), { mode: 0o600 });
@@ -47,7 +49,14 @@ export async function readCursorUsage(home: string, sessionId: string): Promise<
       const generationId = asString(row.generationId);
       const recordedAt = asString(row.recordedAt);
       if (row.conversationId !== sessionId || !generationId || !recordedAt) continue;
-      turns.push({ generationId, recordedAt, model: asString(row.model), values: safeCursorValues(row.values) });
+      const settings = extractHookSettings(row.settings ?? {});
+      turns.push({
+        generationId,
+        recordedAt,
+        model: asString(row.model),
+        values: safeCursorValues(row.values),
+        ...(hasSessionSettings(settings) ? { settings } : {}),
+      });
     } catch { /* Incomplete/corrupt observations are not evidence of zero usage. */ }
   }
   return turns.sort((a, b) => a.recordedAt.localeCompare(b.recordedAt));

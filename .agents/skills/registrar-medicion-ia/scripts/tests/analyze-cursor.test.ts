@@ -61,7 +61,21 @@ describe("analyzeCursor", () => {
     database.run("CREATE TABLE composerHeaders (composerId TEXT, createdAt INTEGER, lastUpdatedAt INTEGER)");
     database.run("CREATE TABLE cursorDiskKV (key TEXT, value TEXT)");
     database.run("INSERT INTO composerHeaders VALUES (?, ?, ?)", [sessionId, 1000, 2000]);
-    database.run("INSERT INTO cursorDiskKV VALUES (?, ?)", [`composerData:${sessionId}`, JSON.stringify({ modelConfig: { modelName: "cursor-model" }, workspaceIdentifier: { uri: { fsPath: project } }, totalLinesAdded: 12, totalLinesRemoved: 3, filesChangedCount: 2 })]);
+    database.run("INSERT INTO cursorDiskKV VALUES (?, ?)", [`composerData:${sessionId}`, JSON.stringify({
+      modelConfig: {
+        maxMode: true,
+        modelName: "cursor-model",
+        selectedModels: [{ modelId: "cursor-model", parameters: [{ id: "effort", value: "low" }, { id: "fast", value: "true" }] }],
+      },
+      workspaceIdentifier: { uri: { fsPath: project } },
+      totalLinesAdded: 12,
+      totalLinesRemoved: 3,
+      filesChangedCount: 2,
+      contextTokensUsed: 116745,
+      contextTokenLimit: 256000,
+      contextUsagePercent: 45.6,
+      prompt: "PRIVATE",
+    })]);
     database.close();
 
     const session = (await analyzeCursor({ home, project, limit: 1 })).sessions[0];
@@ -69,6 +83,15 @@ describe("analyzeCursor", () => {
     expect(session?.projectPath).toBe(project);
     expect(session?.models).toEqual(["cursor-model"]);
     expect(session?.activity.linesAdded).toBe(12);
+    expect(session?.sessionSettings).toEqual({
+      effort: "low",
+      maxMode: true,
+      fast: true,
+      contextTokensUsed: 116745,
+      contextTokenLimit: 256000,
+      contextUsagePercent: 45.6,
+    });
+    expect(JSON.stringify(session)).not.toContain("PRIVATE");
   });
 
   test("reports when the project has no Cursor transcripts", async () => {

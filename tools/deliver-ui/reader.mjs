@@ -3,6 +3,7 @@ import { join, basename } from "node:path";
 import { estimateCostUsd, formatModelTitle, roundUsd } from "./cost.mjs";
 import { enrichRunWithHook } from "./hook.mjs";
 import { resolveRunTiming } from "./timing.mjs";
+import { formatSessionTelemetry } from "./session-settings.mjs";
 
 /**
  * @param {string} filename
@@ -518,13 +519,17 @@ export function mergeUnifiedTimeline(data) {
 
   const traces = data.traces && typeof data.traces === "object" ? data.traces : {};
   if (traces.sessionId || traces.transcriptHint || data.traceMetadata) {
+    const settings = traces.settings || data.traceMetadata?.sessionSettings;
+    const contextUsage = traces.contextUsage || data.traceMetadata?.contextUsage;
+    const telemetry = formatSessionTelemetry(settings, contextUsage);
+    const detail = [traces.transcriptHint, telemetry].filter(Boolean).join(" · ");
     push({
       at: typeof data.recordedAt === "string" ? data.recordedAt : null,
       kind: "trace",
       step: "trace",
       status: data.traceMetadata ? "done" : "started",
       label: traces.sessionId ? `sesión ${traces.sessionId}` : "Traza",
-      detail: traces.transcriptHint || (data.traceMetadata ? "traceMetadata" : undefined),
+      detail: detail || (data.traceMetadata ? "traceMetadata" : undefined),
     });
   }
   if (Array.isArray(traces.sessionSlices)) {

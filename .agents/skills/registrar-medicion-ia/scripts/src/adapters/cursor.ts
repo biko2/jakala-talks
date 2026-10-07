@@ -19,7 +19,14 @@ import { findFiles, jsonLines, modifiedAt } from "../infrastructure/files.ts";
 import { asArray, asNumber, asRecord, asString, isRecord, parseJsonRecord } from "../shared/unknown.ts";
 
 import { readCursorUsage } from "./cursor-hooks.ts";
-import { sumCursorUsage } from "../domain/cursor-usage.ts";
+import {
+  emptySessionSettings,
+  extractComposerSettings,
+  hasSessionSettings,
+  mergeSessionSettings,
+  summarizeContextUsage,
+  sumCursorUsage,
+} from "../domain/cursor-usage.ts";
 
 interface CursorMetadata {
   createdAt: number | null;
@@ -29,6 +36,7 @@ interface CursorMetadata {
   linesAdded: number | null;
   linesRemoved: number | null;
   filesChangedCount: number | null;
+  sessionSettings: import("../domain/cursor-usage.ts").SessionSettings;
 }
 
 function category(name: string): ToolCategory {
@@ -98,6 +106,7 @@ function cursorMetadata(home: string, sessionIds: string[]): Map<string, CursorM
         linesAdded: asNumber(data.totalLinesAdded),
         linesRemoved: asNumber(data.totalLinesRemoved),
         filesChangedCount: asNumber(data.filesChangedCount),
+        sessionSettings: extractComposerSettings(data),
       });
     }
   } catch {
@@ -166,6 +175,11 @@ async function inspectSession(source: string, metadata: CursorMetadata | null, r
   session.diagnostics.push("Las transcripciones de Cursor conservan tool_use, pero no resultados ni errores de forma comparable");
   const turns = await readCursorUsage(home, sessionId);
   session.cursorUsage = { scope: "whole-session", agentScope: "parent-only", transcriptTurns: session.messages.user, turns };
+  const hookSettings = turns.reduce((acc, turn) => turn.settings ? mergeSessionSettings(turn.settings, acc) : acc, emptySessionSettings());
+  const sessionSettings = mergeSessionSettings(metadata?.sessionSettings ?? emptySessionSettings(), hookSettings);
+  if (hasSessionSettings(sessionSettings)) session.sessionSettings = sessionSettings;
+  const contextUsage = summarizeContextUsage(turns);
+  if (contextUsage.peakInputTokens !== null || contextUsage.lastInputTokens !== null) session.contextUsage = contextUsage;
   if (turns.length) {
     session.tokens = sumCursorUsage(turns);
     session.coverage.tokens = turns.some(turn => turn.values.total !== null);

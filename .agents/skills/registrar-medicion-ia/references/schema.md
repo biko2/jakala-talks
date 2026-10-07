@@ -59,6 +59,7 @@ Los nombres nativos se conservan en `tools`. Además se agrupan como:
 - archivos con acción `read`, `create`, `edit` o `delete` y su tipo;
 - páginas visitadas con la URL completa;
 - tokens del intervalo marcados como `message-range` cuando la traza conserva granularidad suficiente; en caso contrario se conservan como `whole-session`.
+- en Cursor, `sessionSettings` (effort, maxMode, fast, `contextTokensUsed` / `contextTokenLimit` / `contextUsagePercent` de `composerData`) y `contextUsage` (pico y último `input` del hook del padre). Ausencia = desconocido, no cero.
 
 Las queries de búsqueda, los argumentos, los outputs y el contenido de archivos o páginas no forman parte de este esquema.
 

@@ -4,6 +4,7 @@ import { mkdirSync, writeFileSync, mkdtempSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { createHash } from "node:crypto";
+import { spawnSync } from "node:child_process";
 import {
   applyHookUsage,
   enrichRunWithHook,
@@ -185,5 +186,50 @@ describe("enrichRunWithHook", () => {
     assert.equal(enriched.traces.sessionId, "auto-sess");
     assert.equal(enriched.tokens.coverage, "hook");
     assert.equal(enriched.cost.subtotalUsd, 18);
+    assert.equal(enriched.traces.contextUsage.peakInputTokens, 1_000_000);
+    assert.equal(enriched.traces.contextUsage.lastInputTokens, 1_000_000);
+  });
+
+  it("overlays effort and context window from composerData", () => {
+    const root = mkdtempSync(join(tmpdir(), "deliver-composer-"));
+    const home = join(root, ".cursor");
+    const sessionId = "composer-sess";
+    writeTurn(home, sessionId, "2026-10-06T09:00:00.000Z", {
+      values: { input: 667687, output: 10, cachedInput: 0, cacheWriteInput: 0, total: 667697 },
+    });
+    const db = join(root, "Library", "Application Support", "Cursor", "User", "globalStorage", "state.vscdb");
+    mkdirSync(join(db, ".."), { recursive: true });
+    const composerJson = JSON.stringify({
+      modelConfig: {
+        maxMode: false,
+        modelName: "grok-4.6",
+        selectedModels: [
+          {
+            modelId: "grok-4.6",
+            parameters: [
+              { id: "effort", value: "medium" },
+              { id: "fast", value: "false" },
+            ],
+          },
+        ],
+      },
+      contextTokensUsed: 116745,
+      contextTokenLimit: 256000,
+      contextUsagePercent: 45.6,
+      prompt: "PRIVATE",
+    }).replaceAll("'", "''");
+    const sql = `
+      CREATE TABLE cursorDiskKV (key TEXT, value TEXT);
+      INSERT INTO cursorDiskKV VALUES ('composerData:${sessionId}', '${composerJson}');
+    `;
+    const created = spawnSync("sqlite3", [db], { input: sql, encoding: "utf8" });
+    assert.equal(created.status, 0, created.stderr);
+    const enriched = enrichRunWithHook({ model: "grok-4.6", traces: { sessionId } }, home);
+    assert.equal(enriched.traces.settings.effort, "medium");
+    assert.equal(enriched.traces.settings.maxMode, false);
+    assert.equal(enriched.traces.settings.contextTokensUsed, 116745);
+    assert.equal(enriched.traces.settings.contextTokenLimit, 256000);
+    assert.equal(enriched.traces.contextUsage.peakInputTokens, 667687);
+    assert.equal(JSON.stringify(enriched.traces).includes("PRIVATE"), false);
   });
 });

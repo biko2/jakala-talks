@@ -174,7 +174,7 @@ Hechos crudos. Sin nota de eficiencia. `null` = dato desconocido; nunca inventar
 | `cost` | Equivalente API en USD del **padre**. `totalUsd` solo si la cobertura es completa; si no, `null` y `subtotalUsd` con el hook. `scope: parent-only`. Nunca inventar `0`. No es cargo de suscripción. `/deliver` corre `yarn deliver:tokens` (descubre sesión). La sala overlay en vivo. Si hay `traceMetadata.apiCost`, cópialo aquí |
 | `phases` | Fases del workflow. Cada una: `id`, `label`, `status`, `startedAt`/`endedAt`, `checks[]` (`id`, `label`, `status` pass/fail/skip/pending, `at`) |
 | `agents` | Padre y cada subagente que `/deliver` despacha. Campos: `id`, `role` (orchestrator/implement/review-standards/review-spec/research/other), `kind` (parent/subagent), `model`, `ticketIssue`, `startedAt`/`endedAt`, `status`. Refs: padre `childIds[]`; hijo `parentId`. Sin refs entre hermanos. `id` hijo = `{role}-{ticketNumber}` o `{role}-{n}` único en el run. Tokens/`$` no van en el hijo |
-| `traces` | Punteros de traza: `sessionId`, `transcriptHint`, `sessionSlices`. Sin prompts ni contenido de archivos |
+| `traces` | Punteros de traza: `sessionId`, `transcriptHint`, `sessionSlices`. Overlay vivo: `settings` (`effort`, `maxMode`, `fast`, `contextTokensUsed`, `contextTokenLimit`, `contextUsagePercent`) y `contextUsage` (`peakInputTokens`, `lastInputTokens`). `null` si desconocido; no inventar `0`. Sin prompts ni contenido de archivos |
 | `feedback` | Review y comentarios: `source`, `severity` (high/medium/low), `status` (open/fixed/skipped/false-positive), `summary`, `url` |
 | `evidence` | Pruebas de trabajo: `kind` (commit/test/lint/typecheck/arch/build/pr/issue/command), `label`, `ref` (sha/url/comando), `result` (pass/fail/unknown). Sin dumps de código |
 | `failures` | Fallos: `phase`, `kind`, `summary`, `attempts`, `resolved`, `detail` opcional |
@@ -185,7 +185,7 @@ Hechos crudos. Sin nota de eficiencia. `null` = dato desconocido; nunca inventar
 Si el usuario acepta registrar la medición, la ficha lleva en `trace_metadata`:
 
 - la traza del analizador (`traceMetadata` de arriba), y
-- hechos de entrega **sin citas de código**: `ci`, `acceptance`, URLs de issue/PR, `tokens.coverage` / `tokens.scope`, `cost` (USD y cobertura), conteos de `phases`/`agents`/`feedback`/`failures` (solo números y status).
+- hechos de entrega **sin citas de código**: `ci`, `acceptance`, URLs de issue/PR, `tokens.coverage` / `tokens.scope`, `cost` (USD y cobertura), `sessionSettings` / `contextUsage` (números y flags), conteos de `phases`/`agents`/`feedback`/`failures` (solo números y status).
 
 `specGaps`, `feedback[].summary`, `evidence[].detail` y `failures[].detail` (pueden citar código) **no** se suben. Quedan solo en el JSON local.
 
