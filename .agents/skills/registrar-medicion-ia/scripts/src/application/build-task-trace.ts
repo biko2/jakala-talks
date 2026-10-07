@@ -1,4 +1,14 @@
-import { safeCursorValues, type CursorUsage } from "../domain/cursor-usage.ts";
+import {
+  emptySessionSettings,
+  extractHookSettings,
+  hasSessionSettings,
+  mergeSessionSettings,
+  safeCursorValues,
+  summarizeContextUsage,
+  type ContextUsage,
+  type CursorUsage,
+  type SessionSettings,
+} from "../domain/cursor-usage.ts";
 import { estimateApiCost, type ApiCost, type TokenCall } from "../domain/api-cost.ts";
 import { SCHEMA_VERSION, type FileAction, type Harness, type TokenUsage, type ToolCategory } from "../domain/model.ts";
 import { asArray, asNumber, asRecord, asString, isRecord } from "../shared/unknown.ts";
@@ -14,6 +24,8 @@ type SkillMetric = "loaded" | "statusObserved" | "referencesRead" | "scriptsRun"
 
 export interface TaskTrace {
   cursorUsage?: Array<CursorUsage & { sessionId: string }>;
+  sessionSettings?: SessionSettings;
+  contextUsage?: ContextUsage;
   schemaVersion: typeof SCHEMA_VERSION;
   apiCost?: ApiCost;
   generatedAt: string;
@@ -139,6 +151,8 @@ export function buildTaskTrace(request: BuildTaskTraceRequest): TaskTrace {
 
   const selectedCalls: TokenCall[] = [];
   const cursorUsage: NonNullable<TaskTrace["cursorUsage"]> = [];
+  let sessionSettings = emptySessionSettings();
+  let contextUsage: ContextUsage = { peakInputTokens: null, lastInputTokens: null };
   let missingSlices = 0;
   const seenSlices: SliceSelection[] = [];
   const tools: Record<string, number> = {};
@@ -161,13 +175,23 @@ export function buildTaskTrace(request: BuildTaskTraceRequest): TaskTrace {
     const { session } = found;
     if (selection.harness === "cursor" && !cursorUsage.some(row => row.sessionId === selection.sessionId)) {
       const usage = asRecord(session.cursorUsage);
-      cursorUsage.push({ sessionId: selection.sessionId, scope: "whole-session", agentScope: "parent-only", transcriptTurns: asNumber(usage.transcriptTurns) ?? 0,
-        turns: asArray(usage.turns).filter(isRecord).flatMap(turn => {
-          const generationId = asString(turn.generationId);
-          const recordedAt = asString(turn.recordedAt);
-          return generationId && recordedAt ? [{ generationId, recordedAt, model: asString(turn.model), values: safeCursorValues(turn.values) }] : [];
-        }),
+      const turns = asArray(usage.turns).filter(isRecord).flatMap(turn => {
+        const generationId = asString(turn.generationId);
+        const recordedAt = asString(turn.recordedAt);
+        if (!generationId || !recordedAt) return [];
+        const settings = extractHookSettings(turn.settings ?? {});
+        return [{
+          generationId,
+          recordedAt,
+          model: asString(turn.model),
+          values: safeCursorValues(turn.values),
+          ...(hasSessionSettings(settings) ? { settings } : {}),
+        }];
       });
+      cursorUsage.push({ sessionId: selection.sessionId, scope: "whole-session", agentScope: "parent-only", transcriptTurns: asNumber(usage.transcriptTurns) ?? 0, turns });
+      sessionSettings = mergeSessionSettings(extractHookSettings(session.sessionSettings ?? {}), sessionSettings);
+      const observed = summarizeContextUsage(turns);
+      if (contextUsage.peakInputTokens === null) contextUsage = observed;
     }
     const calls = asArray(session.tokenCalls).filter(isRecord).filter((call) => {
       const index = asNumber(call.messageIndex);
@@ -236,6 +260,8 @@ export function buildTaskTrace(request: BuildTaskTraceRequest): TaskTrace {
   return {
     schemaVersion: SCHEMA_VERSION,
     ...(cursorUsage.length ? { cursorUsage } : {}),
+    ...(hasSessionSettings(sessionSettings) ? { sessionSettings } : {}),
+    ...(contextUsage.peakInputTokens !== null || contextUsage.lastInputTokens !== null ? { contextUsage } : {}),
     apiCost: estimateApiCost(selectedCalls, missingSlices),
     generatedAt: (request.now ?? new Date()).toISOString(),
     privacy: { promptsIncluded: false, fileContentsIncluded: false, webContentsIncluded: false, searchQueriesIncluded: false, urlsPreservedVerbatim: true },

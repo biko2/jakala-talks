@@ -98,6 +98,8 @@ export interface Coverage {
 
 export interface NormalizedSession {
   cursorUsage?: import("../domain/cursor-usage.ts").CursorUsage;
+  sessionSettings?: import("../domain/cursor-usage.ts").SessionSettings;
+  contextUsage?: import("../domain/cursor-usage.ts").ContextUsage;
   tokenCalls?: import("./api-cost.ts").TokenCall[];
   harness: Harness;
   sessionId: string;
