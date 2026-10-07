@@ -47,6 +47,28 @@ const EVENT_KINDS = [
   ["failure", "fallo"],
 ];
 
+const KIND_HUE = {
+  step: 217,
+  phase: 262,
+  check: 162,
+  agent: 248,
+  trace: 210,
+  feedback: 28,
+  evidence: 221,
+  failure: 12,
+};
+
+const KIND_ICON_PATHS = {
+  step: `<path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/>`,
+  phase: `<polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/>`,
+  check: `<polyline points="20 6 9 17 4 12"/>`,
+  agent: `<path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>`,
+  trace: `<polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>`,
+  feedback: `<path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>`,
+  evidence: `<path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/>`,
+  failure: `<line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>`,
+};
+
 const KIND_HINTS = {
   step: "Paso del flujo /deliver (modo, grill, spec, tickets, impl, review, PR, CI…).",
   phase: "Fase completa. Agrupa varios pasos hasta que cierra.",
@@ -89,8 +111,84 @@ function formatTime(iso) {
   return d.toLocaleTimeString(undefined, {
     hour: "2-digit",
     minute: "2-digit",
-    second: "2-digit",
   });
+}
+
+function kindHue(kind) {
+  return KIND_HUE[kind] ?? 200;
+}
+
+function kindIconSvg(kind) {
+  const paths = KIND_ICON_PATHS[kind] || KIND_ICON_PATHS.step;
+  return `<svg class="kind-icon" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${paths}</svg>`;
+}
+
+function dayKey(iso) {
+  if (!iso) return "sin-fecha";
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return "sin-fecha";
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+}
+
+function monthKey(iso) {
+  if (!iso) return null;
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return null;
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
+}
+
+function formatMonthHeading(iso) {
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return "Sin fecha";
+  return d.toLocaleDateString("es", { month: "long", year: "numeric" });
+}
+
+function formatDayHeading(iso, count) {
+  const countLabel = count === 1 ? "1 evento" : `${count} eventos`;
+  if (!iso) return { title: "Sin fecha", meta: countLabel };
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return { title: iso, meta: countLabel };
+  const today = new Date();
+  const isToday =
+    d.getFullYear() === today.getFullYear() &&
+    d.getMonth() === today.getMonth() &&
+    d.getDate() === today.getDate();
+  const title = d.toLocaleDateString("es", { weekday: "short", month: "short", day: "numeric" });
+  return { title, meta: isToday ? "Hoy" : countLabel };
+}
+
+function groupEventsByDay(events) {
+  const sorted = [...events].sort((a, b) => {
+    if (a.at === b.at) return 0;
+    if (!a.at) return 1;
+    if (!b.at) return -1;
+    return a.at < b.at ? 1 : -1;
+  });
+  /** @type {{ key: string, at: string | null, events: typeof events }[]} */
+  const groups = [];
+  const index = new Map();
+  for (const event of sorted) {
+    const key = dayKey(event.at);
+    let group = index.get(key);
+    if (!group) {
+      group = { key, at: event.at || null, events: [] };
+      index.set(key, group);
+      groups.push(group);
+    }
+    group.events.push(event);
+  }
+  return groups;
+}
+
+function eventKicker(event) {
+  const kind = kindLabel(event.kind).toUpperCase();
+  const step = event.step && event.step !== event.kind ? String(event.step).toUpperCase() : "";
+  if (event.kind === "failure" && event.status === "failed") return "FALLO";
+  if (event.kind === "check" && event.status === "done") return "CHECK COMPLETADO";
+  if (event.kind === "check" && event.status === "failed") return "CHECK FALLIDO";
+  if (event.kind === "step" && event.status === "done" && step) return `PASO · ${step}`;
+  if (step && step !== kind) return `${kind} · ${step}`;
+  return kind;
 }
 
 function modeLabel(mode) {
@@ -108,6 +206,35 @@ function ciClass(status) {
 function tokensLabel(total) {
   if (total === null || total === undefined) return "sin dato";
   return String(total);
+}
+
+function compactTokens(n) {
+  if (n === null || n === undefined) return "sin dato";
+  if (n >= 1000) return `${Math.round(n / 1000)}k`;
+  return String(n);
+}
+
+function effortLabel(run) {
+  const settings = run?.traces?.settings || run?.traceMetadata?.sessionSettings;
+  if (!settings) return "sin dato";
+  const parts = [];
+  if (settings.effort) parts.push(settings.effort);
+  if (settings.maxMode === true) parts.push("max");
+  if (settings.fast === true) parts.push("fast");
+  return parts.join(" · ") || "sin dato";
+}
+
+function contextLabel(run) {
+  const settings = run?.traces?.settings || run?.traceMetadata?.sessionSettings;
+  const used = settings?.contextTokensUsed;
+  const limit = settings?.contextTokenLimit;
+  if (used != null && limit != null) {
+    const pct = settings.contextUsagePercent != null ? ` · ${Math.round(settings.contextUsagePercent)}%` : "";
+    return `${compactTokens(used)} / ${compactTokens(limit)}${pct}`;
+  }
+  const peak = run?.traces?.contextUsage?.peakInputTokens ?? run?.traceMetadata?.contextUsage?.peakInputTokens;
+  if (peak != null) return `pico ${compactTokens(peak)}`;
+  return "sin dato";
 }
 
 function usdLabel(amount) {
@@ -350,13 +477,14 @@ function renderKindFilters(events) {
     if (counts[event.kind] != null) counts[event.kind] += 1;
   }
   const filtering = timelineKindsOn.size > 0;
-  const clearHint = filtering
+  const allHint = filtering
     ? "Quita todos los filtros y vuelve a mostrar toda la timeline."
-    : "Ningún filtro activo: se muestran todos los tipos.";
+    : "Se muestran todos los tipos.";
   return `<div class="kind-filters" role="group" aria-label="Filtrar timeline">
+    <button type="button" class="kind-chip${filtering ? "" : " is-on"}" data-kind-filter-all aria-pressed="${filtering ? "false" : "true"}" ${tipAttrs(allHint)}>Todas</button>
     ${EVENT_KINDS.map(([id, label]) => {
       const on = timelineKindsOn.has(id);
-      const hue = hashHue(id);
+      const hue = kindHue(id);
       const hint = `${kindHint(id)} ${
         on
           ? "Clic para quitar este filtro."
@@ -364,10 +492,33 @@ function renderKindFilters(events) {
             ? "Clic para sumar este tipo al filtro."
             : "Clic para ver solo este tipo."
       } (${counts[id] || 0} en este run).`;
-      return `<button type="button" class="kind-chip${on ? " is-on" : ""}" data-kind-filter="${id}" style="--pill-h:${hue}" aria-pressed="${on ? "true" : "false"}" ${tipAttrs(hint)}>${escapeHtml(label)} <span class="kind-count">${counts[id] || 0}</span></button>`;
+      return `<button type="button" class="kind-chip${on ? " is-on" : ""}" data-kind-filter="${id}" style="--kind-h:${hue}" aria-pressed="${on ? "true" : "false"}" ${tipAttrs(hint)}>${kindIconSvg(id)} ${escapeHtml(label)}</button>`;
     }).join("")}
-    <button type="button" class="kind-clear" data-kind-filter-clear ${filtering ? "" : "disabled "} ${tipAttrs(clearHint)}>Desmarcar todas</button>
   </div>`;
+}
+
+function renderTimelineEvent(event) {
+  const st = statusClass(event.status);
+  const hue = kindHue(event.kind || "step");
+  const what = event.label || event.step || "paso";
+  const kicker = eventKicker(event);
+  const meta = event.costUsd != null ? usdLabel(event.costUsd) : "";
+  const iconTip = `${kindHint(event.kind)} ${statusHint(event.status)} ${what}.`;
+  const excerpt = event.detail
+    ? `<p class="timeline-excerpt">${escapeHtml(event.detail)}</p>`
+    : "";
+  return `<li class="timeline-item ${st}" style="--kind-h:${hue}">
+    <time class="timeline-time"${event.at ? ` datetime="${escapeHtml(event.at)}"` : ""}>${escapeHtml(formatTime(event.at))}</time>
+    <span class="timeline-rail" tabindex="0" ${tipAttrs(iconTip)}>
+      <span class="timeline-icon" aria-hidden="true">${kindIconSvg(event.kind)}</span>
+    </span>
+    <article class="timeline-card">
+      <p class="timeline-kicker">${escapeHtml(kicker)}</p>
+      <h5 class="timeline-label">${escapeHtml(what)}</h5>
+      ${meta ? `<p class="timeline-meta">${escapeHtml(meta)}</p>` : ""}
+      ${excerpt}
+    </article>
+  </li>`;
 }
 
 function renderTimeline(events) {
@@ -379,35 +530,31 @@ function renderTimeline(events) {
   if (filtered.length === 0) {
     return `<p class="muted">Ningún evento con esos filtros.</p>`;
   }
-  const rows = filtered
-    .map((e) => {
-      const st = statusClass(e.status);
-      const hue = hashHue(e.kind || "step");
-      const what = e.label || e.step || "paso";
-      const dotTip = `${statusHint(e.status)} Color del punto = este estado. ${what}.`;
-      return `<li class="timeline-item ${st}">
-        <span class="timeline-rail" tabindex="0" ${tipAttrs(dotTip)}><span class="timeline-dot" aria-hidden="true"></span></span>
-        <span class="timeline-time">${escapeHtml(formatTime(e.at))}</span>
-        <span class="timeline-kind"><span class="kind-chip is-on" tabindex="0" style="--pill-h:${hue}" ${tipAttrs(kindHint(e.kind))}>${escapeHtml(kindLabel(e.kind))}</span></span>
-        <span class="timeline-label">${escapeHtml(what)}</span>
-        <span class="timeline-step">${escapeHtml(e.step || "")}</span>
-        <span class="timeline-status-cell"><span class="kind-chip is-on" tabindex="0" style="--pill-h:${hashHue(e.status || "pending")}" ${tipAttrs(statusHint(e.status))}>${escapeHtml(e.status || "?")}</span></span>
-        <span class="timeline-detail">${e.detail ? escapeHtml(e.detail) : ""}</span>
+  const groups = groupEventsByDay(filtered);
+  let lastMonth = null;
+  const blocks = groups
+    .map((group) => {
+      const month = monthKey(group.at);
+      const monthHtml =
+        month && month !== lastMonth
+          ? `<li class="timeline-month">${escapeHtml(formatMonthHeading(group.at))}</li>`
+          : !month && lastMonth !== "sin-fecha"
+            ? `<li class="timeline-month">Sin fecha</li>`
+            : "";
+      lastMonth = month || "sin-fecha";
+      const heading = formatDayHeading(group.at, group.events.length);
+      return `${monthHtml}
+      <li class="timeline-day">
+        <h4 class="timeline-day-title">${escapeHtml(heading.title)} <span class="timeline-day-meta">· ${escapeHtml(heading.meta)}</span></h4>
+        <ol class="timeline-day-events">
+          ${group.events.map(renderTimelineEvent).join("")}
+        </ol>
       </li>`;
     })
     .join("");
   return `<div class="timeline-scroll">
     <ol class="timeline" id="unified-timeline">
-      <li class="timeline-head">
-        <span class="timeline-rail" aria-hidden="true"></span>
-        <span>Hora</span>
-        <span>Tipo</span>
-        <span>Qué</span>
-        <span>Paso</span>
-        <span>Estado</span>
-        <span>Detalle</span>
-      </li>
-      ${rows}
+      ${blocks}
     </ol>
   </div>`;
 }
@@ -580,6 +727,8 @@ function renderDetail(id, payload) {
         <div class="stat"><span class="label">Tokens</span><span class="value">${escapeHtml(tokensLabel(values.total ?? null))}</span></div>
         <div class="stat"><span class="label">Subtotal padre</span><span class="value">${escapeHtml(costLabel(cost.totalUsd, cost.subtotalUsd))}</span></div>
         <div class="stat"><span class="label">Tiempo</span><span class="value">${timeLabel}</span></div>
+        <div class="stat"><span class="label">Esfuerzo</span><span class="value">${escapeHtml(effortLabel(run))}</span></div>
+        <div class="stat"><span class="label">Contexto</span><span class="value">${escapeHtml(contextLabel(run))}</span></div>
       </div>
     </section>
 
@@ -778,8 +927,8 @@ detailEl.addEventListener("click", (ev) => {
     return;
   }
 
-  const clearBtn = ev.target.closest("[data-kind-filter-clear]");
-  if (clearBtn && detailEl.contains(clearBtn)) {
+  const allBtn = ev.target.closest("[data-kind-filter-all]");
+  if (allBtn && detailEl.contains(allBtn)) {
     timelineKindsOn.clear();
     refreshTimelineFilters();
     return;

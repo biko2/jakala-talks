@@ -3,6 +3,15 @@ import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
 import { homedir } from "node:os";
 import { join } from "node:path";
 import { estimateCostUsd, roundUsd } from "./cost.mjs";
+import {
+  emptySessionSettings,
+  extractComposerSettings,
+  extractHookSettings,
+  hasSessionSettings,
+  mergeSessionSettings,
+  readComposerData,
+  summarizeContextUsage,
+} from "./session-settings.mjs";
 
 const EMPTY = {
   input: null,
@@ -79,11 +88,13 @@ export function readHookTurns(home, sessionId) {
       if (!row || typeof row !== "object") continue;
       if (row.conversationId !== sessionId) continue;
       if (typeof row.generationId !== "string" || typeof row.recordedAt !== "string") continue;
+      const settings = extractHookSettings(row.settings ?? {});
       turns.push({
         generationId: row.generationId,
         recordedAt: row.recordedAt,
         model: typeof row.model === "string" ? row.model : null,
         values: safeHookValues(row.values),
+        ...(hasSessionSettings(settings) ? { settings } : {}),
       });
     } catch {
       /* corrupt observation is not zero usage */
@@ -265,11 +276,40 @@ export function enrichRunWithHook(run, usageHome, transcriptsDir) {
     transcriptIds: listTranscriptIds(transcriptsDir),
   });
   if (!sessionId) return run;
-  const result = applyHookUsage(run, readHookTurns(usageHome, sessionId));
-  if (!result.applied) return run;
-  const traces = result.run.traces && typeof result.run.traces === "object" ? result.run.traces : {};
-  return {
-    ...result.run,
-    traces: { ...traces, sessionId },
+  const turns = readHookTurns(usageHome, sessionId);
+  const hooked = applyHookUsage(run, turns);
+  const base = hooked.applied ? hooked.run : { ...run };
+  const traces = base.traces && typeof base.traces === "object" ? { ...base.traces } : {};
+  traces.sessionId = sessionId;
+
+  const hookSettings = turns.reduce(
+    (acc, turn) => (turn.settings ? mergeSessionSettings(turn.settings, acc) : acc),
+    emptySessionSettings()
+  );
+  const prior =
+    traces.settings && typeof traces.settings === "object"
+      ? extractHookSettings(traces.settings)
+      : run.traceMetadata && typeof run.traceMetadata === "object"
+        ? extractHookSettings(run.traceMetadata.sessionSettings ?? run.traceMetadata)
+        : emptySessionSettings();
+  const composer = extractComposerSettings(readComposerData(usageHome, sessionId));
+  const settings = mergeSessionSettings(composer, mergeSessionSettings(hookSettings, prior));
+  if (hasSessionSettings(settings)) traces.settings = settings;
+
+  const contextUsage = summarizeContextUsage(turns);
+  const priorContext =
+    traces.contextUsage && typeof traces.contextUsage === "object"
+      ? traces.contextUsage
+      : run.traceMetadata && typeof run.traceMetadata === "object"
+        ? run.traceMetadata.contextUsage
+        : null;
+  const mergedContext = {
+    peakInputTokens: contextUsage.peakInputTokens ?? priorContext?.peakInputTokens ?? null,
+    lastInputTokens: contextUsage.lastInputTokens ?? priorContext?.lastInputTokens ?? null,
   };
+  if (mergedContext.peakInputTokens !== null || mergedContext.lastInputTokens !== null) {
+    traces.contextUsage = mergedContext;
+  }
+
+  return { ...base, traces };
 }

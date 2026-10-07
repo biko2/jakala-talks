@@ -356,6 +356,30 @@ describe("mergeUnifiedTimeline", () => {
     assert.deepEqual(times, sorted);
   });
 
+  it("puts effort and context size on the trace event", () => {
+    const events = mergeUnifiedTimeline({
+      recordedAt: "2026-10-07T07:00:00.000Z",
+      traces: {
+        sessionId: "abc",
+        settings: {
+          effort: "medium",
+          maxMode: false,
+          fast: false,
+          contextTokensUsed: 116745,
+          contextTokenLimit: 256000,
+          contextUsagePercent: 45.6,
+        },
+        contextUsage: { peakInputTokens: 692221, lastInputTokens: 667687 },
+      },
+    });
+    const trace = events.find((e) => e.kind === "trace");
+    assert.equal(trace.label, "sesión abc");
+    assert.equal(
+      trace.detail,
+      "effort medium · contexto 117k/256k 46% · pico input 692k · último 668k"
+    );
+  });
+
   it("filters by kind", () => {
     const events = mergeUnifiedTimeline({
       timeline: [{ at: "2026-10-02T12:00:00.000Z", step: "grill", status: "done", label: "Grill" }],
