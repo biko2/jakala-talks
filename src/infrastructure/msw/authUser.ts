@@ -21,7 +21,7 @@ export const MSW_AUTH_USER = {
   is_anonymous: false
 }
 
-export function createMockAccessToken(): string {
+export function createMswAccessToken(): string {
   const header = base64Url({ alg: 'none', typ: 'JWT' })
   const payload = base64Url({
     sub: MSW_AUTH_USER.id,
@@ -45,8 +45,8 @@ function base64Url(value: object): string {
   return btoa(binary).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/g, '')
 }
 
-export function createMockSession() {
-  const access_token = createMockAccessToken()
+export function createMswSession() {
+  const access_token = createMswAccessToken()
   return {
     access_token,
     refresh_token: 'msw-refresh-token',

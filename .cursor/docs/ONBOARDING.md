@@ -13,7 +13,7 @@ App Next.js 15 (App Router) + Supabase + arquitectura hexagonal para proponer y 
 
 ## Arranque rápido (cero fricción)
 
-`yarn dev` arranca MSW por defecto: usuario de fixture, charlas de ejemplo y votos en memoria. Sin proyecto Supabase. `yarn dev:mock` es el mismo comando.
+`yarn dev` arranca MSW por defecto: sesión fija (`Usuario Mock`), charlas y votos del snapshot en memoria. Sin proyecto Supabase. `yarn dev:mock` es el mismo comando.
 
 ```bash
 yarn install

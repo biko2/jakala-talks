@@ -27,7 +27,7 @@ flowchart LR
 | **Permisos** | No secretos. No URL/keys de **prod** en `.env.local`. Migraciones solo si el schema está pedido. No crear `middleware.ts` |
 | **Review adversarial** | Tras feature/PR local → skill `code-review` |
 
-Local sin contaminar prod: UI = `yarn dev` (MSW intercepta Supabase). Backend real = `NEXT_PUBLIC_USE_SUPABASE=true` + Supabase local o proyecto de **dev**, nunca prod en `.env.local`.
+Local sin contaminar prod: UI = `yarn dev` (MSW). Backend real = flag + proyecto **dev**, nunca prod en `.env.local`. Flag y keys → `.cursor/docs/VARIABLES_ENTORNO.md`.
 
 Profundidad (scripts, MSW, fuera de alcance) → `.cursor/docs/HARNESS.md`.
 
@@ -51,7 +51,7 @@ Alias: `@/*` → raíz del repo.
 
 **Composition.** UI y `app/` piden repos a `*Factory` en `lib/repositories/`. No instanciar adaptadores a mano fuera de factory o test.
 
-**Dos impls de puerto, MSW en el cable.** Factories de runtime siempre `TalkRepository` / `Supabase*` (HTTP). En `yarn dev` MSW intercepta salvo `NEXT_PUBLIC_USE_SUPABASE=true`. `InMemory*` = tests. Integración: caso de uso + InMemory. `yarn dev:mock` = alias de `yarn dev`.
+**Dos impls de puerto, MSW en el cable.** Factories de runtime siempre `TalkRepository` / `Supabase*` (HTTP). `InMemory*` = tests. Integración: caso de uso + InMemory. Cuándo arranca el worker y el flag → `.cursor/docs/HARNESS.md`.
 
 **Auth.** Supabase OAuth directo, no NextAuth. `NEXTAUTH_URL` es solo URL de la app (nombre legado). Callback: `app/auth/callback`. Edge session: `proxy.ts` (Next 16). No crear `middleware.ts`.
 
@@ -86,4 +86,4 @@ yarn lint:arch     # dependency-cruiser (hexágono)
 yarn test          # Jest + Testing Library
 ```
 
-`yarn dev` usa MSW salvo `NEXT_PUBLIC_USE_SUPABASE=true`. Backend real: `.env.local` (copia de `.env.example`) apuntando a **dev**, nunca a prod. Pre-push Husky: `yarn lint` + `yarn lint:arch` + `yarn test` + `yarn build`. CI: mismos gates + `typecheck`.
+Backend real: `.env.local` (copia de `.env.example`) apuntando a **dev**, nunca a prod. Pre-push Husky: `yarn lint` + `yarn lint:arch` + `yarn test` + `yarn build`. CI: mismos gates + `typecheck`.

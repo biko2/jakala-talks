@@ -1,6 +1,6 @@
 import { http, HttpResponse } from 'msw'
 import { getStore } from './store'
-import { createMockSession, MSW_AUTH_USER } from './authUser'
+import { createMswSession, MSW_AUTH_USER } from './authUser'
 
 type JsonRow = Record<string, unknown>
 
@@ -164,6 +164,6 @@ export const handlers = [
   }),
 
   http.post('*/auth/v1/token', () => {
-    return HttpResponse.json(createMockSession(), { headers: jsonHeaders() })
+    return HttpResponse.json(createMswSession(), { headers: jsonHeaders() })
   })
 ]

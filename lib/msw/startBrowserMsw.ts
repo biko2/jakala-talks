@@ -4,12 +4,20 @@ import { setupWorker } from './setupWorker'
 
 const worker = setupWorker(...handlers)
 
+let startPromise: Promise<void> | null = null
+
 export async function startBrowserMsw(): Promise<void> {
-  resetStore()
-  await worker.start({
-    onUnhandledRequest: 'bypass',
-    serviceWorker: {
-      url: '/mockServiceWorker.js'
-    }
-  })
+  if (!startPromise) {
+    startPromise = (async () => {
+      resetStore()
+      await worker.start({
+        onUnhandledRequest: 'bypass',
+        serviceWorker: {
+          url: '/mockServiceWorker.js'
+        }
+      })
+    })()
+  }
+
+  return startPromise
 }

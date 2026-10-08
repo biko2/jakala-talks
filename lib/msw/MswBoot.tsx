@@ -2,7 +2,8 @@
 
 import { ReactNode, useEffect, useState } from 'react'
 import { createBrowserClient } from '@/lib/supabase/client'
-import { createMockSession } from '@/src/infrastructure/msw/authUser'
+import { createMswSession } from '@/src/infrastructure/msw/authUser'
+import { LoadingScreen } from './MswBoot.styles'
 
 type MswBootProps = {
   children: ReactNode
@@ -19,7 +20,7 @@ export default function MswBoot({ children }: MswBootProps) {
       await startBrowserMsw()
 
       const supabase = createBrowserClient()
-      const session = createMockSession()
+      const session = createMswSession()
       await supabase.auth.setSession({
         access_token: session.access_token,
         refresh_token: session.refresh_token
@@ -38,17 +39,7 @@ export default function MswBoot({ children }: MswBootProps) {
   }, [])
 
   if (!ready) {
-    return (
-      <div style={{
-        minHeight: '100vh',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        backgroundColor: '#f9fafb'
-      }}>
-        Cargando...
-      </div>
-    )
+    return <LoadingScreen>Cargando...</LoadingScreen>
   }
 
   return children
