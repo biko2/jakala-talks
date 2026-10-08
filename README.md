@@ -137,36 +137,13 @@ bun install
 
 ### 2. Ejecutar en modo desarrollo
 
-#### Opción A: Desarrollo normal (requiere configuración de Supabase)
+Por defecto MSW intercepta Supabase (usuario y charlas de fixture, sin backend). `yarn dev:mock` es alias de `yarn dev`.
 
 ```bash
-npm run dev
-# o
 yarn dev
-# o
-pnpm dev
-# o
-bun dev
 ```
 
-#### Opción B: Desarrollo con modo mock (sin autenticación)
-
-```bash
-npm run dev:mock
-# o
-yarn dev:mock
-# o
-pnpm dev:mock
-# o
-bun dev:mock
-```
-
-El modo mock incluye:
-
-- Usuario ficticio preconfigurado
-- Charlas de ejemplo precargadas
-- Votaciones simuladas localmente
-- No requiere configuración de Supabase
+Para hablar con un proyecto Supabase real, pon `NEXT_PUBLIC_USE_SUPABASE=true` en `.env.local` y rellena las URLs/keys de **desarrollo**.
 
 La aplicación estará disponible en [http://localhost:3000](http://localhost:3000).
 
@@ -222,8 +199,8 @@ app/                    # App Router de Next.js
 
 ## Scripts Disponibles
 
-- `npm run dev` - Ejecuta el servidor de desarrollo con Turbopack (requiere Supabase)
-- `npm run dev:mock` - Ejecuta el servidor de desarrollo con modo mock habilitado
+- `yarn dev` - Servidor de desarrollo (MSW por defecto)
+- `yarn dev:mock` - Alias de `yarn dev`
 - `npm run build` - Compila la aplicación para producción
 - `npm start` - Ejecuta la aplicación compilada
 - `npm test` - Ejecuta todos los tests
@@ -231,27 +208,9 @@ app/                    # App Router de Next.js
 
 ## Modos de Entorno
 
-La aplicación soporta diferentes modos de funcionamiento:
-
-### 🎭 Modo Mock (Recomendado para desarrollo)
-
-- Usuario ficticio preconfigurado
-- Charlas de ejemplo precargadas
-- No requiere configuración de Supabase
-- Ideal para desarrollo y testing
-
-### 🏠 Modo Local con Supabase
-
-- Autenticación real con Supabase
-- Base de datos real
-- Requiere configuración de variables de entorno
-
-### 🚀 Modo Producción
-
-- Configuración optimizada para producción
-- Variables de entorno de producción
-
-Para más detalles, consulta [Modos de Entorno](docs/ENVIRONMENT_MODES.md).
+- **Development (MSW)**: `yarn dev`. Worker intercepta HTTP de Supabase. Sin credenciales.
+- **Development (Supabase real)**: `NEXT_PUBLIC_USE_SUPABASE=true` y keys de un proyecto de **dev**.
+- **Producción**: worker off. Variables `NEXT_PUBLIC_*` y sin prefijo (ver `.cursor/docs/VARIABLES_ENTORNO.md`).
 
 ## Contribuir
 

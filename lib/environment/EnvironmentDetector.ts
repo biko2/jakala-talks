@@ -7,20 +7,16 @@ export class EnvironmentDetector {
     return process.env.NODE_ENV === 'production'
   }
 
-  static isMockMode(): boolean {
-    return this.isDevelopment() && process.env.NEXT_PUBLIC_USE_MOCK_USER === 'true'
-  }
-
   static isMswEnabled(): boolean {
     return this.isDevelopment() && process.env.NEXT_PUBLIC_USE_SUPABASE !== 'true'
   }
 
   static isLocalWithSupabase(): boolean {
-    return this.isDevelopment() && !this.isMockMode()
+    return this.isDevelopment() && !this.isMswEnabled()
   }
 
-  static getEnvironmentType(): 'mock' | 'local-supabase' | 'production' {
-    if (this.isMockMode()) return 'mock'
+  static getEnvironmentType(): 'msw' | 'local-supabase' | 'production' {
+    if (this.isMswEnabled()) return 'msw'
     if (this.isLocalWithSupabase()) return 'local-supabase'
     return 'production'
   }

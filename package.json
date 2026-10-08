@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev --turbopack",
-    "dev:mock": "./scripts/dev-with-mock.sh",
+    "dev:mock": "next dev --turbopack",
     "build": "next build --turbopack",
     "start": "next start",
     "lint": "eslint .",
