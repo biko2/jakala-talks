@@ -11,6 +11,10 @@ export class EnvironmentDetector {
     return this.isDevelopment() && process.env.NEXT_PUBLIC_USE_MOCK_USER === 'true'
   }
 
+  static isMswEnabled(): boolean {
+    return this.isDevelopment() && process.env.NEXT_PUBLIC_USE_SUPABASE !== 'true'
+  }
+
   static isLocalWithSupabase(): boolean {
     return this.isDevelopment() && !this.isMockMode()
   }

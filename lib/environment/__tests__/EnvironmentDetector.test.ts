@@ -75,6 +75,26 @@ describe('EnvironmentDetector', () => {
     })
   })
 
+  describe('isMswEnabled', () => {
+    it('debería estar activo en development salvo que USE_SUPABASE sea true', () => {
+      (process.env as Record<string, string | undefined>).NODE_ENV = 'development'
+      delete process.env.NEXT_PUBLIC_USE_SUPABASE
+      expect(EnvironmentDetector.isMswEnabled()).toBe(true)
+    })
+
+    it('debería desactivarse en development cuando NEXT_PUBLIC_USE_SUPABASE es true', () => {
+      (process.env as Record<string, string | undefined>).NODE_ENV = 'development'
+      process.env.NEXT_PUBLIC_USE_SUPABASE = 'true'
+      expect(EnvironmentDetector.isMswEnabled()).toBe(false)
+    })
+
+    it('debería estar desactivado en production aunque USE_SUPABASE no sea true', () => {
+      (process.env as Record<string, string | undefined>).NODE_ENV = 'production'
+      delete process.env.NEXT_PUBLIC_USE_SUPABASE
+      expect(EnvironmentDetector.isMswEnabled()).toBe(false)
+    })
+  })
+
   describe('getEnvironmentType', () => {
     it('debería retornar mock cuando está en modo mock', () => {
       (process.env as Record<string, string | undefined>).NODE_ENV = 'development'

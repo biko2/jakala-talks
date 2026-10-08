@@ -11,7 +11,6 @@ import { GetAllTalks } from '@/src/application/services/GetAllTalks'
 import { VoteTalk } from '@/src/application/services/VoteTalk'
 import { CreateTalk } from '@/src/application/services/CreateTalk'
 import { GetUserVotes } from '@/src/application/services/GetUserVotes'
-import { MOCK_USER, isMockMode } from '@/lib/mock/user'
 import { TalkRepositoryFactory } from '@/lib/repositories/TalkRepositoryFactory'
 import { VotingConfigRepositoryFactory } from '@/lib/repositories/VotingConfigRepositoryFactory'
 import { VotingRules, VotingStatus } from '@/src/domain/valueObjects/VotingRules'
@@ -57,11 +56,6 @@ export default function Home() {
 
   useEffect(() => {
     const getUser = async () => {
-      if (isMockMode()) {
-        setUser(MOCK_USER)
-        return
-      }
-
       const { data: { user } } = await supabase.auth.getUser()
       setUser(user)
     }
@@ -93,15 +87,13 @@ export default function Home() {
     checkCanCreateTalks()
     checkVotingStatus()
 
-    if (!isMockMode()) {
-      const { data: { subscription } } = supabase.auth.onAuthStateChange(
-        (event, session) => {
-          setUser(session?.user ?? null)
-        }
-      )
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      (_event, session) => {
+        setUser(session?.user ?? null)
+      }
+    )
 
-      return () => subscription.unsubscribe()
-    }
+    return () => subscription.unsubscribe()
   }, [supabase.auth, getAllTalks, votingRules, votingConfigRepository])
 
   useEffect(() => {

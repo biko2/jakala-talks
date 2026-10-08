@@ -1,13 +1,13 @@
 import { TalkRepositoryFactory } from '../TalkRepositoryFactory'
-import { EnvironmentDetector } from '../../environment/EnvironmentDetector'
+import { createBrowserClient } from '@/lib/supabase/client'
+import { TalkRepository } from '@/src/infrastructure/adapters/TalkRepository'
+import { InMemoryTalkRepository } from '@/src/infrastructure/adapters/InMemoryTalkRepository'
 
-// Mock de los módulos
-jest.mock('../../environment/EnvironmentDetector')
-jest.mock('@/src/infrastructure/adapters/TalkRepository')
-jest.mock('@/lib/mock/TalkRepository')
 jest.mock('@/lib/supabase/client')
+jest.mock('@/src/infrastructure/adapters/TalkRepository')
+jest.mock('@/src/infrastructure/adapters/InMemoryTalkRepository')
 
-const mockEnvironmentDetector = EnvironmentDetector as jest.Mocked<typeof EnvironmentDetector>
+const mockCreateBrowserClient = createBrowserClient as jest.MockedFunction<typeof createBrowserClient>
 
 describe('TalkRepositoryFactory', () => {
   beforeEach(() => {
@@ -15,45 +15,22 @@ describe('TalkRepositoryFactory', () => {
   })
 
   describe('create', () => {
-    it('debería crear MockTalkRepository cuando está en modo mock', () => {
-      mockEnvironmentDetector.getEnvironmentType.mockReturnValue('mock')
+    it('debería crear TalkRepository con el cliente de Supabase', () => {
+      const mockSupabaseClient = { from: jest.fn() }
+      mockCreateBrowserClient.mockReturnValue(mockSupabaseClient as unknown as ReturnType<typeof createBrowserClient>)
 
-      const repository = TalkRepositoryFactory.create()
+      TalkRepositoryFactory.create()
 
-      expect(repository).toBeDefined()
-    })
-
-    it('debería crear TalkRepository cuando está en modo local-supabase', () => {
-      mockEnvironmentDetector.getEnvironmentType.mockReturnValue('local-supabase')
-
-      const repository = TalkRepositoryFactory.create()
-
-      expect(repository).toBeDefined()
-    })
-
-    it('debería crear TalkRepository cuando está en producción', () => {
-      mockEnvironmentDetector.getEnvironmentType.mockReturnValue('production')
-
-      const repository = TalkRepositoryFactory.create()
-
-      expect(repository).toBeDefined()
-    })
-
-    it('debería lanzar error para entorno no soportado', () => {
-      mockEnvironmentDetector.getEnvironmentType.mockReturnValue(
-        'unknown' as ReturnType<typeof EnvironmentDetector.getEnvironmentType>
-      )
-
-      expect(() => TalkRepositoryFactory.create())
-        .toThrow('Entorno no soportado: unknown')
+      expect(mockCreateBrowserClient).toHaveBeenCalled()
+      expect(TalkRepository).toHaveBeenCalledWith(mockSupabaseClient)
     })
   })
 
   describe('createForTesting', () => {
-    it('debería crear MockTalkRepository para testing', () => {
-      const repository = TalkRepositoryFactory.createForTesting()
+    it('debería crear InMemoryTalkRepository para testing', () => {
+      TalkRepositoryFactory.createForTesting()
 
-      expect(repository).toBeDefined()
+      expect(InMemoryTalkRepository).toHaveBeenCalled()
     })
   })
 })
