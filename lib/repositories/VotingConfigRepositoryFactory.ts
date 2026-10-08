@@ -1,30 +1,11 @@
 import { VotingConfigRepository } from '@/src/domain/ports/VotingConfigRepository'
 import { SupabaseVotingConfigRepository } from '@/src/infrastructure/adapters/SupabaseVotingConfigRepository'
 import { InMemoryVotingConfigRepository } from '@/src/infrastructure/adapters/InMemoryVotingConfigRepository'
-import { EnvironmentDetector } from '@/lib/environment/EnvironmentDetector'
 import { createBrowserClient } from '@/lib/supabase/client'
 
 export class VotingConfigRepositoryFactory {
   static create(): VotingConfigRepository {
-    const environmentType = EnvironmentDetector.getEnvironmentType()
-
-    switch (environmentType) {
-      case 'mock':
-        return new InMemoryVotingConfigRepository({
-          votingStartDate: new Date('2026-09-04T00:00:00.000Z'),
-          maxVotesPerUser: 3,
-          proposingStartDate: new Date('2026-06-29T00:00:00.000Z'),
-          closingDate: new Date('2026-09-08T00:00:00.000Z')
-        })
-
-      case 'local-supabase':
-      case 'production':
-        const supabase = createBrowserClient()
-        return new SupabaseVotingConfigRepository(supabase)
-
-      default:
-        throw new Error(`Entorno no soportado: ${environmentType}`)
-    }
+    return new SupabaseVotingConfigRepository(createBrowserClient())
   }
 
   static createForTesting(config?: { votingStartDate: Date; maxVotesPerUser: number; proposingStartDate: Date; closingDate: Date | null }): VotingConfigRepository {
@@ -38,4 +19,3 @@ export class VotingConfigRepositoryFactory {
     )
   }
 }
-

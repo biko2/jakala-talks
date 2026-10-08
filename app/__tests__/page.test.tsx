@@ -45,11 +45,6 @@ jest.mock('@/lib/supabase/client', () => ({
   })
 }))
 
-jest.mock('@/lib/mock/user', () => ({
-  isMockMode: jest.fn(() => false),
-  MOCK_USER: null
-}))
-
 jest.mock('@/lib/repositories/TalkRepositoryFactory', () => ({
   TalkRepositoryFactory: {
     create: jest.fn(() => ({

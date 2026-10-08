@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev --turbopack",
-    "dev:mock": "./scripts/dev-with-mock.sh",
+    "dev:mock": "next dev --turbopack",
     "build": "next build --turbopack",
     "start": "next start",
     "lint": "eslint .",
@@ -50,7 +50,13 @@
     "jest": "^30.1.3",
     "jest-environment-jsdom": "^30.1.2",
     "lint-staged": "^16.4.0",
+    "msw": "2.7.6",
     "tailwindcss": "^4",
     "typescript": "^5"
+  },
+  "msw": {
+    "workerDirectory": [
+      "public"
+    ]
   }
 }
