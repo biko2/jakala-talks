@@ -13,20 +13,21 @@ App Next.js 15 (App Router) + Supabase + arquitectura hexagonal para proponer y 
 
 ## Arranque rápido (cero fricción)
 
-El modo mock no requiere Supabase ni credenciales: usuario ficticio, charlas de ejemplo y votación simulada.
+`yarn dev` no requiere Supabase ni credenciales: Mock Service Worker (MSW) sirve en el navegador las peticiones a Supabase con datos en memoria y usuario ficticio.
 
 ```bash
 yarn install
-yarn dev:mock   # http://localhost:3000
+yarn dev   # http://localhost:3000
 ```
 
-Internamente activa `NEXT_PUBLIC_USE_MOCK_USER=true`. Ideal para tocar UI sin backend.
+Los adaptadores Supabase reales se ejecutan contra el mock. Recargar la página vuelve a los datos semilla. Handlers y semilla: `lib/mock/msw/`.
 
-## Desarrollo local con Supabase real
+## Desarrollo local con Supabase real (no prioritario)
 
 1. Copia `.env.example` a `.env.local` y rellena las variables (ver [VARIABLES_ENTORNO.md](./VARIABLES_ENTORNO.md)).
-2. Usa URL y keys de un proyecto **de desarrollo** (o Supabase local). **No** pegues `NEXT_PUBLIC_SUPABASE_URL` / keys de **producción** en `.env.local` para pruebas: contaminas datos reales.
-3. `yarn dev`
+2. Pon `NEXT_PUBLIC_API_MOCKING=disabled`.
+3. Usa URL y keys de un proyecto **de desarrollo** (o Supabase local). **No** pegues `NEXT_PUBLIC_SUPABASE_URL` / keys de **producción** en `.env.local` para pruebas: contaminas datos reales.
+4. `yarn dev`
 
 ## Tests
 

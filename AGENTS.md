@@ -27,9 +27,9 @@ flowchart LR
 | **Permisos** | No secretos. No URL/keys de **prod** en `.env.local`. Migraciones solo si el schema está pedido. No crear `middleware.ts` |
 | **Review adversarial** | Tras feature/PR local → skill `code-review` |
 
-Local sin contaminar prod: UI = `yarn dev:mock`. Backend = Supabase local o proyecto de **dev**, nunca prod en `.env.local`.
+Local sin contaminar prod: `yarn dev` = MSW, sin Supabase. Si hace falta Supabase, proyecto de **dev**, nunca prod en `.env.local`.
 
-Profundidad (scripts, MSW aplazado, fuera de alcance) → `.cursor/docs/HARNESS.md`.
+Profundidad (scripts, MSW y sus límites, fuera de alcance) → `.cursor/docs/HARNESS.md`.
 
 ## Mapa
 
@@ -51,7 +51,7 @@ Alias: `@/*` → raíz del repo.
 
 **Composition.** UI y `app/` piden repos a `*Factory` en `lib/repositories/`. No instanciar adaptadores a mano fuera de factory o test.
 
-**Tres impls, tres sitios.** `TalkRepository` / `Supabase*` = runtime real. `Mock*` + `MOCK_USER` = `yarn dev:mock` (`NEXT_PUBLIC_USE_MOCK_USER=true`). `InMemory*` = tests. Integración: caso de uso + InMemory.
+**Dos impls + MSW.** `TalkRepository` / `Supabase*` = runtime, también en `yarn dev`, donde MSW (`lib/mock/msw/`) sirve el HTTP de Supabase y `MOCK_USER` es el usuario (mocking: development salvo `NEXT_PUBLIC_API_MOCKING=disabled`). `InMemory*` = tests de casos de uso. Integración: caso de uso + InMemory, o adapter real + `msw/node`. Query nueva en un adapter → handler nuevo.
 
 **Auth.** Supabase OAuth directo, no NextAuth. `NEXTAUTH_URL` es solo URL de la app (nombre legado). Callback: `app/auth/callback`. Edge session: `proxy.ts` (Next 16). No crear `middleware.ts`.
 
@@ -65,7 +65,7 @@ Alias: `@/*` → raíz del repo.
 
 ## Cuándo leer qué
 
-- Onboarding, `yarn dev` / `yarn dev:mock`, Google OAuth, Site URL, Redirect URLs, login roto en prod, deploy → `.cursor/docs/ONBOARDING.md`
+- Onboarding, `yarn dev`, Google OAuth, Site URL, Redirect URLs, login roto en prod, deploy → `.cursor/docs/ONBOARDING.md`
 - Qué significa cada variable de `.env.example` → `.cursor/docs/VARIABLES_ENTORNO.md`
 - Harness (gates, MSW, fuera de alcance) → `.cursor/docs/HARNESS.md`
 - Tracker de issues (spec/tickets, label `ready-for-agent`) → `docs/agents/issue-tracker.md`
@@ -80,11 +80,11 @@ Alias: `@/*` → raíz del repo.
 
 ```bash
 yarn install
-yarn dev:mock      # UI sin Supabase
+yarn dev           # MSW, sin Supabase ni .env.local
 yarn lint          # ESLint + jsx-a11y
 yarn typecheck     # tsc --noEmit
 yarn lint:arch     # dependency-cruiser (hexágono)
 yarn test          # Jest + Testing Library
 ```
 
-`yarn dev` pide `.env.local` (copia de `.env.example`) apuntando a **dev**, no a prod. Pre-push Husky: `yarn lint` + `yarn lint:arch` + `yarn test` + `yarn build`. CI: mismos gates + `typecheck`.
+Pre-push Husky: `yarn lint` + `yarn lint:arch` + `yarn test` + `yarn build`. CI: mismos gates + `typecheck`.

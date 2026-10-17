@@ -137,36 +137,17 @@ bun install
 
 ### 2. Ejecutar en modo desarrollo
 
-#### Opción A: Desarrollo normal (requiere configuración de Supabase)
-
 ```bash
-npm run dev
-# o
 yarn dev
-# o
-pnpm dev
-# o
-bun dev
 ```
 
-#### Opción B: Desarrollo con modo mock (sin autenticación)
-
-```bash
-npm run dev:mock
-# o
-yarn dev:mock
-# o
-pnpm dev:mock
-# o
-bun dev:mock
-```
-
-El modo mock incluye:
+En desarrollo, [Mock Service Worker](https://mswjs.io/) intercepta en el navegador las peticiones a Supabase. No necesitas `.env.local` ni Supabase:
 
 - Usuario ficticio preconfigurado
-- Charlas de ejemplo precargadas
-- Votaciones simuladas localmente
-- No requiere configuración de Supabase
+- Charlas de ejemplo en una base en memoria (se reinicia al recargar)
+- Los adaptadores Supabase reales se ejecutan contra el mock
+
+Para apuntar a un proyecto Supabase de desarrollo, pon `NEXT_PUBLIC_API_MOCKING=disabled` y las variables de Supabase en `.env.local`.
 
 La aplicación estará disponible en [http://localhost:3000](http://localhost:3000).
 
@@ -222,8 +203,7 @@ app/                    # App Router de Next.js
 
 ## Scripts Disponibles
 
-- `npm run dev` - Ejecuta el servidor de desarrollo con Turbopack (requiere Supabase)
-- `npm run dev:mock` - Ejecuta el servidor de desarrollo con modo mock habilitado
+- `yarn dev` - Servidor de desarrollo con Turbopack y Mock Service Worker
 - `npm run build` - Compila la aplicación para producción
 - `npm start` - Ejecuta la aplicación compilada
 - `npm test` - Ejecuta todos los tests
@@ -233,25 +213,23 @@ app/                    # App Router de Next.js
 
 La aplicación soporta diferentes modos de funcionamiento:
 
-### 🎭 Modo Mock (Recomendado para desarrollo)
+### 🎭 Desarrollo con Mock Service Worker (por defecto)
 
 - Usuario ficticio preconfigurado
-- Charlas de ejemplo precargadas
+- Peticiones a Supabase servidas por handlers MSW con datos en memoria
 - No requiere configuración de Supabase
-- Ideal para desarrollo y testing
 
-### 🏠 Modo Local con Supabase
+### 🏠 Desarrollo con Supabase
 
-- Autenticación real con Supabase
-- Base de datos real
-- Requiere configuración de variables de entorno
+- `NEXT_PUBLIC_API_MOCKING=disabled` en `.env.local`
+- Autenticación y base de datos de un proyecto Supabase de desarrollo
 
 ### 🚀 Modo Producción
 
 - Configuración optimizada para producción
 - Variables de entorno de producción
 
-Para más detalles, consulta [Modos de Entorno](docs/ENVIRONMENT_MODES.md).
+Para más detalles, consulta [Onboarding](.cursor/docs/ONBOARDING.md) y [Harness](.cursor/docs/HARNESS.md).
 
 ## Contribuir
 
