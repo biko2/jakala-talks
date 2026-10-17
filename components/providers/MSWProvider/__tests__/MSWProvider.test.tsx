@@ -50,5 +50,17 @@ describe('MSWProvider', () => {
 
       expect(screen.getByText('Contenido')).toBeInTheDocument()
     })
+
+    it('debería pintar los hijos y avisar por consola si el worker no arranca', async () => {
+      const consoleError = jest.spyOn(console, 'error').mockImplementation(() => {})
+      const failure = new Error('sin service worker')
+      mockStartWorker.mockRejectedValue(failure)
+
+      render(<MSWProvider><p>Contenido</p></MSWProvider>)
+
+      expect(await screen.findByText('Contenido')).toBeInTheDocument()
+      expect(consoleError).toHaveBeenCalledWith('No se pudo arrancar Mock Service Worker:', failure)
+      consoleError.mockRestore()
+    })
   })
 })

@@ -65,9 +65,13 @@ describe('Integración MSW - Crear charla', () => {
     expect(talks.map(talk => talk.id)).toEqual(['mock-talk-1', 'mock-talk-2', 'mock-talk-3'])
   })
 
-  it('debería volver a la semilla en el siguiente test', async () => {
-    const talks = await createUseCases().getAllTalks.execute()
+  it('debería descartar la charla creada al reiniciar la base del mock', async () => {
+    const { createTalk, getAllTalks } = createUseCases()
+    await createTalk.execute('Charla efímera', 'Descripción', 'Ana', 30)
 
-    expect(talks).toHaveLength(3)
+    resetDb()
+
+    const talks = await getAllTalks.execute()
+    expect(talks.map(talk => talk.id)).toEqual(['mock-talk-1', 'mock-talk-2', 'mock-talk-3'])
   })
 })

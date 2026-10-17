@@ -16,10 +16,6 @@ export class SupabaseVotingConfigRepository implements VotingConfigRepository {
       throw new Error(`Error al obtener configuración de votación: ${error.message}`)
     }
 
-    if (!data) {
-      throw new Error('No se encontró configuración de votación')
-    }
-
     return {
       votingStartDate: new Date(data.voting_start_date),
       maxVotesPerUser: data.max_votes_per_user,

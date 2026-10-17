@@ -17,6 +17,14 @@ function isTable(name: string): name is TableName {
   return Object.prototype.hasOwnProperty.call(db, name)
 }
 
+function resolveTable(params: Record<string, unknown>): TableName | Response {
+  const table = String(params.table)
+  if (!isTable(table)) {
+    return postgrestError(404, 'PGRST205', `Could not find the table 'public.${table}' in the schema cache`)
+  }
+  return table
+}
+
 export function applyFilters(rows: Row[], params: URLSearchParams): Row[] | Response {
   let result = rows
   for (const [column, expression] of params) {
@@ -99,10 +107,8 @@ function voteCounts() {
 
 export const handlers = [
   http.get(restUrl(':table'), ({ request, params }) => {
-    const table = String(params.table)
-    if (!isTable(table)) {
-      return postgrestError(404, 'PGRST205', `Could not find the table 'public.${table}' in the schema cache`)
-    }
+    const table = resolveTable(params)
+    if (table instanceof Response) return table
     const url = new URL(request.url)
     const filtered = applyFilters(db[table] as unknown as Row[], url.searchParams)
     if (filtered instanceof Response) return filtered
@@ -114,10 +120,8 @@ export const handlers = [
   http.post(restUrl('rpc/get_talk_vote_counts'), () => HttpResponse.json(voteCounts())),
 
   http.post(restUrl(':table'), async ({ request, params }) => {
-    const table = String(params.table)
-    if (!isTable(table)) {
-      return postgrestError(404, 'PGRST205', `Could not find the table 'public.${table}' in the schema cache`)
-    }
+    const table = resolveTable(params)
+    if (table instanceof Response) return table
     const body = (await request.json()) as Row | Row[]
     const rows = (Array.isArray(body) ? body : [body]).map(row => withColumnDefaults(table, row))
     const duplicate = table === 'user_votes' ? findDuplicateVote(rows) : undefined
@@ -134,10 +138,8 @@ export const handlers = [
   }),
 
   http.delete(restUrl(':table'), ({ request, params }) => {
-    const table = String(params.table)
-    if (!isTable(table)) {
-      return postgrestError(404, 'PGRST205', `Could not find the table 'public.${table}' in the schema cache`)
-    }
+    const table = resolveTable(params)
+    if (table instanceof Response) return table
     const rows = db[table] as unknown as Row[]
     const matched = applyFilters(rows, new URL(request.url).searchParams)
     if (matched instanceof Response) return matched
