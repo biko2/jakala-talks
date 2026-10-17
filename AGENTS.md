@@ -70,6 +70,7 @@ Alias: `@/*` → raíz del repo.
 - Harness (gates, MSW, fuera de alcance) → `.cursor/docs/HARNESS.md`
 - Tracker de issues (spec/tickets, label `ready-for-agent`) → `docs/agents/issue-tracker.md`
 - Lanzar `/deliver` y qué produce → `docs/agents/deliver.md`
+- Bitácora de tarea larga (`/bitacora` o `/deliver`: reanudar, handoff, sala) → `.agents/skills/bitacora/SKILL.md`
 - Hexágono, puertos, DI, nada de SDK en domain/application → `.cursor/rules/arquitectura/`
 - Estrategia de tests → `.cursor/rules/testing/`
 - Schema y RLS → `supabase/migrations/`
