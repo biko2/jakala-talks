@@ -1,116 +1,235 @@
+/**
+ * @jest-environment node
+ */
+import { createClient } from '@supabase/supabase-js'
+import { http } from 'msw'
 import { TalkRepository } from '../TalkRepository'
-import type { SupabaseClient } from '@supabase/supabase-js'
+import { Talk } from '../../../domain/entities/Talk'
+import { UserVote } from '../../../domain/entities/UserVote'
+import { server } from '@/lib/mock/msw/node'
+import { resetDb } from '@/lib/mock/msw/db'
+import { restUrl, postgrestError } from '@/lib/mock/msw/handlers'
+import { MOCK_SUPABASE_URL, MOCK_SUPABASE_ANON_KEY } from '@/lib/mock/msw/constants'
+import { MOCK_USER } from '@/lib/mock/user'
 
-describe('TalkRepository (Supabase)', () => {
-  const talkRow = {
-    id: 'talk-1',
-    title: 'Charla 1',
-    description: 'Descripción 1',
-    author: 'Autor 1',
-    duration: 30,
-    created_at: '2026-09-01T00:00:00Z',
-    updated_at: '2026-09-01T00:00:00Z'
-  }
+const createRepository = () =>
+  new TalkRepository(
+    createClient(MOCK_SUPABASE_URL, MOCK_SUPABASE_ANON_KEY, { auth: { persistSession: false } })
+  )
 
-  const talkRow2 = {
-    id: 'talk-2',
-    title: 'Charla 2',
-    description: 'Descripción 2',
-    author: 'Autor 2',
-    duration: 45,
-    created_at: '2026-09-02T00:00:00Z',
-    updated_at: '2026-09-02T00:00:00Z'
-  }
+const failVoteCounts = () =>
+  server.use(
+    http.post(restUrl('rpc/get_talk_vote_counts'), () =>
+      postgrestError(403, '42501', 'permission denied for function get_talk_vote_counts')
+    )
+  )
 
-  let talksQuery: {
-    select: jest.Mock
-    order: jest.Mock
-    eq: jest.Mock
-    single: jest.Mock
-  }
-  let mockSupabase: { from: jest.Mock; rpc: jest.Mock }
-  let repository: TalkRepository
+describe('TalkRepository (contrato HTTP con MSW)', () => {
+  beforeAll(() => server.listen({ onUnhandledRequest: 'error' }))
+  afterEach(() => {
+    server.resetHandlers()
+    resetDb()
+  })
+  afterAll(() => server.close())
 
-  beforeEach(() => {
-    talksQuery = {
-      select: jest.fn().mockReturnThis(),
-      order: jest.fn(),
-      eq: jest.fn().mockReturnThis(),
-      single: jest.fn()
-    }
+  describe('findAll', () => {
+    it('debería devolver las charlas de la más reciente a la más antigua con su recuento de votos', async () => {
+      const talks = await createRepository().findAll()
 
-    mockSupabase = {
-      from: jest.fn().mockReturnValue(talksQuery),
-      rpc: jest.fn()
-    }
+      expect(talks).toEqual([
+        new Talk(
+          'mock-talk-1',
+          'Introducción a la Arquitectura Hexagonal',
+          'Una charla sobre cómo implementar arquitectura hexagonal en proyectos reales',
+          'Usuario Mock',
+          30,
+          12
+        ),
+        new Talk(
+          'mock-talk-2',
+          'Testing en React: Mejores Prácticas',
+          'Exploramos las mejores prácticas para escribir tests efectivos en React',
+          'Usuario Mock',
+          45,
+          5
+        ),
+        new Talk(
+          'mock-talk-3',
+          'TypeScript Avanzado',
+          'Técnicas avanzadas de TypeScript para proyectos enterprise',
+          'Usuario Mock',
+          60,
+          25
+        ),
+      ])
+    })
 
-    repository = new TalkRepository(mockSupabase as unknown as SupabaseClient)
+    it('debería usar 0 votos para una charla que no aparece en el recuento', async () => {
+      const repository = createRepository()
+      await repository.create(new Talk('talk-sin-votos', 'Charla nueva', 'Descripción nueva', 'Ana', 20))
+
+      const talks = await repository.findAll()
+
+      expect(talks.find(talk => talk.id === 'talk-sin-votos')?.votes).toBe(0)
+    })
+
+    it('debería lanzar error de negocio si falla la consulta de charlas', async () => {
+      server.use(
+        http.get(restUrl('talks'), () => postgrestError(500, 'XX000', 'fallo interno de la base de datos'))
+      )
+
+      await expect(createRepository().findAll()).rejects.toThrow(
+        'Error al obtener las talks: fallo interno de la base de datos'
+      )
+    })
+
+    it('debería lanzar error de negocio si falla el RPC de recuento de votos', async () => {
+      failVoteCounts()
+
+      await expect(createRepository().findAll()).rejects.toThrow(
+        'Error al obtener votos: permission denied for function get_talk_vote_counts'
+      )
+    })
   })
 
-  it('debería obtener el recuento global de votos vía get_talk_vote_counts', async () => {
-    talksQuery.order.mockResolvedValue({
-      data: [talkRow, talkRow2],
-      error: null
-    })
-    mockSupabase.rpc.mockResolvedValue({
-      data: [
-        { talk_id: 'talk-1', votes: 3 },
-        { talk_id: 'talk-2', votes: 1 }
-      ],
-      error: null
+  describe('findById', () => {
+    it('debería devolver la charla con su recuento de votos', async () => {
+      expect(await createRepository().findById('mock-talk-2')).toEqual(
+        new Talk(
+          'mock-talk-2',
+          'Testing en React: Mejores Prácticas',
+          'Exploramos las mejores prácticas para escribir tests efectivos en React',
+          'Usuario Mock',
+          45,
+          5
+        )
+      )
     })
 
-    const talks = await repository.findAll()
+    it('debería devolver null si la charla no existe (PGRST116)', async () => {
+      expect(await createRepository().findById('no-existe')).toBeNull()
+    })
 
-    expect(mockSupabase.rpc).toHaveBeenCalledWith('get_talk_vote_counts')
-    expect(mockSupabase.from).toHaveBeenCalledWith('talks')
-    expect(talks).toHaveLength(2)
-    expect(talks.find(t => t.id === 'talk-1')?.votes).toBe(3)
-    expect(talks.find(t => t.id === 'talk-2')?.votes).toBe(1)
+    it('debería lanzar error de negocio si PostgREST responde con otro error', async () => {
+      server.use(
+        http.get(restUrl('talks'), () => postgrestError(400, '22P02', 'invalid input syntax for type uuid: "abc"'))
+      )
+
+      await expect(createRepository().findById('abc')).rejects.toThrow(
+        'Error al obtener la talk: invalid input syntax for type uuid: "abc"'
+      )
+    })
+
+    it('debería lanzar error de negocio si falla el RPC de recuento de votos', async () => {
+      failVoteCounts()
+
+      await expect(createRepository().findById('mock-talk-2')).rejects.toThrow(
+        'Error al obtener votos: permission denied for function get_talk_vote_counts'
+      )
+    })
   })
 
-  it('debería usar 0 votos si la charla no aparece en el recuento', async () => {
-    talksQuery.order.mockResolvedValue({
-      data: [talkRow],
-      error: null
-    })
-    mockSupabase.rpc.mockResolvedValue({
-      data: [],
-      error: null
+  describe('create', () => {
+    it('debería persistir la charla con sus datos y sin votos', async () => {
+      const repository = createRepository()
+
+      await repository.create(new Talk('talk-nueva', 'Charla nueva', 'Descripción nueva', 'Ana', 20))
+
+      expect(await repository.findById('talk-nueva')).toEqual(
+        new Talk('talk-nueva', 'Charla nueva', 'Descripción nueva', 'Ana', 20, 0)
+      )
     })
 
-    const talks = await repository.findAll()
+    it('debería lanzar error de negocio si PostgREST rechaza la inserción', async () => {
+      server.use(
+        http.post(restUrl('talks'), () =>
+          postgrestError(403, '42501', 'new row violates row-level security policy for table "talks"')
+        )
+      )
 
-    expect(talks[0].votes).toBe(0)
+      await expect(
+        createRepository().create(new Talk('talk-nueva', 'Charla nueva', 'Descripción nueva', 'Ana', 20))
+      ).rejects.toThrow('Error al crear la talk: new row violates row-level security policy for table "talks"')
+    })
   })
 
-  it('debería mapear votos al buscar una charla por id', async () => {
-    talksQuery.single.mockResolvedValue({
-      data: talkRow,
-      error: null
-    })
-    mockSupabase.rpc.mockResolvedValue({
-      data: [{ talk_id: 'talk-1', votes: 5 }],
-      error: null
+  describe('addUserVote', () => {
+    it('debería registrar el voto del usuario y sumarlo al recuento', async () => {
+      const repository = createRepository()
+
+      await repository.addUserVote(new UserVote('usuario-nuevo', 'mock-talk-2'))
+
+      expect(await repository.getUserVotes('usuario-nuevo')).toEqual(['mock-talk-2'])
+      expect((await repository.findById('mock-talk-2'))?.votes).toBe(6)
     })
 
-    const talk = await repository.findById('talk-1')
-
-    expect(mockSupabase.rpc).toHaveBeenCalledWith('get_talk_vote_counts')
-    expect(talk?.votes).toBe(5)
+    it('debería lanzar error de negocio si el voto ya existe (23505)', async () => {
+      await expect(
+        createRepository().addUserVote(new UserVote(MOCK_USER.id, 'mock-talk-1'))
+      ).rejects.toThrow(
+        'Error al agregar voto de usuario: duplicate key value violates unique constraint "user_votes_user_id_talk_id_key"'
+      )
+    })
   })
 
-  it('debería lanzar error si falla get_talk_vote_counts', async () => {
-    talksQuery.order.mockResolvedValue({
-      data: [talkRow],
-      error: null
-    })
-    mockSupabase.rpc.mockResolvedValue({
-      data: null,
-      error: { message: 'permission denied' }
+  describe('removeUserVote', () => {
+    it('debería eliminar solo el voto de ese usuario en esa charla', async () => {
+      const repository = createRepository()
+
+      await repository.removeUserVote('seed-user-1', 'mock-talk-2')
+
+      expect(await repository.getUserVotes('seed-user-1')).toEqual(['mock-talk-1', 'mock-talk-3'])
+      expect((await repository.findById('mock-talk-2'))?.votes).toBe(4)
     })
 
-    await expect(repository.findAll())
-      .rejects.toThrow('Error al obtener votos: permission denied')
+    it('debería lanzar error de negocio si PostgREST responde con error', async () => {
+      server.use(
+        http.delete(restUrl('user_votes'), () => postgrestError(500, 'XX000', 'fallo interno de la base de datos'))
+      )
+
+      await expect(createRepository().removeUserVote(MOCK_USER.id, 'mock-talk-1')).rejects.toThrow(
+        'Error al eliminar voto de usuario: fallo interno de la base de datos'
+      )
+    })
+  })
+
+  describe('getUserVotes', () => {
+    it('debería devolver los ids de las charlas votadas por el usuario', async () => {
+      expect(await createRepository().getUserVotes(MOCK_USER.id)).toEqual(['mock-talk-1'])
+    })
+
+    it('debería devolver lista vacía si el usuario no ha votado', async () => {
+      expect(await createRepository().getUserVotes('usuario-sin-votos')).toEqual([])
+    })
+
+    it('debería lanzar error de negocio si PostgREST responde con error', async () => {
+      server.use(
+        http.get(restUrl('user_votes'), () => postgrestError(500, 'XX000', 'fallo interno de la base de datos'))
+      )
+
+      await expect(createRepository().getUserVotes(MOCK_USER.id)).rejects.toThrow(
+        'Error al obtener votos del usuario: fallo interno de la base de datos'
+      )
+    })
+  })
+
+  describe('hasUserVotedForTalk', () => {
+    it('debería devolver true si el usuario votó la charla', async () => {
+      expect(await createRepository().hasUserVotedForTalk(MOCK_USER.id, 'mock-talk-1')).toBe(true)
+    })
+
+    it('debería devolver false si el usuario no votó la charla (PGRST116)', async () => {
+      expect(await createRepository().hasUserVotedForTalk(MOCK_USER.id, 'mock-talk-2')).toBe(false)
+    })
+
+    it('debería lanzar error de negocio si PostgREST responde con otro error', async () => {
+      server.use(
+        http.get(restUrl('user_votes'), () => postgrestError(500, 'XX000', 'fallo interno de la base de datos'))
+      )
+
+      await expect(createRepository().hasUserVotedForTalk(MOCK_USER.id, 'mock-talk-1')).rejects.toThrow(
+        'Error al verificar voto del usuario: fallo interno de la base de datos'
+      )
+    })
   })
 })

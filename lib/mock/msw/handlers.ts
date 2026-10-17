@@ -67,7 +67,7 @@ export function respondRows(request: Request, rows: Row[], status = 200) {
     return postgrestError(
       406,
       'PGRST116',
-      'JSON object requested, multiple (or no) rows returned',
+      'Cannot coerce the result to a single JSON object',
       `The result contains ${rows.length} rows`
     )
   }
