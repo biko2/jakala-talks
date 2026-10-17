@@ -5,6 +5,8 @@ import { createClient } from '@supabase/supabase-js'
 import { TalkRepository } from '@/src/infrastructure/adapters/TalkRepository'
 import { SupabaseVotingConfigRepository } from '@/src/infrastructure/adapters/SupabaseVotingConfigRepository'
 import { VotingRules } from '@/src/domain/valueObjects/VotingRules'
+import { UserVote } from '@/src/domain/entities/UserVote'
+import { MOCK_USER } from '@/lib/mock/user'
 import { server } from '../node'
 import { db, resetDb } from '../db'
 import { MOCK_SUPABASE_URL, MOCK_SUPABASE_ANON_KEY } from '../constants'
@@ -82,6 +84,28 @@ describe('Handlers MSW de lectura', () => {
       const rules = new VotingRules(new SupabaseVotingConfigRepository(createSupabase()))
 
       expect(await rules.getVotingStatus()).toBe('voting')
+    })
+  })
+
+  describe('escritura de votos', () => {
+    it('debería saber si el usuario ha votado una charla tras votarla y desvotarla', async () => {
+      const repository = new TalkRepository(createSupabase())
+
+      expect(await repository.hasUserVotedForTalk('usuario-nuevo', 'mock-talk-2')).toBe(false)
+      await repository.addUserVote(new UserVote('usuario-nuevo', 'mock-talk-2'))
+      expect(await repository.hasUserVotedForTalk('usuario-nuevo', 'mock-talk-2')).toBe(true)
+      await repository.removeUserVote('usuario-nuevo', 'mock-talk-2')
+      expect(await repository.hasUserVotedForTalk('usuario-nuevo', 'mock-talk-2')).toBe(false)
+    })
+
+    it('debería rechazar un voto duplicado como la restricción única de user_votes', async () => {
+      const { error, status } = await createSupabase()
+        .from('user_votes')
+        .insert({ user_id: MOCK_USER.id, talk_id: 'mock-talk-1' })
+
+      expect(status).toBe(409)
+      expect(error?.code).toBe('23505')
+      expect(await new TalkRepository(createSupabase()).getUserVotes(MOCK_USER.id)).toEqual(['mock-talk-1'])
     })
   })
 
