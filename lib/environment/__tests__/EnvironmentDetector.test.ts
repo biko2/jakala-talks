@@ -3,10 +3,14 @@ import { EnvironmentDetector } from '../EnvironmentDetector'
 describe('EnvironmentDetector', () => {
   const originalEnv = process.env
 
-  beforeEach(() => {
-    jest.resetModules()
-    process.env = { ...originalEnv }
-  })
+  const setEnv = (nodeEnv: NodeJS.ProcessEnv['NODE_ENV'], apiMocking?: string) => {
+    process.env = { ...originalEnv, NODE_ENV: nodeEnv }
+    if (apiMocking === undefined) {
+      delete process.env.NEXT_PUBLIC_API_MOCKING
+    } else {
+      process.env.NEXT_PUBLIC_API_MOCKING = apiMocking
+    }
+  }
 
   afterAll(() => {
     process.env = originalEnv
@@ -14,83 +18,57 @@ describe('EnvironmentDetector', () => {
 
   describe('isDevelopment', () => {
     it('debería retornar true cuando NODE_ENV es development', () => {
-      (process.env as Record<string, string | undefined>).NODE_ENV = 'development'
+      setEnv('development')
       expect(EnvironmentDetector.isDevelopment()).toBe(true)
     })
 
     it('debería retornar false cuando NODE_ENV no es development', () => {
-      (process.env as Record<string, string | undefined>).NODE_ENV = 'production'
+      setEnv('production')
       expect(EnvironmentDetector.isDevelopment()).toBe(false)
     })
   })
 
   describe('isProduction', () => {
     it('debería retornar true cuando NODE_ENV es production', () => {
-      (process.env as Record<string, string | undefined>).NODE_ENV = 'production'
+      setEnv('production')
       expect(EnvironmentDetector.isProduction()).toBe(true)
     })
 
     it('debería retornar false cuando NODE_ENV no es production', () => {
-      (process.env as Record<string, string | undefined>).NODE_ENV = 'development'
+      setEnv('development')
       expect(EnvironmentDetector.isProduction()).toBe(false)
     })
   })
 
-  describe('isMockMode', () => {
-    it('debería retornar true cuando es development y USE_MOCK_USER es true', () => {
-      (process.env as Record<string, string | undefined>).NODE_ENV = 'development'
-      process.env.NEXT_PUBLIC_USE_MOCK_USER = 'true'
-      expect(EnvironmentDetector.isMockMode()).toBe(true)
+  describe('isApiMockingEnabled', () => {
+    it('debería estar activo en development por defecto', () => {
+      setEnv('development')
+      expect(EnvironmentDetector.isApiMockingEnabled()).toBe(true)
     })
 
-    it('debería retornar false cuando es production', () => {
-      (process.env as Record<string, string | undefined>).NODE_ENV = 'production'
-      process.env.NEXT_PUBLIC_USE_MOCK_USER = 'true'
-      expect(EnvironmentDetector.isMockMode()).toBe(false)
+    it('debería estar activo en development con cualquier valor distinto de disabled', () => {
+      setEnv('development', 'enabled')
+      expect(EnvironmentDetector.isApiMockingEnabled()).toBe(true)
     })
 
-    it('debería retornar false cuando USE_MOCK_USER no es true', () => {
-      (process.env as Record<string, string | undefined>).NODE_ENV = 'development'
-      process.env.NEXT_PUBLIC_USE_MOCK_USER = 'false'
-      expect(EnvironmentDetector.isMockMode()).toBe(false)
-    })
-  })
-
-  describe('isLocalWithSupabase', () => {
-    it('debería retornar true cuando es development pero no mock mode', () => {
-      (process.env as Record<string, string | undefined>).NODE_ENV = 'development'
-      process.env.NEXT_PUBLIC_USE_MOCK_USER = 'false'
-      expect(EnvironmentDetector.isLocalWithSupabase()).toBe(true)
+    it('debería estar inactivo en development con NEXT_PUBLIC_API_MOCKING=disabled', () => {
+      setEnv('development', 'disabled')
+      expect(EnvironmentDetector.isApiMockingEnabled()).toBe(false)
     })
 
-    it('debería retornar false cuando es mock mode', () => {
-      (process.env as Record<string, string | undefined>).NODE_ENV = 'development'
-      process.env.NEXT_PUBLIC_USE_MOCK_USER = 'true'
-      expect(EnvironmentDetector.isLocalWithSupabase()).toBe(false)
+    it('nunca debería estar activo en production, aunque la variable lo pida', () => {
+      setEnv('production', 'enabled')
+      expect(EnvironmentDetector.isApiMockingEnabled()).toBe(false)
     })
 
-    it('debería retornar false cuando es production', () => {
-      (process.env as Record<string, string | undefined>).NODE_ENV = 'production'
-      expect(EnvironmentDetector.isLocalWithSupabase()).toBe(false)
-    })
-  })
-
-  describe('getEnvironmentType', () => {
-    it('debería retornar mock cuando está en modo mock', () => {
-      (process.env as Record<string, string | undefined>).NODE_ENV = 'development'
-      process.env.NEXT_PUBLIC_USE_MOCK_USER = 'true'
-      expect(EnvironmentDetector.getEnvironmentType()).toBe('mock')
+    it('nunca debería estar activo en production sin variable', () => {
+      setEnv('production')
+      expect(EnvironmentDetector.isApiMockingEnabled()).toBe(false)
     })
 
-    it('debería retornar local-supabase cuando es development sin mock', () => {
-      (process.env as Record<string, string | undefined>).NODE_ENV = 'development'
-      process.env.NEXT_PUBLIC_USE_MOCK_USER = 'false'
-      expect(EnvironmentDetector.getEnvironmentType()).toBe('local-supabase')
-    })
-
-    it('debería retornar production cuando es production', () => {
-      (process.env as Record<string, string | undefined>).NODE_ENV = 'production'
-      expect(EnvironmentDetector.getEnvironmentType()).toBe('production')
+    it('debería estar inactivo en test', () => {
+      setEnv('test')
+      expect(EnvironmentDetector.isApiMockingEnabled()).toBe(false)
     })
   })
 })

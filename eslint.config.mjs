@@ -12,6 +12,7 @@ const eslintConfig = [
       'jest.setup.js',
       'next.config.*',
       'postcss.config.*',
+      'public/mockServiceWorker.js',
     ],
   },
   ...nextVitals,

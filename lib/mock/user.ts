@@ -15,5 +15,5 @@ export const MOCK_USER: User = {
 }
 
 export const isMockMode = (): boolean => {
-  return EnvironmentDetector.isMockMode()
+  return EnvironmentDetector.isApiMockingEnabled()
 }
