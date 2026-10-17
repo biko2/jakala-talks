@@ -8,43 +8,37 @@ disable-model-invocation: true
 
 Orquesta el ciclo completo de una tarea hasta una PR verde. Invoca las skills del repo; no copies su cuerpo: léelas y síguelas.
 
-How-to humano (lanzar y artefactos) → [`docs/agents/deliver.md`](../../../docs/agents/deliver.md). Contrato del registro local → [run-record.md](run-record.md). Tracker → [`docs/agents/issue-tracker.md`](../../../docs/agents/issue-tracker.md).
+How-to humano (lanzar, artefactos, sala) → [`docs/agents/deliver.md`](../../../docs/agents/deliver.md). Tracker → [`docs/agents/issue-tracker.md`](../../../docs/agents/issue-tracker.md).
 
-## Registro vivo
+## Bitácora
 
-El JSON local es la fuente de observabilidad. Tras **cada** paso (y en cada fallo), actualízalo. No esperes al final.
+La bitácora es el único registro de la tarea; la sala (`yarn deliver:ui`) la lee. Invocar `/deliver` = invocar `/bitacora` para esta tarea. Lee la skill [`bitacora`](../bitacora/SKILL.md) y síguela: estructura, qué va en cada sección, límites y cierre son suyos. Aquí solo el encaje con `/deliver`:
 
-- `timeline.push({ at, step, status, label, detail? })` — sin coste por paso. Al parar por humano (modo, grill, spec, tickets, wizard, medición): `step: "human-wait"`, `status: "started"`; al volver, `status: "done"`. O cierra el intervalo en `humanWaits[]`.
-- `cost` y `timing` son del **plan completo**. Tras cada paso del padre: `yarn deliver:tokens` (sesión + tokens + `cost.subtotalUsd`). `timing.startedAt` al crear, `endedAt` al cerrar. `durationMs` = activo (sin esperas humanas) o `null` para que la sala reste las paradas. Nunca inventar `0`.
-- No rellenes `costUsd`/`tokensDelta` en cada evento ni en cada subagente.
-- `phases`: upsert por `id` del paso. `started` al entrar, `done`/`failed`/`skipped` al salir. Cada criterio de done del paso = un `checks[]` (`pass`/`fail`/`skip`/`pending`)
-- `agents`: el padre al crear el run (`id: parent`, `childIds: []`). Cada subagente que `/deliver` despacha (tdd, code-review, research, iterate-pr): alta al spawn. `id` = `{role}-{ticketNumber}` o `{role}-{n}` único. `parentId: "parent"`. Empuja ese `id` a `parent.childIds`. No enlaces entre hermanos. Al volver: `endedAt`+`status`. `model` y `ticketIssue` si aplican. No `durationMs`/`costUsd`/`tokensDelta` en el hijo
-- `traces.sessionId`: lo rellena `yarn deliver:tokens` (no lo pidas al usuario). Overlay también `traces.settings` (effort/maxMode/ventana) y `traces.contextUsage` (pico/último input del hook). `transcriptHint` / `sessionSlices` si corre el analizador. `traceMetadata` al medir (`sessionSettings` + `contextUsage`). Nunca prompts ni contenidos
-- `feedback`: cada hallazgo de `code-review` y cada comentario high/medium/low de `iterate-pr` (`source`, `severity`, `status`, `summary`). Al resolver, `status: fixed` (no borrar)
-- `evidence`: commits (sha), issues/PR (url), y cada gate local (`yarn lint` / `typecheck` / `lint:arch` / `test` / `build`) con `result` pass/fail. Sin pegar logs enteros ni código
-- `failures`: cada fallo (test, lint, CI, agente, review). `resolved: true` cuando se arregla. Incrementa `attempts` si se reintenta
+- **Abrir** (paso 1): `.agents/bitacoras/deliver-<slug-objetivo>.md`. En "Objetivo y alcance", el modo elegido. Objetivo de sesión con `CreateGoal` apuntando a la bitácora, como pide la skill.
+- **Mantener**: al cerrar cada paso numerado, reemplaza "Estado actual" (siguiente paso exacto = el próximo paso de `/deliver` y su ticket si aplica). En "Artefactos y verificación": issue padre, tickets, rama, commits (sha), PR y cada gate local o check de CI con su resultado. Hitos, decisiones, aprendizajes y errores solo si los hubo. Sin logs ni código pegado.
+- **Reanudar**: si el chat se compacta o abres uno nuevo, lee la bitácora antes de actuar. Contrasta con git y `gh`, corrige la fotografía y sigue desde "Siguiente paso exacto". La instrucción más reciente del usuario gana.
+- **Subagentes** (tdd, code-review, iterate-pr, research): pásales la ruta. La leen antes de empezar ("Aprendizajes verificados", "Errores y correcciones") y no escriben en ella; devuelven sus aprendizajes y errores en el informe y el padre los vuelca.
+- **Cerrar** (paso 12): resultado, artefactos finales, comprobaciones, riesgos. "Siguiente paso exacto: ninguno" si quedó entregada; así la sala y el próximo `/deliver` la ven cerrada.
 
-**Done when:** el run refleja el paso actual: fase, checks, agentes vivos, evidencias y fallos al día.
+**Done when:** la bitácora refleja el paso actual y su siguiente paso exacto.
 
 ## 1. Modo
 
-Pregunta: **3 paradas** o **autónomo**.
+Antes de preguntar: si hay una `.agents/bitacoras/deliver-*.md` cuyo "Siguiente paso exacto" no es "ninguno", pregunta si es esta tarea. Si lo es → Reanudar y salta al paso que marque.
 
-Tras la respuesta: crea `.deliver/runs/<iso>-pending.json` (luego renómbralo con el número del padre) con el esqueleto del contrato (`timeline`, `phases`, `agents`, `traces`, `feedback`, `evidence`, `failures`, `cost`, `timing.startedAt` ahora). Sigue Registro vivo.
+Pregunta: **3 paradas** o **autónomo**. Tras la respuesta, abre la bitácora.
 
-**Done when:** el usuario eligió un modo y el run file existe.
+**Done when:** el usuario eligió un modo y la bitácora existe.
 
 ## 2. Hook de tokens (solo la primera vez)
 
-Si no existe `.deliver/hook-asked.json`, pregunta si se instala el hook de tokens de Cursor de `registrar-medicion-ia` (`bun scripts/install-cursor-hook.ts` desde esa skill). Guarda la respuesta en `.deliver/hook-asked.json` (`{"askedAt":"<iso>","install":true|false}`) y no vuelvas a preguntar. Si acepta, ejecuta el instalador.
-
-Tras **cada** paso del padre (y al cierre): `yarn deliver:tokens`. No pidas sessionId. El script usa el hook + transcripts de este repo. La sala hace el mismo overlay en vivo. Cobertura `parent-only`: no es factura. Sin turnos del hook → deja `null`.
+Si no existe `.deliver/hook-asked.json`, pregunta si se instala el hook de tokens de Cursor de `registrar-medicion-ia` (`bun scripts/install-cursor-hook.ts` desde esa skill). Lo usa la medición del paso 13. Guarda la respuesta en `.deliver/hook-asked.json` (`{"askedAt":"<iso>","install":true|false}`) y no vuelvas a preguntar. Si acepta, ejecuta el instalador.
 
 **Done when:** el fichero existe (instalado, rechazado, o ya preguntado antes).
 
 ## 3. Grill
 
-Lee e invoca `grill-me` → `grilling` hasta entendimiento compartido. Confirmación del usuario = parada 1 en ambos modos.
+Lee e invoca `grill-me` → `grilling` hasta entendimiento compartido. Confirmación del usuario = parada 1 en ambos modos. Las decisiones que salgan del grill → "Decisiones".
 
 **Done when:** el usuario confirma el entendimiento compartido.
 
@@ -62,9 +56,9 @@ Sintetiza la spec (sin re-entrevistar). Seams de test en la sección Testing Dec
 - **3 paradas:** enseña el borrador; espera el sí; publica el issue padre.
 - **Autónomo:** publica al cerrar el grill.
 
-Aplica `ready-for-agent`. Guarda en el run `parentIssue: { number, title, url }` (título = título del issue en GitHub). Rama: `feat/<numero-padre>-<slug>` desde `main` (créala tras tener el número del padre).
+Aplica `ready-for-agent`. Rama: `feat/<numero-padre>-<slug>` desde `main` (créala tras tener el número del padre).
 
-**Done when:** el issue padre existe y su URL/título están anotados.
+**Done when:** el issue padre existe y su URL y la rama están en la bitácora.
 
 ## 6. Tickets (`to-tickets`)
 
@@ -73,19 +67,19 @@ Rodajas verticales con edges de bloqueo. No modifiques el issue padre.
 - **3 paradas:** quiz de granularidad; espera aprobación; publica hijos.
 - **Autónomo:** publica sin quiz.
 
-**Done when:** todos los hijos están publicados con `ready-for-agent` y sus `number`/`title`/`url` anotados en el run.
+**Done when:** todos los hijos están publicados con `ready-for-agent` y sus URLs en la bitácora.
 
 ## 7. Implementación (`tdd` por ticket)
 
 Trabaja la frontera: tickets cuyos bloqueadores están hechos.
 
-Por cada ticket, despacha un **subagente de contexto fresco** con: cuerpo del ticket, URL de la spec, seams ya escritos. Alta en `agents` al despachar (`id` único, `parentId`, `parent.childIds`); al volver: `status` done/failed, `evidence` del commit, `failures` si el slice falla. El subagente sigue `tdd` (rojo → verde, un slice). Al verde: commit en la rama, formato de `commit` (`tipo(ámbito): descripción`), **sin** pedir confirmación (excepción solo dentro de `/deliver`; `/commit` suelto sigue pidiendo sí).
+Por cada ticket, despacha un **subagente de contexto fresco** con: cuerpo del ticket, URL de la spec, seams ya escritos, ruta de la bitácora (solo lectura). El subagente sigue `tdd` (rojo → verde, un slice). Al verde: commit en la rama, formato de `commit` (`tipo(ámbito): descripción`), **sin** pedir confirmación (excepción solo dentro de `/deliver`; `/commit` suelto sigue pidiendo sí). Un slice que falla → "Errores y correcciones" con la causa.
 
 **Done when:** cada ticket tiene commit(s) que cubren sus criterios de aceptación.
 
 ## 8. Review (`code-review`)
 
-Fixed point: merge-base con `main`. Eje Spec: issue padre. Corrige violaciones duras de estándares y huecos de spec antes de la PR. Smell de juicio: arréglalo si el cambio es local; si no, anótalo para el cuerpo de la PR. Cada hallazgo → `feedback` + `specGaps`; cada corrección → `status: fixed` y `evidence`.
+Fixed point: merge-base con `main`. Eje Spec: issue padre. Pasa la ruta de la bitácora (solo lectura): sus decisiones explican elecciones que no son violaciones. Corrige violaciones duras de estándares y huecos de spec antes de la PR. Smell de juicio: arréglalo si el cambio es local; si no, anótalo para el cuerpo de la PR y en "Preguntas abiertas".
 
 **Done when:** no quedan violaciones duras ni huecos de spec sin resolver o anotar.
 
@@ -97,29 +91,29 @@ Si el cambio deja mentiroso un doc existente (`AGENTS.md`, `.cursor/docs/`, onbo
 
 ## 10. PR (`creating-pr`)
 
-Antes del push, en local: `yarn lint`, `yarn typecheck`, `yarn lint:arch`, `yarn test`, `yarn build`. Cada comando → `evidence` (y `failures` si falla). No saltar hooks.
+Antes del push, en local: `yarn lint`, `yarn typecheck`, `yarn lint:arch`, `yarn test`, `yarn build`. No saltar hooks.
 
 PR lista (no draft). Título `type: description`. Cuerpo en castellano (`Resumen`, `Cambios`, `Plan de pruebas`) con `Closes` del padre y de cada hijo. No pedir reviewer de CODEOWNERS.
 
-**Done when:** la PR está abierta y su URL anotada en la tarjeta del padre y en el registro.
+**Done when:** la PR está abierta y su URL y el resultado de cada gate están en la bitácora.
 
 ## 11. CI y feedback (`iterate-pr`)
 
-Sigue `iterate-pr` hasta CI verde y feedback high/medium resuelto. Cada check y comentario → `evidence` / `feedback` / `failures`. Hereda sus salidas (dos fallos iguales → pregunta; gates humanos → para). No merges. No esperes approve.
+Sigue `iterate-pr` hasta CI verde y feedback high/medium resuelto. Un fallo de CI que se repita y tenga causa clara → "Errores y correcciones". Hereda sus salidas (dos fallos iguales → pregunta; gates humanos → para). No merges. No esperes approve.
 
 **Done when:** checks accionables en verde y feedback high/medium limpio, o el usuario debe intervenir según `iterate-pr`.
 
-## 12. Registro local
+## 12. Cierre de la bitácora
 
-Asegura el JSON final según [run-record.md](run-record.md). Obligatorio: `phases`+`checks`, `agents`, `traces`/`traceMetadata`, `feedback`, `evidence`, `failures`, `timeline`, `cost`, `timing`. Arrays vacíos si no hubo ítems; no omitas las claves. `cost.totalUsd`/`subtotalUsd` y `timing.durationMs` en `null` si no hay dato. Cierra `timing.endedAt` y el agente padre.
+Cierra la bitácora según la skill `bitacora` y la regla de Cerrar.
 
-**Done when:** el fichero existe y esas claves están presentes.
+**Done when:** la bitácora tiene resultado, artefactos, comprobaciones, riesgos y "Siguiente paso exacto: ninguno" (o el paso pendiente, si el usuario debe intervenir).
 
 ## 13. Medición (optativa)
 
 Pregunta: ¿registrar la medición en AI Hub?
 
-Si sí: sigue `registrar-medicion-ia` en automático. En `trace_metadata` mete la traza del analizador más hechos sin citas de código (CI, criterios, URLs, cobertura, coste USD, conteos de fases/agentes/feedback/fallos). Copia `traceMetadata.apiCost` a `cost`. `specGaps`, textos de feedback/evidence/failures se quedan en el JSON local. Si el MCP falla, conserva el JSON local; la entrega no se deshace. Guarda el fallo en `failures`.
+Si sí: sigue `registrar-medicion-ia` en automático. En `trace_metadata`, la traza del analizador más hechos sin citas de código (CI, criterios cumplidos, URLs de issue/PR). El texto de la bitácora no se sube. Si el MCP falla, anótalo en la bitácora; la entrega no se deshace.
 
 **Done when:** el usuario dijo no, o la ficha quedó creada / el fallo del MCP quedó informado.
 

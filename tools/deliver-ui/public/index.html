@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Deliver — ejecuciones</title>
+    <title>Harness lab — bitácoras</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -20,49 +20,49 @@
             <img class="logo" src="/assets/logo.svg" alt="Jakala" />
             <span class="lab-name">Harness lab</span>
           </div>
-          <h1>Ejecuciones <code>/deliver</code></h1>
+          <h1>Bitácoras</h1>
         </div>
         <button type="button" id="refresh" class="btn">Actualizar</button>
       </header>
 
       <section class="filters" aria-label="Filtros">
         <label>
-          Modelo
-          <select id="filter-model">
-            <option value="">Todos</option>
+          Estado
+          <select id="filter-state">
+            <option value="">Todas</option>
+            <option value="open">abiertas</option>
+            <option value="closed">cerradas</option>
           </select>
         </label>
         <label>
-          CI
-          <select id="filter-ci">
+          Origen
+          <select id="filter-origin">
             <option value="">Todos</option>
-            <option value="passed">passed</option>
-            <option value="failed">failed</option>
-            <option value="unknown">unknown</option>
+            <option value="deliver">/deliver</option>
+            <option value="loose">sueltas</option>
           </select>
         </label>
       </section>
 
       <div class="layout" id="layout">
-        <aside class="list-panel" id="list-panel" aria-label="Lista de ejecuciones">
+        <aside class="list-panel" id="list-panel" aria-label="Lista de bitácoras">
           <button type="button" id="toggle-list" class="list-toggle" aria-expanded="true" aria-controls="list-body">
             <span class="list-toggle-label">Lista</span>
             <span class="section-toggle-chevron" aria-hidden="true"></span>
           </button>
           <div id="list-body" class="list-body">
             <div id="empty" class="empty hidden">
-              Aún no hay runs. Lanza <code>/deliver</code> y vuelve a actualizar.
+              Aún no hay bitácoras. Lanza <code>/deliver</code> o <code>/bitacora</code> y vuelve a actualizar.
             </div>
-            <ul id="run-list" class="run-list"></ul>
+            <ul id="bitacora-list" class="run-list"></ul>
           </div>
         </aside>
 
         <main class="detail-panel" id="detail" aria-live="polite">
-          <p class="placeholder">Elige una ejecución de la lista.</p>
+          <p class="placeholder">Elige una bitácora de la lista.</p>
         </main>
       </div>
     </div>
-    <div id="float-tip" hidden role="tooltip"></div>
     <script src="/assets/app.js" type="module"></script>
   </body>
 </html>

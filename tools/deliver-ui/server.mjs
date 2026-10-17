@@ -1,16 +1,12 @@
 import { createServer } from "node:http";
 import { readFileSync, existsSync, watch, mkdirSync } from "node:fs";
-import { homedir } from "node:os";
 import { join, dirname, extname } from "node:path";
 import { fileURLToPath } from "node:url";
-import { defaultTranscriptsDir } from "./hook.mjs";
-import { listRuns, getRun, runIdFromFilename } from "./reader.mjs";
+import { BITACORAS_REL_DIR, listBitacoras, getBitacora } from "./bitacora.mjs";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = join(__dirname, "..", "..");
-const RUNS_DIR = join(REPO_ROOT, ".deliver", "runs");
-const CURSOR_HOME = join(homedir(), ".cursor");
-const TRANSCRIPTS_DIR = defaultTranscriptsDir(REPO_ROOT);
+const BITACORAS_DIR = join(REPO_ROOT, BITACORAS_REL_DIR);
 const PUBLIC_DIR = join(__dirname, "public");
 const HOST = "127.0.0.1";
 const PORT = 4177;
@@ -73,47 +69,36 @@ function attachSse(req, res) {
 }
 
 function handleApi(req, res, url) {
-  if (url.pathname === "/api/events") {
-    if (req.method !== "GET") {
-      sendJson(res, 405, { error: "Method not allowed" });
-      return true;
-    }
-    attachSse(req, res);
-    return true;
-  }
+  if (!url.pathname.startsWith("/api/")) return false;
 
   if (req.method !== "GET") {
     sendJson(res, 405, { error: "Method not allowed" });
     return true;
   }
 
-  if (url.pathname === "/api/runs") {
-    sendJson(res, 200, { runs: listRuns(RUNS_DIR, CURSOR_HOME, TRANSCRIPTS_DIR), runsDir: RUNS_DIR });
+  if (url.pathname === "/api/events") {
+    attachSse(req, res);
     return true;
   }
 
-  const detail = url.pathname.match(/^\/api\/runs\/([^/]+)$/);
+  if (url.pathname === "/api/bitacoras") {
+    sendJson(res, 200, { bitacoras: listBitacoras(BITACORAS_DIR), dir: BITACORAS_REL_DIR });
+    return true;
+  }
+
+  const detail = url.pathname.match(/^\/api\/bitacoras\/([^/]+)$/);
   if (detail) {
-    const id = decodeURIComponent(detail[1]);
-    const result = getRun(RUNS_DIR, id, CURSOR_HOME, TRANSCRIPTS_DIR);
+    const result = getBitacora(BITACORAS_DIR, decodeURIComponent(detail[1]));
     if (!result.ok) {
-      sendJson(res, result.status || 500, { error: result.error, id: result.id });
+      sendJson(res, result.status || 500, { error: result.error, slug: result.slug });
       return true;
     }
-    sendJson(res, 200, {
-      id: result.id,
-      run: result.data,
-      timeline: result.timeline,
-      events: result.events,
-      cost: result.cost,
-      timing: result.timing,
-      agentGraph: result.agentGraph,
-      modelTitle: result.modelTitle,
-    });
+    sendJson(res, 200, result);
     return true;
   }
 
-  return false;
+  sendJson(res, 404, { error: "Not found" });
+  return true;
 }
 
 const server = createServer((req, res) => {
@@ -123,11 +108,6 @@ const server = createServer((req, res) => {
 
   if (url.pathname === "/" || url.pathname === "/index.html") {
     sendFile(res, join(PUBLIC_DIR, "index.html"));
-    return;
-  }
-
-  if (url.pathname === "/assets/timing.mjs") {
-    sendFile(res, join(__dirname, "timing.mjs"));
     return;
   }
 
@@ -142,30 +122,24 @@ const server = createServer((req, res) => {
 });
 
 function startWatcher() {
-  if (!existsSync(RUNS_DIR)) {
-    mkdirSync(RUNS_DIR, { recursive: true });
+  if (!existsSync(BITACORAS_DIR)) {
+    mkdirSync(BITACORAS_DIR, { recursive: true });
   }
 
   let debounce = null;
   /** @type {Set<string>} */
-  const changedIds = new Set();
+  const changedSlugs = new Set();
 
   const flush = () => {
-    const ids = [...changedIds];
-    changedIds.clear();
+    const slugs = [...changedSlugs];
+    changedSlugs.clear();
     debounce = null;
-    broadcast("runs-changed", { ids });
-    for (const id of ids) {
-      if (id) broadcast("run-changed", { id });
-    }
+    broadcast("bitacoras-changed", { slugs });
   };
 
-  watch(RUNS_DIR, { persistent: true }, (_eventType, filename) => {
-    if (!filename || !String(filename).endsWith(".json")) {
-      changedIds.add("");
-    } else {
-      changedIds.add(runIdFromFilename(String(filename)));
-    }
+  watch(BITACORAS_DIR, { persistent: true }, (_eventType, filename) => {
+    if (!filename || !String(filename).endsWith(".md")) return;
+    changedSlugs.add(String(filename).slice(0, -3));
     if (debounce) clearTimeout(debounce);
     debounce = setTimeout(flush, 120);
   });
@@ -173,7 +147,7 @@ function startWatcher() {
 
 server.listen(PORT, HOST, () => {
   startWatcher();
-  console.log(`Deliver UI → http://${HOST}:${PORT}`);
-  console.log(`Runs dir   → ${RUNS_DIR}`);
-  console.log(`Live SSE   → http://${HOST}:${PORT}/api/events`);
+  console.log(`Harness lab → http://${HOST}:${PORT}`);
+  console.log(`Bitácoras   → ${BITACORAS_DIR}`);
+  console.log(`Live SSE    → http://${HOST}:${PORT}/api/events`);
 });

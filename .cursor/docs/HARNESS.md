@@ -38,7 +38,8 @@ Playwright/E2E, axe-core runtime, Stryker, OpenTelemetry, SonarQube, MSW, Prisma
 
 ## Skills relacionadas
 
-- `.agents/skills/deliver` — grill → spec → tickets → TDD → review → PR verde. How-to: [`docs/agents/deliver.md`](../../docs/agents/deliver.md). Sala: `yarn deliver:ui`. Hook→USD: `yarn deliver:tokens`
+- `.agents/skills/deliver` — grill → spec → tickets → TDD → review → PR verde. How-to: [`docs/agents/deliver.md`](../../docs/agents/deliver.md). Sala de bitácoras: `yarn deliver:ui`
+- `.agents/skills/bitacora` — único registro de tareas largas en `.agents/bitacoras/` (con `/bitacora`, o siempre dentro de `/deliver`). Se ve en `yarn deliver:ui`
 - `.agents/skills/tdd` — red → green
 - `.agents/skills/code-review` — review adversarial Standards + Spec
 - `.agents/skills/grilling` — stress-test de planes
