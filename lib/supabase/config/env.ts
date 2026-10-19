@@ -1,7 +1,14 @@
+import { EnvironmentDetector } from '../../environment/EnvironmentDetector'
+import { MOCK_SUPABASE_URL, MOCK_SUPABASE_ANON_KEY } from '../../mock/msw/constants'
+
 const isClient = typeof window !== 'undefined'
 const isDevelopment = process.env.NODE_ENV === 'development'
 
 function getSupabaseUrl(): string {
+  if (EnvironmentDetector.isApiMockingEnabled()) {
+    return MOCK_SUPABASE_URL
+  }
+
   if (isClient) {
     const url = process.env.NEXT_PUBLIC_SUPABASE_URL
     if (!url) {
@@ -26,6 +33,10 @@ function getSupabaseUrl(): string {
 }
 
 function getSupabaseAnonKey(): string {
+  if (EnvironmentDetector.isApiMockingEnabled()) {
+    return MOCK_SUPABASE_ANON_KEY
+  }
+
   if (isClient) {
     const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
     if (!key) {

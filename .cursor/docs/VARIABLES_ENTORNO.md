@@ -54,8 +54,8 @@ Normalmente el `Client ID`/`Secret` de Google se configuran **dentro de Supabase
 ### `PORT` (opcional)
 Puerto del servidor de desarrollo. Por defecto `3000`.
 
-### `NEXT_PUBLIC_USE_MOCK_USER`
-`true` activa el modo mock (usuario y datos ficticios, sin Supabase). `yarn dev:mock` lo pone a `true`. En producción debe ser `false`.
+### `NEXT_PUBLIC_API_MOCKING` (opcional)
+En `development`, sin definir o con cualquier valor salvo `disabled`, `yarn dev` sirve Supabase con Mock Service Worker (datos en memoria, usuario ficticio) y las variables de Supabase no hacen falta. `disabled` apunta al Supabase configurado. En `production` el mocking nunca se activa.
 
 ## Testing (opcional)
 
@@ -76,7 +76,7 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=...
 SUPABASE_URL=...
 SUPABASE_ANON_KEY=...
 NEXTAUTH_URL=http://localhost:3000
-NEXT_PUBLIC_USE_MOCK_USER=false
+NEXT_PUBLIC_API_MOCKING=disabled
 ```
 
 > ¿Necesitas las credenciales reales del proyecto? Pregunta a **Diego Razquin**.

@@ -1,102 +1,61 @@
+/**
+ * @jest-environment node
+ */
+import { createClient } from '@supabase/supabase-js'
+import { http } from 'msw'
 import { SupabaseVotingConfigRepository } from '../SupabaseVotingConfigRepository'
-import type { SupabaseClient } from '@supabase/supabase-js'
+import { server } from '@/lib/mock/msw/node'
+import { db, resetDb } from '@/lib/mock/msw/db'
+import { restUrl, postgrestError } from '@/lib/mock/msw/handlers'
+import { MOCK_SUPABASE_URL, MOCK_SUPABASE_ANON_KEY } from '@/lib/mock/msw/constants'
 
-describe('SupabaseVotingConfigRepository', () => {
-  let repository: SupabaseVotingConfigRepository
-  let mockQuery: {
-    select: jest.Mock
-    order: jest.Mock
-    limit: jest.Mock
-    single: jest.Mock
-  }
-  let mockSupabase: SupabaseClient
+const createRepository = () =>
+  new SupabaseVotingConfigRepository(
+    createClient(MOCK_SUPABASE_URL, MOCK_SUPABASE_ANON_KEY, { auth: { persistSession: false } })
+  )
 
-  beforeEach(() => {
-    mockQuery = {
-      select: jest.fn().mockReturnThis(),
-      order: jest.fn().mockReturnThis(),
-      limit: jest.fn().mockReturnThis(),
-      single: jest.fn()
-    }
-
-    mockSupabase = {
-      from: jest.fn().mockReturnValue(mockQuery)
-    } as unknown as SupabaseClient
-
-    repository = new SupabaseVotingConfigRepository(mockSupabase)
+describe('SupabaseVotingConfigRepository (contrato HTTP con MSW)', () => {
+  beforeAll(() => server.listen({ onUnhandledRequest: 'error' }))
+  afterEach(() => {
+    server.resetHandlers()
+    resetDb()
   })
+  afterAll(() => server.close())
 
   describe('getVotingConfig', () => {
-    it('debería obtener la configuración de votación correctamente', async () => {
-      const mockData = {
-        voting_start_date: '2025-11-07',
-        max_votes_per_user: 3,
-        proposing_talks_start_date: '2025-06-24',
-        closing_date: '2026-09-08'
-      }
-
-      mockQuery.single.mockResolvedValue({
-        data: mockData,
-        error: null
-      })
-
-      const result = await repository.getVotingConfig()
-
-      expect(mockSupabase.from).toHaveBeenCalledWith('voting_config')
-      expect(mockQuery.select).toHaveBeenCalledWith(
-        'voting_start_date, max_votes_per_user, proposing_talks_start_date, closing_date'
-      )
-      expect(mockQuery.order).toHaveBeenCalledWith('created_at', { ascending: false })
-      expect(mockQuery.limit).toHaveBeenCalledWith(1)
-      expect(mockQuery.single).toHaveBeenCalled()
-
-      expect(result).toEqual({
-        votingStartDate: new Date('2025-11-07'),
+    it('debería mapear la configuración almacenada a fechas y cupo', async () => {
+      expect(await createRepository().getVotingConfig()).toEqual({
+        votingStartDate: new Date('2026-09-04T00:00:00.000Z'),
         maxVotesPerUser: 3,
-        proposingStartDate: new Date('2025-06-24'),
-        closingDate: new Date('2026-09-08')
+        proposingStartDate: new Date('2026-06-29T00:00:00.000Z'),
+        closingDate: new Date('2026-09-08T00:00:00.000Z'),
       })
     })
 
-    it('debería mapear closing_date null a closingDate null', async () => {
-      const mockData = {
-        voting_start_date: '2025-11-07',
-        max_votes_per_user: 3,
-        proposing_talks_start_date: '2025-06-24',
-        closing_date: null
-      }
+    it('debería mapear closing_date nulo a closingDate null', async () => {
+      db.voting_config[0].closing_date = null
 
-      mockQuery.single.mockResolvedValue({
-        data: mockData,
-        error: null
-      })
-
-      const result = await repository.getVotingConfig()
-
-      expect(result.closingDate).toBeNull()
+      expect((await createRepository().getVotingConfig()).closingDate).toBeNull()
     })
 
-    it('debería lanzar error si hay un error en la consulta', async () => {
-      const mockError = { message: 'Database error' }
+    it('debería lanzar el error de PostgREST de .single() cuando no hay configuración', async () => {
+      db.voting_config.length = 0
 
-      mockQuery.single.mockResolvedValue({
-        data: null,
-        error: mockError
-      })
-
-      await expect(repository.getVotingConfig())
-        .rejects.toThrow('Error al obtener configuración de votación: Database error')
+      await expect(createRepository().getVotingConfig()).rejects.toThrow(
+        'Error al obtener configuración de votación: Cannot coerce the result to a single JSON object'
+      )
     })
 
-    it('debería lanzar error si no se encuentra configuración', async () => {
-      mockQuery.single.mockResolvedValue({
-        data: null,
-        error: null
-      })
+    it('debería lanzar error de negocio si PostgREST responde con error', async () => {
+      server.use(
+        http.get(restUrl('voting_config'), () =>
+          postgrestError(500, 'XX000', 'fallo interno de la base de datos')
+        )
+      )
 
-      await expect(repository.getVotingConfig())
-        .rejects.toThrow('No se encontró configuración de votación')
+      await expect(createRepository().getVotingConfig()).rejects.toThrow(
+        'Error al obtener configuración de votación: fallo interno de la base de datos'
+      )
     })
   })
 })
-

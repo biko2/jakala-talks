@@ -25,38 +25,30 @@ describe('Mock User', () => {
     const originalEnv = process.env
 
     beforeEach(() => {
-      jest.resetModules()
       process.env = { ...originalEnv }
+      delete process.env.NEXT_PUBLIC_API_MOCKING
     })
 
     afterAll(() => {
       process.env = originalEnv
     })
 
-    it('debería retornar true cuando NODE_ENV es development y USE_MOCK_USER es true', () => {
+    it('debería retornar true en development con el mocking de API por defecto', () => {
       (process.env as Record<string, string | undefined>).NODE_ENV = 'development'
-      process.env.NEXT_PUBLIC_USE_MOCK_USER = 'true'
 
       expect(isMockMode()).toBe(true)
     })
 
-    it('debería retornar false cuando NODE_ENV no es development', () => {
+    it('debería retornar false en production aunque se pida mocking', () => {
       (process.env as Record<string, string | undefined>).NODE_ENV = 'production'
-      process.env.NEXT_PUBLIC_USE_MOCK_USER = 'true'
+      process.env.NEXT_PUBLIC_API_MOCKING = 'enabled'
 
       expect(isMockMode()).toBe(false)
     })
 
-    it('debería retornar false cuando USE_MOCK_USER no es true', () => {
+    it('debería retornar false cuando NEXT_PUBLIC_API_MOCKING es disabled', () => {
       (process.env as Record<string, string | undefined>).NODE_ENV = 'development'
-      process.env.NEXT_PUBLIC_USE_MOCK_USER = 'false'
-
-      expect(isMockMode()).toBe(false)
-    })
-
-    it('debería retornar false cuando USE_MOCK_USER no está definido', () => {
-      (process.env as Record<string, string | undefined>).NODE_ENV = 'development'
-      delete process.env.NEXT_PUBLIC_USE_MOCK_USER
+      process.env.NEXT_PUBLIC_API_MOCKING = 'disabled'
 
       expect(isMockMode()).toBe(false)
     })

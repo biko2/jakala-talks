@@ -9,6 +9,6 @@ La documentación detallada vive en `.cursor/docs/`. Léela cuando ayudes con es
 
 - **Onboarding, arranque y autenticación (Google/Supabase, OAuth, Site URL/Redirect URLs, deploy, MCP)** → `.cursor/docs/ONBOARDING.md`
 - **Variables de entorno (de dónde sacar cada una de `.env.example`)** → `.cursor/docs/VARIABLES_ENTORNO.md`
-- **Harness de IA (gates, queso suizo, MSW, fuera de alcance)** → `.cursor/docs/HARNESS.md`
+- **Harness de IA (gates, queso suizo, MSW y sus límites, fuera de alcance)** → `.cursor/docs/HARNESS.md`
 
 Si un compañero tiene problemas de login en producción, revisa la tabla de "Síntomas y diagnóstico" en `.cursor/docs/ONBOARDING.md`.

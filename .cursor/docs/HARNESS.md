@@ -14,17 +14,22 @@ El filtro multicapa (queso suizo) vive en [`AGENTS.md`](../../AGENTS.md). Aquí:
 
 Arquitectura forzada en código de producción (`__tests__` exentos): dominio no importa afuera; application solo dominio; infrastructure no importa UI.
 
-## Replicabilidad (sin MSW)
+## Replicabilidad (MSW)
 
-- UI local: `yarn dev:mock` → `Mock*` / `MOCK_USER`. Cero HTTP a Supabase.
-- Tests: `InMemory*` inyectado. Cero red.
+- UI local: `yarn dev` → adapters `Supabase*` reales contra Mock Service Worker en navegador + `MOCK_USER`. Cero HTTP a Supabase. Opt-out: `NEXT_PUBLIC_API_MOCKING=disabled`.
+- Tests de casos de uso: `InMemory*` inyectado. Cero red.
+- Tests de adapters `Supabase*` e integración sobre HTTP: `msw/node`, mismos handlers (`lib/mock/msw/`). `server.use(...)` para forzar 4xx/5xx.
 - **No** poner `NEXT_PUBLIC_SUPABASE_URL` / keys de **prod** en `.env.local` para pruebas.
 
-### Por qué no MSW ahora
+### Por qué MSW y no `Mock*`
 
-MSW interceptaría fetch del adapter Supabase. Sería una cuarta impl (Supabase, Mock, InMemory, Supabase+MSW) y duplicaría el puerto. El hexágono ya corta red vía factories.
+MSW intercepta en el borde HTTP, no en el puerto: no es otra impl. Quedan dos impls del puerto (Supabase runtime, InMemory tests) y en local se ejercita el adapter real. Supabase en dev deja de ser prioritario.
 
-MSW tiene sentido en un lote futuro si quieres ejercitar `Supabase*Repository` (401/500/timeout) o E2E Playwright sin backend remoto.
+### Límites del mock
+
+- Auth no se simula: con mocking, `proxy.ts` no consulta sesión y el cliente usa `MOCK_USER`. Login/logout salen a la red y fallan.
+- Handlers con estado en memoria; recargar vuelve a la semilla. Fechas de `voting_config` semilla fijas.
+- Solo filtros `eq.` y lo que usan los adapters. Otra query → 400 `PGRST100`; ampliar handlers al añadirla.
 
 ## Permisos
 
@@ -34,7 +39,7 @@ MSW tiene sentido en un lote futuro si quieres ejercitar `Supabase*Repository` (
 
 ## Fuera de alcance (lote 2+)
 
-Playwright/E2E, axe-core runtime, Stryker, OpenTelemetry, SonarQube, MSW, Prisma/OpenAPI (este repo usa `supabase/migrations/`).
+Playwright/E2E, axe-core runtime, Stryker, OpenTelemetry, SonarQube, auth simulada en MSW, Prisma/OpenAPI (este repo usa `supabase/migrations/`).
 
 ## Skills relacionadas
 
