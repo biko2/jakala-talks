@@ -1,3 +1,5 @@
+import { escapeHtml, listItems, renderMarkdown } from "./markdown.mjs";
+
 const listEl = document.getElementById("bitacora-list");
 const emptyEl = document.getElementById("empty");
 const detailEl = document.getElementById("detail");
@@ -30,21 +32,7 @@ const BITACORA_SECTIONS = [
   ["preguntas", "Preguntas abiertas"],
 ];
 
-function escapeHtml(value) {
-  return String(value)
-    .replaceAll("&", "&amp;")
-    .replaceAll("<", "&lt;")
-    .replaceAll(">", "&gt;")
-    .replaceAll('"', "&quot;");
-}
-
-/** Escaped text with http(s) URLs turned into links. */
-function linkify(text) {
-  return escapeHtml(text).replace(
-    /https?:\/\/[^\s<>)]+/g,
-    (url) => `<a href="${url}" target="_blank" rel="noreferrer">${url}</a>`
-  );
-}
+const OPEN_SECTIONS = new Set(["artefactos", "hitos"]);
 
 function formatWhen(iso) {
   if (!iso) return "sin fecha";
@@ -94,9 +82,11 @@ function renderList() {
       : item.siguientePaso
         ? `→ ${item.siguientePaso}`
         : formatWhen(item.updatedAt);
+    const whenText = `${originLabel(item)} · ${sub}`;
+    btn.title = whenText;
     btn.innerHTML = `
       <div class="run-title">${escapeHtml(item.title || item.slug)}</div>
-      <div class="when">${escapeHtml(originLabel(item))} · ${escapeHtml(sub)}</div>
+      <div class="when">${escapeHtml(whenText)}</div>
     `;
     btn.addEventListener("click", () => selectBitacora(item.slug));
     li.appendChild(btn);
@@ -112,9 +102,35 @@ function renderList() {
 }
 
 function bitacoraText(text) {
-  return text
-    ? `<pre class="bitacora-text">${linkify(text)}</pre>`
-    : `<p class="muted">—</p>`;
+  const html = renderMarkdown(text);
+  return html ? `<div class="bitacora-text">${html}</div>` : `<p class="muted">—</p>`;
+}
+
+function renderTimeline(text, closed) {
+  const items = listItems(text);
+  if (items.length === 0) return bitacoraText(text);
+  const last = items.length - 1;
+  return `<ol class="timeline">${items
+    .map((item, index) => {
+      const isLast = index === last;
+      const status = isLast ? (closed ? "is-done" : "is-now") : "is-past";
+      return `<li class="timeline-item ${status}">
+        <span class="timeline-index" aria-hidden="true">${index + 1}</span>
+        <div class="timeline-body">${renderMarkdown(item)}</div>
+      </li>`;
+    })
+    .join("")}</ol>`;
+}
+
+function renderSection(key, label, bodyHtml, open) {
+  const collapsed = open ? "" : " is-collapsed";
+  return `<section class="block bitacora-section${collapsed}" data-section="${escapeHtml(key)}">
+    <button type="button" class="section-toggle" aria-expanded="${open ? "true" : "false"}">
+      <h3>${escapeHtml(label)}</h3>
+      <span class="section-toggle-chevron" aria-hidden="true"></span>
+    </button>
+    <div class="section-body">${bodyHtml}</div>
+  </section>`;
 }
 
 function renderState(state) {
@@ -143,10 +159,13 @@ function renderDetail(slug, payload) {
 
   const sections = payload.data?.sections || {};
   const rest = BITACORA_SECTIONS.filter(([key]) => sections[key])
-    .map(
-      ([key, label]) =>
-        `<section class="block bitacora-section"><h3>${escapeHtml(label)}</h3>${bitacoraText(sections[key])}</section>`
-    )
+    .map(([key, label]) => {
+      const body =
+        key === "hitos"
+          ? renderTimeline(sections[key], payload.closed)
+          : bitacoraText(sections[key]);
+      return renderSection(key, label, body, OPEN_SECTIONS.has(key));
+    })
     .join("");
 
   detailEl.innerHTML = `
@@ -158,7 +177,7 @@ function renderDetail(slug, payload) {
       <h2>${escapeHtml(payload.data?.title || slug)}</h2>
     </div>
     <p class="sub">${escapeHtml(formatWhen(payload.updatedAt))} · <code>${escapeHtml(payload.path)}</code> · <span class="live-dot" title="escuchando cambios del fichero">live</span></p>
-    <section class="block"><h3>Estado actual</h3>${renderState(sections.estadoActual)}</section>
+    ${renderSection("estadoActual", "Estado actual", renderState(sections.estadoActual), true)}
     ${rest || `<p class="muted">Sin más secciones todavía.</p>`}
   `;
 }
@@ -226,6 +245,15 @@ function setListCollapsed(collapsed) {
     /* ignore */
   }
 }
+
+detailEl.addEventListener("click", (event) => {
+  const btn = event.target.closest(".section-toggle");
+  if (!btn || !detailEl.contains(btn)) return;
+  const section = btn.closest(".bitacora-section");
+  if (!section) return;
+  const collapsed = section.classList.toggle("is-collapsed");
+  btn.setAttribute("aria-expanded", collapsed ? "false" : "true");
+});
 
 refreshBtn.addEventListener("click", () => {
   loadBitacoras().catch((err) => {
